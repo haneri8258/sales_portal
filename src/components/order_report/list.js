@@ -39,19 +39,15 @@ class OrdersList extends Component {
 			startDate:"",
 			endDate : "",
 			isOpenModal : false,
-
-			mall : "",
-			orderStatus : "",
-			searchType1 : "",
-			searchType2 : "",
-			searchType3 : "",
-			searchType4 : "",
-			nonSaleOption : "",
-			searchKeyword : "",
-            searchTransStatus : "",
-
+			
+			searchKeyPlant :"",
+			searchKeyPosi  :"",
+			searchKeyMatnr :"",
+			searchKeyBatch :"",
+			searchKeyMRPMgr :"",
+			searchKeyVkgrpT :"",
+		
 			gridData : [],
-            orderStatusList : [],
             pageInfo : {
                 totalPage : 0,
                 totalCount : 0
@@ -107,15 +103,13 @@ class OrdersList extends Component {
 			params.storeNo = "";
 		}
         axios.all([
-            api.get(process.env.REACT_APP_DB_HOST+"/order/getOrders",{params : params})
-            , api.get(process.env.REACT_APP_DB_HOST+"/order/orderRowCount",{params : params})
-            , api.get(process.env.REACT_APP_DB_HOST+"/order/getOrderStatus")
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
         ]).then(
-            axios.spread((res1,res2,res3)=>{
+            axios.spread((res1,res2)=>{  
 				this.setState({
 					gridData : res1.data,
-                    pageInfo : res2.data,
-                    orderStatusList : res3.data,
+                    pageInfo : res2.data 
 				});
 				this.gridRef.current.getInstance().resetData(res1.data);
             })
@@ -165,15 +159,15 @@ class OrdersList extends Component {
 			params.storeNo = sessionStorage.getItem("_STORE_NO");
 		}
 
-        api.get(process.env.REACT_APP_DB_HOST+"/order/excelOrders",{params : params}).then(res=>{
+        api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/excelOrderReport",{params : params}).then(res=>{
             if(res.status ===200){
                 const workbook = new ExcelJS.Workbook();
-                const inventoryList =workbook.addWorksheet("inventoryList");
-                inventoryList.columns = columns;
+                const orderReport =workbook.addWorksheet("orderReport");
+                orderReport.columns = columns;
 
                 const data = res.data;
                 data.map((item,index)=>{
-                    inventoryList.addRow(item);
+                    orderReport.addRow(item);
                 });
 
                 workbook.xlsx.writeBuffer().then((data)=>{
@@ -191,14 +185,14 @@ class OrdersList extends Component {
 
 	}
 
-    onGridUpdatePages = (params)=>{ 
- 
+    onGridUpdatePages = (params)=>{  
         axios.all([
-            api.get(process.env.REACT_APP_DB_HOST+"/order/getOrders",{params : params})
-            , api.get(process.env.REACT_APP_DB_HOST+"/order/orderRowCount",{params :params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
+            
         ]).then(
             axios.spread((res1,res2)=>{
-                this.setState({
+            	this.setState({
                     gridData : res1.data,
                     pageInfo : res2.data,
                     activePage : Number(params.pageNumber),
@@ -217,11 +211,12 @@ class OrdersList extends Component {
     }
     onResetGrid = () => {
 		this.setState({
-			startDate : "",
-			endDate : "",
-			searchType : "",
-			nonSaleOption : "",
-			searchKeyword : "",
+			searchKeyPlant :"",
+			searchKeyPosi  :"",
+			searchKeyMatnr :"",
+			searchKeyBatch :"",
+			searchKeyMRPMgr :"" ,
+			searchKeyVkgrpT :"",
             pageNumber : 1,
             perPage : 20
 		});
@@ -236,15 +231,16 @@ class OrdersList extends Component {
             perPage : Number(perPage),
         })
         const params = {};
-        if(this.state.startDate !== ""){
-			params.startDate = this.timestamp(this.state.startDate);
-		}
-		if(this.state.endDate !== ""){
-			params.endDate = this.timestamp(this.state.endDate);
-		}
-		params.searchType = this.state.searchType1;
-        params.searchKeyword = this.state.searchKeyword;
-        params.searchTransStatus = this.state.searchTransStatus;
+ 
+		params.searchKeyPlant = this.state.searchKeyPlant;
+		params.searchKeyPosi = this.state.searchKeyPosi; 
+
+		params.searchKeyMatnr = this.state.searchKeyMatnr;
+		params.searchKeyBatch = this.state.searchKeyBatch;
+		
+		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
+		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(perPage);
@@ -257,34 +253,37 @@ class OrdersList extends Component {
             pageNumber : pageNumber
         });
         const params = {};
-        if(this.state.startDate !== ""){
-			params.startDate = this.timestamp(this.state.startDate);
-		}
-		if(this.state.endDate !== ""){
-			params.endDate = this.timestamp(this.state.endDate);
-		}
-		params.searchType = this.state.searchType1;
-        params.searchKeyword = this.state.searchKeyword;
-        params.searchTransStatus = this.state.searchTransStatus;
+ 
+		params.searchKeyPlant = this.state.searchKeyPlant;
+		params.searchKeyPosi = this.state.searchKeyPosi; 
+
+		params.searchKeyMatnr = this.state.searchKeyMatnr;
+		params.searchKeyBatch = this.state.searchKeyBatch;
+		
+		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
+		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+        
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
         params.pageNumber = pageNumber;
-		params.storeNo = sessionStorage.getItem("_STORE_NO");
+		
+		//params.storeNo = sessionStorage.getItem("_STORE_NO");
         this.onGridUpdatePages(params);
 
     }
 
     onSearch = (e) =>{
 		const params = {};
-		/*if(this.state.startDate !== ""){
-			params.startDate = this.timestamp(this.state.startDate);
-		}
-		if(this.state.endDate !== ""){
-			params.endDate = this.timestamp(this.state.endDate);
-		}*/
-		params.searchType = this.state.searchType1;
-		params.searchKeyword = this.state.searchKeyword;
-        params.searchTransStatus = this.state.searchTransStatus;
+ 
+		params.searchKeyPlant = this.state.searchKeyPlant;
+		params.searchKeyPosi = this.state.searchKeyPosi; 
+
+		params.searchKeyMatnr = this.state.searchKeyMatnr;
+		params.searchKeyBatch = this.state.searchKeyBatch;
+		
+		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
+		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
@@ -309,10 +308,11 @@ class OrdersList extends Component {
 
 		const columns = [
  			{ name: "matnr", header: "자재", width: 200, sortable: true,align: "center"},
-			{ name: "nameKr", header: "자재명", width: 200, sortable: true,align: "center"},
-			{ name: "charg", header: "배치", width: 300, sortable: true,align: "center"},
+			{ name: "nameKr", header: "자재명", width: 200, sortable: true,align: "left"},
+			{ name: "charg", header: "배치", width: 150, sortable: true,align: "center"},
 			{ name: "labst", header: "재고량", width: 150, sortable: true,align: "right" },
 			{ name: "vkgrp", header: "팀코드", width: 150, sortable: true,align: "center" },  
+			{ name: "vkgrpT", header: "팀명", width: 200, sortable: true,align: "left" },  
 			{ name: "orderQty", header: "오더량", width: 150, sortable: true,align: "right"},
 			{ name: "cancelQty", header: "취소량", width: 150, sortable: true,align: "right"},
 			{ name: "invoiceQty", header: "납품량", width: 150, sortable: true,align: "right"}
@@ -341,97 +341,70 @@ class OrdersList extends Component {
                                 <div>
                                     <div className="text-end">
                                         <ul className="list-inline mb-1">
-{/*                                         
-                                            <li className="list-inline-item me-1">
-                                                <Form.Text><Trans>주문일시</Trans></Form.Text>
-                                            </li>
-                                           
-											<li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
-                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
-                                                            onChange={(date) =>	this.setState({ startDate: date })}>
-                                                </DatePicker>
-                                            </li>
-                                            <li className="list-inline-item me-1"> ~</li>
-                                            <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
-                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
-                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
-                                                </DatePicker>
-                                            </li>
-*/}	
 											<li className="list-inline-item me-1">
                                                 <Form.Text><Trans>플랜트</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <Form.Select name="searchType1" className="form-select-sm" onChange={this.onChange} value={this.state.searchType1}>
-                                                    <option value="null">선택해주세요</option>
-                                                    <option value="100">플랜트1</option>
-                                                    <option value="200">200</option>
-                                                    <option value="300">300</option>
+                                                <Form.Select name="searchKeyPlant" className="form-select-sm" disabled onChange={this.onChange} value={this.state.searchKeyPlant}>
+                                                    <option value="null">선택해주세요</option> 
                                                 </Form.Select>
                                             </li>
 											<li className="list-inline-item me-1">
                                                 <Form.Text><Trans>지정위치</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <Form.Select name="searchType2" className="form-select-sm" onChange={this.onChange} value={this.state.searchType2}>
+                                                <Form.Select name="searchKeyPosi" className="form-select-sm" disabled onChange={this.onChange} value={this.state.searchKeyPosi}>
                                                     <option value="null">선택해주세요</option>
-                                                    <option value="100">지정위치1</option>
-                                                    <option value="200">200</option>
-                                                    <option value="300">300</option>
+                                                    <option value="100">지정위치1</option> 
                                                 </Form.Select>
                                             </li>
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>자재</Trans></Form.Text>
                                             </li>
-                                            <li className="list-inline-item me-1">
-                                                <Form.Select name="searchType3" className="form-select-sm" onChange={this.onChange} value={this.state.searchType3}>
-                                                    <option value="null">선택해주세요</option>
-                                                    <option value="100">자재1</option>
-                                                    <option value="200">200</option>
-                                                    <option value="300">300</option>
-                                                </Form.Select>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}}placeholder="자재를입력하세요">
+                                                </Form.Control> 
                                             </li>
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>배치</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <Form.Select name="searchType" className="form-select-sm" onChange={this.onChange} value={this.state.searchType}>
+                                                <Form.Select name="searchKeyBatch" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyBatch}>
                                                     <option value="null">선택해주세요</option>
-                                                    <option value="100">100</option>
-                                                    <option value="200">200</option>
-                                                    <option value="300">300</option>
+                                                    <option value="0">V0</option>
+                                                    <option value="1">V1</option>
+                                                    <option value="2">V2</option>
+                                                    <option value="3">V3</option>
+                                                    <option value="4">V4</option>
+                                                    <option value="5">V5</option>
+                                                    <option value="6">V6</option>
+                                                    <option value="7">V7</option>
+                                                    <option value="8">V8</option>
+                                                    <option value="9">V9</option>
                                                 </Form.Select>
                                             </li>
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>MRP 관리자</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <Form.Select name="searchType4" className="form-select-sm" onChange={this.onChange} value={this.state.searchType4}>
-                                                    <option value="null">선택해주세요</option>
+                                                <Form.Select name="searchKeyMRPMgr" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyMRPMgr}>
+                                                    <option value="null">전체</option>
                                                     <option value="100">100</option>
                                                     <option value="200">200</option>
                                                     <option value="300">300</option>
+                                                    <option value="310">310</option>
                                                 </Form.Select>
                                             </li>
-                                            {this.state.searchType === "transStatus" &&
-                                                <li className="list-inline-item me-1">
-                                                    <Form.Select name="searchTransStatus" className="form-select-sm" onChange={this.onChange} value={this.state.searchTransStatus}>
-                                                    <option value="">::주문상태::</option>
-                                                        {   
-                                                            this.state.orderStatusList.map((option)=>{
-                                                                return <option key={option.code} value={option.code} >{option.codeNm}</option>
-                                                            })
-                                                        }
-                                                    </Form.Select>
-                                                </li>
-                                            }
                                             <li className="list-inline-item me-1">
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyword" value={this.state.searchKeyword} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="검색어를 입력하세요">
-                                                </Form.Control>
+                                                <Form.Text><Trans>영업그룹</Trans></Form.Text>
                                             </li>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyVkgrpT" value={this.state.searchKeyVkgrpT} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}}placeholder="영업그룹을 입력하세요">
+                                                </Form.Control> 
+                                            </li>
+                                           
                                             <li className="list-inline-item me-1">
                                                 <button type="button" className="btn btn-sm btn-success"  onClick={this.onSearch}>
                                                     <Trans>검색</Trans>
