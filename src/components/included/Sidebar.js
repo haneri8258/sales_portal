@@ -62,8 +62,8 @@ class Sidebar extends Component {
 
 		const dropdownPaths = [
 			{path:'/order_report', state: 'orderReportMenuOpen'},
+			{path:'/bank_slip', state: 'bankSlipMenuOpen'},
 			/*
-			{path:'/system_management', state: 'systemsMenuOpen'},
 			{path:'/product', state: 'productsMenuOpen'},
 			{path:'/order', state: 'ordersMenuOpen'},
 			{path:'/inventory', state: 'inventoriesMenuOpen'},
@@ -100,15 +100,35 @@ class Sidebar extends Component {
                                     {/* 제품별 오더 현황 레포트 */}
                                     <Collapse in={this.isShowYn('/order_report/list')}>
                                         <li className="nav-item"> <Link className={ this.isPathActive('/order_report/list') ? 'nav-link active' : 'nav-link' } to="/order_report/list"><div><Trans>제품별 오더 현황 레포트</Trans></div></Link></li>
-                                    </Collapse>
-                                    {/* 주문현황(샘플) */}
-                                    <Collapse in={this.isShowYn('/order_report/order')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/order_report/order') ? 'nav-link active' : 'nav-link' } to="/order_report/order"><div><Trans>주문현황(샘플)</Trans></div></Link></li>
-                                    </Collapse>
+                                    </Collapse> 
                                 </ul>
                             </Collapse>
                         </li>
                     </Collapse> 
+                    
+                    <Collapse in={this.isShowYn('/bank_slip')}>
+                        {/*  Bank Slip */}
+                        <li className={ this.isPathActive('/bank_slip') ? 'nav-item active' : 'nav-item' }>
+                            <div className={ this.state.bankSlipMenuOpen ? 'nav-link menu-expanded' : 'nav-link' } onClick={ () => this.toggleMenuState('bankSlipMenuOpen') } data-toggle="collapse">
+                                <span className="menu-title"><div><Trans>Bank Slip </Trans></div></span>
+                                <i className="menu-arrow"></i>
+                                <i className="mdi mdi-account-cog menu-icon"></i>
+                            </div>
+                            <Collapse in={ this.state.bankSlipMenuOpen }>
+                                <ul className="nav flex-column sub-menu">
+                                    {/* Bank Slip 요청 */}
+                                    <Collapse in={this.isShowYn('/bank_slip/request_list')}>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip/request_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip/request_list"><div><Trans>Bank Slip 요청</Trans></div></Link></li>
+                                    </Collapse>
+                                    {/* 인보이스별 Bank Slip 현황 */}
+                                    <Collapse in={this.isShowYn('/bank_slip/invoice_list')}>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip/invoice_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip/invoice_list"><div><Trans>인보이스별 Bank Slip 현황</Trans></div></Link></li>
+                                    </Collapse>
+                                </ul>
+                            </Collapse>
+                        </li>
+                    </Collapse>
+                    
   {/*
   	* 상단에 메뉴를 추가 <Collapse>   </Collapse>
   */
