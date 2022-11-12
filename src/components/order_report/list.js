@@ -468,43 +468,7 @@ class OrdersList extends Component {
 							</div>
 						</div>
 					</div>
-				</div>
-				
-				<Modal show={this.state.isOpenModal} onHide={this.closeModal} aria-labelledby="contained-modal-title-vcenter"centered>
-					<Modal.Header closeButton>
-						<Modal.Title><Trans>송장번호 일괄업로드</Trans></Modal.Title>
-					</Modal.Header>
-					<Modal.Body>
-						<div className="">
-							<Form.Select name="" className="form-select-sm">
-								<option>택배사 선택</option>
-								<option>cj대한통운</option>
-								<option>우체국택배</option>
-							</Form.Select>
-							<div className="float-start">
-								<Form.Label className="col-sm-3 col-form-label"><Trans>입력란</Trans></Form.Label>
-								<Form.Control as="textarea" rows={20} />
-							</div>
-							<div className="float-end">
-								<Form.Label className="col-sm-3 col-form-label"><Trans>결과란</Trans></Form.Label>
-								<Form.Control as="textarea" rows={20} />
-							</div>
-						</div>
-						<div>
-						<div className="float-start ">
-								<Trans>* 주문번호 송장번호는 순서대로 복사해서 넣어주시면 됩니다</Trans>
-							</div>
-						</div>
-					</Modal.Body>
-					<Modal.Footer>
-					<button className="btn btn-sm btn-success" onClick={this.saveInvoice}>
-						<Trans>저장</Trans>
-						</button>
-						<button className="btn btn-sm btn-dark" onClick={this.closeModal}>
-							<Trans>Close</Trans>
-						</button>
-					</Modal.Footer>
-				</Modal>
+				</div> 
 			</div>
 		);
 	}
