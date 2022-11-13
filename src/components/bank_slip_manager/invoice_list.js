@@ -32,7 +32,7 @@ function withRouter(Component){
 	}
 	return ComponentWithRouterProp
 }
-class InvoceList extends Component {
+class InvoiceManagerList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -339,7 +339,7 @@ class InvoceList extends Component {
                                     <div className="text-end">
                                         <ul className="list-inline mb-1">
 											<li className="list-inline-item me-1">
-                                                <Form.Text><Trans>인보이스 번호(거래처)</Trans></Form.Text>
+                                                <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
@@ -440,4 +440,4 @@ class InvoceList extends Component {
 	}
 }
 
-export default withTranslation()(withRouter(InvoceList));
+export default withTranslation()(withRouter(InvoiceManagerList));

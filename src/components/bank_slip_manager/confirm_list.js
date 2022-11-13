@@ -32,7 +32,7 @@ function withRouter(Component){
 	}
 	return ComponentWithRouterProp
 }
-class InvoceList extends Component {
+class ConfirmList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -307,26 +307,30 @@ class InvoceList extends Component {
 		}
 
 		const columns = [
- 			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "인보이스 일자", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "인보이스 금액", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "입금액", width: 150, sortable: true,align: "right" },
-			{ name: " ", header: "Status", width: 150, sortable: true,align: "center" },  
-			{ name: " ", header: "차액(자동계산)", width: 200, sortable: true,align: "left" },
+ 			{ name: " ", header: "거래처 코드", width: 200, sortable: true,align: "center"},
+			{ name: " ", header: "거래처명", width: 200, sortable: true,align: "left"},
+			{ name: " ", header: "요청번호", width: 150, sortable: true,align: "center"},
+			{ name: " ", header: "송금 날짜", width: 150, sortable: true,align: "right" },
+			{ name: " ", header: "송금 금액", width: 150, sortable: true,align: "center" },  
+			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: " ", header: "인보이스 날자", width: 200, sortable: true,align: "left"},
+			{ name: " ", header: "증명서", width: 200, sortable: true,align: "left" },
+			{ name: " ", header: "승인상태", width: 150, sortable: true,align: "center"},
+			{ name: " ", header: "사유", width: 150, sortable: true,align: "right" },
 		];
 
 		return (
 			<div>
                 {this.state.loading && (<Loading/>)}
 				<div className="page-header">
-					<h3 className="page-title">인보이스 별 BankSlip 현황</h3>
+					<h3 className="page-title">BankSlip 확인</h3>
 					<nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"> 
                                 Bank Slip
                             </li>
                             <li className="breadcrumb-item active" aria-current="page">
-                                InvoiceList
+                                ConfirmList
                             </li>
                         </ol>
 					</nav>
@@ -339,15 +343,31 @@ class InvoceList extends Component {
                                     <div className="text-end">
                                         <ul className="list-inline mb-1">
 											<li className="list-inline-item me-1">
-                                                <Form.Text><Trans>인보이스 번호(거래처)</Trans></Form.Text>
+                                                <Form.Text><Trans>거래처 코드</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="인보이스번호를입력하세요">
+                                                        style={{"minHeight": "1rem"}}placeholder="거래처 코드를입력하세요">
+                                                </Form.Control> 
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <Form.Text><Trans>거래처명</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}}placeholder="거래처명를입력하세요">
+                                                </Form.Control> 
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <Form.Text><Trans>요청 번호</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}}placeholder="요청번호를입력하세요">
                                                 </Form.Control> 
                                             </li>
 											<li className="list-inline-item me-1">
-                                                <Form.Text><Trans>인보이스 날짜</Trans></Form.Text>
+                                                <Form.Text><Trans>송금 날짜</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
                                                 <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
@@ -363,12 +383,28 @@ class InvoceList extends Component {
                                                 </DatePicker>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <Form.Text><Trans>Status</Trans></Form.Text>
+                                                <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="Status를입력하세요">
+                                                        style={{"minHeight": "1rem"}}placeholder="인보이스번호를입력하세요">
                                                 </Form.Control> 
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <Form.Text><Trans>인보이스 날짜</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
+                                                            onChange={(date) =>   this.setState({ startDate: date })}>
+                                                </DatePicker>
+                                            </li>
+                                            <li className="list-inline-item me-1"> ~</li>
+                                            <li className="list-inline-item me-1">
+                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
+                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
+                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
+                                                </DatePicker>
                                             </li>
                                            
                                             <li className="list-inline-item me-1">
@@ -440,4 +476,4 @@ class InvoceList extends Component {
 	}
 }
 
-export default withTranslation()(withRouter(InvoceList));
+export default withTranslation()(withRouter(ConfirmList));

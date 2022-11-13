@@ -32,7 +32,7 @@ function withRouter(Component){
 	}
 	return ComponentWithRouterProp
 }
-class InvoceList extends Component {
+class RequestList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -89,10 +89,10 @@ class InvoceList extends Component {
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
-        this.getOrders();
+        this.getRequest();
 	}
 
-    getOrders = () => {
+    getRequest = () => {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
@@ -103,8 +103,8 @@ class InvoceList extends Component {
 			params.storeNo = "";
 		}
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceRowCount",{params : params}) 
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/RequestList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -307,26 +307,29 @@ class InvoceList extends Component {
 		}
 
 		const columns = [
- 			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "인보이스 일자", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "인보이스 금액", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "입금액", width: 150, sortable: true,align: "right" },
-			{ name: " ", header: "Status", width: 150, sortable: true,align: "center" },  
-			{ name: " ", header: "차액(자동계산)", width: 200, sortable: true,align: "left" },
+ 			{ name: " ", header: "요청번호", width: 200, sortable: true,align: "center"},
+			{ name: " ", header: "요청일자", width: 200, sortable: true,align: "left"},
+			{ name: " ", header: "송금날짜", width: 150, sortable: true,align: "center"},
+			{ name: " ", header: "송금금액", width: 150, sortable: true,align: "right" },
+			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: " ", header: "인보이스 날짜", width: 200, sortable: true,align: "left"},
+			{ name: " ", header: "Status", width: 150, sortable: true,align: "center"},
+			{ name: " ", header: "Remittamce Date", width: 200, sortable: true,align: "left"},
+			{ name: " ", header: "입금액", width: 150, sortable: true,align: "center"},
 		];
 
 		return (
 			<div>
                 {this.state.loading && (<Loading/>)}
 				<div className="page-header">
-					<h3 className="page-title">인보이스 별 BankSlip 현황</h3>
+					<h3 className="page-title">BankSlip 요청현황</h3>
 					<nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"> 
                                 Bank Slip
                             </li>
                             <li className="breadcrumb-item active" aria-current="page">
-                                InvoiceList
+                                RequestList
                             </li>
                         </ol>
 					</nav>
@@ -338,8 +341,25 @@ class InvoceList extends Component {
                                 <div>
                                     <div className="text-end">
                                         <ul className="list-inline mb-1">
+                                        	
+                                        	<li className="list-inline-item me-1">
+                                                <Form.Text><Trans>송금 날짜</Trans></Form.Text>
+                                            </li>
+                                        	<li className="list-inline-item me-1">
+                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
+                                                            onChange={(date) =>   this.setState({ startDate: date })}>
+                                                </DatePicker>
+                                            </li>
+                                            <li className="list-inline-item me-1"> ~</li>
+                                            <li className="list-inline-item me-1">
+                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
+                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
+                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
+                                                </DatePicker>
+                                            </li>
 											<li className="list-inline-item me-1">
-                                                <Form.Text><Trans>인보이스 번호(거래처)</Trans></Form.Text>
+                                                <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
@@ -361,14 +381,6 @@ class InvoceList extends Component {
                                                             dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
                                                             minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
                                                 </DatePicker>
-                                            </li>
-                                            <li className="list-inline-item me-1">
-                                                <Form.Text><Trans>Status</Trans></Form.Text>
-                                            </li>
-                                            <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="Status를입력하세요">
-                                                </Form.Control> 
                                             </li>
                                            
                                             <li className="list-inline-item me-1">
@@ -440,4 +452,4 @@ class InvoceList extends Component {
 	}
 }
 
-export default withTranslation()(withRouter(InvoceList));
+export default withTranslation()(withRouter(RequestList));

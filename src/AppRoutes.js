@@ -16,7 +16,10 @@ const OrderList = lazy(() => import( './components/order_report/list'));
 const OrderOrder = lazy(() => import( './components/order/order'));
 
 const ProofList = lazy(() => import( './components/bank_slip/proof_list'));
+const RequestList = lazy(() => import( './components/bank_slip/request_list'));
 const InvoiceList = lazy(() => import( './components/bank_slip/invoice_list'));
+const ConfirmList = lazy(() => import( './components/bank_slip_manager/confirm_list'));
+const InvoiceManagerList = lazy(() => import( './components/bank_slip_manager/invoice_list'));
 
 const MngList = lazy(() => import( './components/sku_code/mng_list'));
 
@@ -44,8 +47,11 @@ class AppRoutes extends Component {
                     <Route path="/order_report/list" element={ <OrderList/> } />
                     <Route path="/order/order" element={ <OrderOrder/> } />
                     
-                    <Route path="/bank_slip/Proof_list" element={ <ProofList/> } />
+                    <Route path="/bank_slip/proof_list" element={ <ProofList/> } />
+                    <Route path="/bank_slip/request_list" element={ <RequestList/> } />
                     <Route path="/bank_slip/invoice_list" element={ <InvoiceList/> } />
+                    <Route path="/bank_slip_manager/confirm_list" element={ <ConfirmList/> } />
+                    <Route path="/bank_slip_manager/invoice_list" element={ <InvoiceManagerList/> } />
                     
                     <Route path="/sku_code/mng_list" element={ <MngList/> } />
                     
