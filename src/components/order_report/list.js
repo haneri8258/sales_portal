@@ -1,7 +1,8 @@
 /**
  * This application was developed by YS.Im, HJ.Yoon and GH.Zhang of GIE&S at 2022 years.
  */
-import React, { Component } from "react";
+import React, { Component} from "react"; 
+
 import { Form,Modal} from "react-bootstrap";
 import Grid from "@toast-ui/react-grid";
 import { Trans, withTranslation } from "react-i18next";
@@ -11,6 +12,8 @@ import axios from "axios";
 import LinkInGrid from "../utils/linkInGrid";
 import { useNavigate } from "react-router-dom";
 import { alert } from "react-bootstrap-confirmation";
+import { MultiSelect } from "react-multi-select-component";
+
 import api from '../../CustomAxios';
 import Pagination from "react-js-pagination";
 import ExcelJS from 'exceljs';
@@ -55,8 +58,8 @@ class OrdersList extends Component {
             activePage : 1,
             perPage : 20,
             pageNumber : "",
-
-
+			selected : [], 
+			
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
 			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
@@ -68,12 +71,23 @@ class OrdersList extends Component {
         TuiGrid.applyTheme("striped");
     }
 
+
 	onChange = (e) =>{
 		this.setState({
 			[e.target.name] : e.target.value
 		});
 	}
 
+	onSelect = (selectedItem) =>{
+		this.setState({
+			selected : selectedItem
+		});
+	}
+	
+	onRemove = (selectedItem) =>{
+		debugger;
+	}
+	
 	openModal = () =>{
 		this.setState({
 			isOpenModal : true
@@ -277,9 +291,13 @@ class OrdersList extends Component {
  
 		params.searchKeyPlant = this.state.searchKeyPlant;
 		params.searchKeyPosi = this.state.searchKeyPosi; 
-
 		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
+		
+		debugger;
+		params.searchKeyBatch ="";
+		for(let i in this.state.selected){ 
+			params.searchKeyBatch += this.state.selected[i].value+ ",";
+		}
 		
 		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
 		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
@@ -293,8 +311,20 @@ class OrdersList extends Component {
 
 	render() {
         const {pageInfo} = this.state;
-
-
+ 
+		const options = [
+		  { label: "V0", value: "0" },
+		  { label: "V1", value: "1" },
+		  { label: "v2", value: "2" }, //, disabled: true
+		  { label: "v3", value: "3" },
+		  { label: "v4", value: "4" },
+		  { label: "v5", value: "5" },
+		  { label: "v6", value: "6" },
+		  { label: "v7", value: "7" },
+		  { label: "v8", value: "8" },
+		  { label: "v9", value: "9" }
+		];
+		
 		const onClickedAtag = (e, rowKey) => {
 			e.preventDefault();
             const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
@@ -369,20 +399,18 @@ class OrdersList extends Component {
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>배치</Trans></Form.Text>
                                             </li>
+                                            
                                             <li className="list-inline-item me-1">
-                                                <Form.Select name="searchKeyBatch" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyBatch}>
-                                                    <option value="null">선택해주세요</option>
-                                                    <option value="0">V0</option>
-                                                    <option value="1">V1</option>
-                                                    <option value="2">V2</option>
-                                                    <option value="3">V3</option>
-                                                    <option value="4">V4</option>
-                                                    <option value="5">V5</option>
-                                                    <option value="6">V6</option>
-                                                    <option value="7">V7</option>
-                                                    <option value="8">V8</option>
-                                                    <option value="9">V9</option>
-                                                </Form.Select>
+                                                  <MultiSelect 
+                                                    onChange={this.onSelect} 
+                                                  	options={options}
+											        value={this.state.selected} 
+													onSelect={this.onSelect}  
+													onRemove={this.onRemove}  
+											        labelledBy="선택해주세요"
+											      />
+											      
+											      
                                             </li>
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>MRP 관리자</Trans></Form.Text>
@@ -468,7 +496,8 @@ class OrdersList extends Component {
 							</div>
 						</div>
 					</div>
-				</div> 
+				</div>
+
 			</div>
 		);
 	}
