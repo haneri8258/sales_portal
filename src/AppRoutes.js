@@ -22,6 +22,9 @@ const ConfirmList = lazy(() => import( './components/bank_slip_manager/confirm_l
 const InvoiceManagerList = lazy(() => import( './components/bank_slip_manager/invoice_list'));
 
 const MngList = lazy(() => import( './components/sku_code/mng_list'));
+const BaseList = lazy(() => import( './components/sku_code/base_list'));
+const MngManagerList = lazy(() => import( './components/sku_code/mng_manager_list'));
+const BaseManagerList = lazy(() => import( './components/sku_code/base_manager_list'));
 
 /*
 * 위에 메뉴추가  
@@ -54,6 +57,9 @@ class AppRoutes extends Component {
                     <Route path="/bank_slip_manager/invoice_list" element={ <InvoiceManagerList/> } />
                     
                     <Route path="/sku_code/mng_list" element={ <MngList/> } />
+                    <Route path="/sku_code/base_list" element={ <BaseList/> } />
+                    <Route path="/sku_code/mng_manager_list" element={ <MngManagerList/> } />
+                    <Route path="/sku_code/base_manager_list" element={ <BaseManagerList/> } />
                     
                     <Route path="/general-pages/blank-page" element={ <BlankPage/> } /> 
                     <Route path="/" element={<Navigate to="/dashboard" />}/>
