@@ -319,7 +319,7 @@ class InvoceList extends Component {
 			<div>
                 {this.state.loading && (<Loading/>)}
 				<div className="page-header">
-					<h3 className="page-title">인보이스 별 BankSlip 현황</h3>
+					<h3 className="page-title">인보이스 별 BankSlip 현황(거래처)</h3>
 					<nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"> 
@@ -339,7 +339,7 @@ class InvoceList extends Component {
                                     <div className="text-end">
                                         <ul className="list-inline mb-1">
 											<li className="list-inline-item me-1">
-                                                <Form.Text><Trans>인보이스 번호(거래처)</Trans></Form.Text>
+                                                <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}

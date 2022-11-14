@@ -307,8 +307,10 @@ class InvoiceManagerList extends Component {
 		}
 
 		const columns = [
+			{ name: " ", header: "거래처 코드", width: 150, sortable: true,align: "center" },  
+			{ name: " ", header: "거래처명", width: 200, sortable: true,align: "left" },
  			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "인보이스 일자", width: 200, sortable: true,align: "left"},
+			{ name: " ", header: "인보이스 날자", width: 200, sortable: true,align: "left"},
 			{ name: " ", header: "인보이스 금액", width: 150, sortable: true,align: "center"},
 			{ name: " ", header: "입금액", width: 150, sortable: true,align: "right" },
 			{ name: " ", header: "Status", width: 150, sortable: true,align: "center" },  
@@ -319,7 +321,7 @@ class InvoiceManagerList extends Component {
 			<div>
                 {this.state.loading && (<Loading/>)}
 				<div className="page-header">
-					<h3 className="page-title">인보이스 별 BankSlip 현황</h3>
+					<h3 className="page-title">인보이스 별 BankSlip 현황(담당자)</h3>
 					<nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"> 
@@ -338,6 +340,22 @@ class InvoiceManagerList extends Component {
                                 <div>
                                     <div className="text-end">
                                         <ul className="list-inline mb-1">
+                                        	<li className="list-inline-item me-1">
+                                                <Form.Text><Trans>거래처 코드</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}}placeholder="거래처코드를입력하세요">
+                                                </Form.Control> 
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <Form.Text><Trans>거래처명</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}}placeholder="거래처명를입력하세요">
+                                                </Form.Control> 
+                                            </li>
 											<li className="list-inline-item me-1">
                                                 <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
