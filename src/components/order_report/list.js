@@ -115,12 +115,12 @@ class OrdersList extends Component {
 			params.storeNo = sessionStorage.getItem("_STORE_NO");
 		} else {
 			params.storeNo = "";
-		}
+		} 
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
         ]).then(
-            axios.spread((res1,res2)=>{  
+        	axios.spread((res1,res2)=>{   
 				this.setState({
 					gridData : res1.data,
                     pageInfo : res2.data 
@@ -231,6 +231,7 @@ class OrdersList extends Component {
 			searchKeyBatch :"",
 			searchKeyMRPMgr :"" ,
 			searchKeyVkgrpT :"",
+			selected : [],
             pageNumber : 1,
             perPage : 20
 		});
@@ -293,7 +294,7 @@ class OrdersList extends Component {
 		params.searchKeyPosi = this.state.searchKeyPosi; 
 		params.searchKeyMatnr = this.state.searchKeyMatnr;
 		
-		debugger;
+		 
 		params.searchKeyBatch ="";
 		for(let i in this.state.selected){ 
 			params.searchKeyBatch += this.state.selected[i].value+ ",";
@@ -310,11 +311,10 @@ class OrdersList extends Component {
 	} 
 
 	render() {
-        const {pageInfo} = this.state;
- 
+        const {pageInfo} = this.state; 
 		const options = [
-		  { label: "V0", value: "0" },
-		  { label: "V1", value: "1" },
+		  { label: "v0", value: "0" },
+		  { label: "v1", value: "1" },
 		  { label: "v2", value: "2" }, //, disabled: true
 		  { label: "v3", value: "3" },
 		  { label: "v4", value: "4" },
@@ -402,14 +402,17 @@ class OrdersList extends Component {
                                             
                                             <li className="list-inline-item me-1">
                                                   <MultiSelect 
+                                                    style="{
+													    'minWidth' : '250px',
+													    'height' : '28px'
+													}"                                                    
                                                     onChange={this.onSelect} 
                                                   	options={options}
 											        value={this.state.selected} 
 													onSelect={this.onSelect}  
 													onRemove={this.onRemove}  
 											        labelledBy="선택해주세요"
-											      />
-											      
+											      /> 
 											      
                                             </li>
                                             <li className="list-inline-item me-1">
