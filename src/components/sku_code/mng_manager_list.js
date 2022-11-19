@@ -103,7 +103,8 @@ class MngManagerList extends Component {
 			params.storeNo = "";
 		}
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/MngManagerList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerList",{params : params})
+             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -186,8 +187,8 @@ class MngManagerList extends Component {
 
     onGridUpdatePages = (params)=>{  
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerRowCount",{params : params}) 
             
         ]).then(
             axios.spread((res1,res2)=>{

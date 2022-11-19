@@ -89,10 +89,10 @@ class BaseList extends Component {
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
-        this.getOrders();
+        this.getBase();
 	}
 
-    getOrders = () => {
+    getBase = () => {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
@@ -104,6 +104,7 @@ class BaseList extends Component {
 		}
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/BaseList",{params : params})
+             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -186,8 +187,8 @@ class BaseList extends Component {
 
     onGridUpdatePages = (params)=>{  
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/BaseList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseRowCount",{params : params}) 
             
         ]).then(
             axios.spread((res1,res2)=>{
