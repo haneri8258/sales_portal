@@ -17,7 +17,7 @@ import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
 /**
- * 설명 : 제품별 오더 현황 레포트
+ * 설명 : BankSlip 요청현황
  *
  * @author		: 정병진
  * @since 		: 2022.11.08
@@ -103,7 +103,7 @@ class RequestList extends Component {
 			params.storeNo = "";
 		}
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/RequestList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
@@ -187,7 +187,7 @@ class RequestList extends Component {
 
     onGridUpdatePages = (params)=>{  
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
             
         ]).then(
@@ -307,15 +307,15 @@ class RequestList extends Component {
 		}
 
 		const columns = [
- 			{ name: " ", header: "요청번호", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "요청일자", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "송금날짜", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "송금금액", width: 150, sortable: true,align: "right" },
-			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "인보이스 날짜", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "Status", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "Remittamce Date", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "입금액", width: 150, sortable: true,align: "center"},
+ 			{ name: "requestNo", header: "요청번호", width: 200, sortable: true,align: "center"},
+			{ name: "requestDate", header: "요청일자", width: 200, sortable: true,align: "left"},
+			{ name: "remittamceDate", header: "송금날짜", width: 150, sortable: true,align: "center"},
+			{ name: "remittanceAmount", header: "송금금액", width: 150, sortable: true,align: "right" },
+			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceDate", header: "인보이스 날짜", width: 180, sortable: true,align: "left"},
+			{ name: "status", header: "Status", width: 150, sortable: true,align: "center"},
+			{ name: "remittamceDate", header: "Remittamce Date", width: 150, sortable: true,align: "left"},
+			{ name: "depositAmt", header: "입금액", width: 150, sortable: true,align: "right"}
 		];
 
 		return (

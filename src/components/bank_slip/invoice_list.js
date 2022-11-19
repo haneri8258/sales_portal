@@ -17,7 +17,7 @@ import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
 /**
- * 설명 : 제품별 오더 현황 레포트
+ * 설명 : 인보이스 별 BankSlip 현황(거래처)
  *
  * @author		: 정병진
  * @since 		: 2022.11.08
@@ -103,7 +103,7 @@ class InvoceList extends Component {
 			params.storeNo = "";
 		}
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceClientList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
@@ -187,7 +187,7 @@ class InvoceList extends Component {
 
     onGridUpdatePages = (params)=>{  
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceClientList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
             
         ]).then(
@@ -307,12 +307,12 @@ class InvoceList extends Component {
 		}
 
 		const columns = [
- 			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "인보이스 일자", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "인보이스 금액", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "입금액", width: 150, sortable: true,align: "right" },
-			{ name: " ", header: "Status", width: 150, sortable: true,align: "center" },  
-			{ name: " ", header: "차액(자동계산)", width: 200, sortable: true,align: "left" },
+ 			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceDate", header: "인보이스 일자", width: 200, sortable: true,align: "left"},
+			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true,align: "right"},
+			{ name: "depositAmt", header: "입금액", width: 150, sortable: true,align: "right" },
+			{ name: "status", header: "Status", width: 150, sortable: true,align: "center" },  
+			{ name: "balanceAmt", header: "차액(자동계산)", width: 200, sortable: true,align: "right" }
 		];
 
 		return (

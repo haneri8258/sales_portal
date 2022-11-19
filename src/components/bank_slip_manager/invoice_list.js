@@ -2,6 +2,7 @@
  * This application was developed by YS.Im, HJ.Yoon and GH.Zhang of GIE&S at 2022 years.
  */
 import React, { Component } from "react";
+
 import { Form,Modal} from "react-bootstrap";
 import Grid from "@toast-ui/react-grid";
 import { Trans, withTranslation } from "react-i18next";
@@ -11,13 +12,15 @@ import axios from "axios";
 import LinkInGrid from "../utils/linkInGrid";
 import { useNavigate } from "react-router-dom";
 import { alert } from "react-bootstrap-confirmation";
+import { MultiSelect } from "react-multi-select-component";
+
 import api from '../../CustomAxios';
 import Pagination from "react-js-pagination";
 import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
 /**
- * 설명 : 제품별 오더 현황 레포트
+ * 설명 : 인보이스 별 BankSlip 현황(담당자)
  *
  * @author		: 정병진
  * @since 		: 2022.11.08
@@ -56,7 +59,6 @@ class InvoiceManagerList extends Component {
             perPage : 20,
             pageNumber : "",
 
-
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
 			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
@@ -74,6 +76,16 @@ class InvoiceManagerList extends Component {
 		});
 	}
 
+	onSelect = (selectedItem) =>{
+		this.setState({
+			selected : selectedItem
+		});
+	}
+	
+	onRemove = (selectedItem) =>{
+		debugger;
+	}
+	
 	openModal = () =>{
 		this.setState({
 			isOpenModal : true
@@ -104,7 +116,7 @@ class InvoiceManagerList extends Component {
 		}
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceRowCount",{params : params}) 
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -185,9 +197,10 @@ class InvoiceManagerList extends Component {
 
 	}
 
-    onGridUpdatePages = (params)=>{  
+    onGridUpdatePages = (params)=>{
+  
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
             
         ]).then(
@@ -274,7 +287,7 @@ class InvoiceManagerList extends Component {
 
     onSearch = (e) =>{
 		const params = {};
- 
+
 		params.searchKeyPlant = this.state.searchKeyPlant;
 		params.searchKeyPosi = this.state.searchKeyPosi; 
 
@@ -288,13 +301,13 @@ class InvoiceManagerList extends Component {
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
 		params.storeNo = sessionStorage.getItem("_STORE_NO");
+
         this.onGridUpdatePages(params);
 	} 
 
 	render() {
         const {pageInfo} = this.state;
-
-
+		
 		const onClickedAtag = (e, rowKey) => {
 			e.preventDefault();
             const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
@@ -307,14 +320,14 @@ class InvoiceManagerList extends Component {
 		}
 
 		const columns = [
-			{ name: " ", header: "거래처 코드", width: 150, sortable: true,align: "center" },  
-			{ name: " ", header: "거래처명", width: 200, sortable: true,align: "left" },
- 			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "인보이스 날자", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "인보이스 금액", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "입금액", width: 150, sortable: true,align: "right" },
-			{ name: " ", header: "Status", width: 150, sortable: true,align: "center" },  
-			{ name: " ", header: "차액(자동계산)", width: 200, sortable: true,align: "left" },
+			{ name: "clientId", header: "거래처 코드", width: 150, sortable: true,align: "center" },  
+			{ name: "username", header: "거래처명", width: 200, sortable: true,align: "left" },
+ 			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceDate", header: "인보이스 날자", width: 200, sortable: true,align: "left"},
+			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true,align: "right"},
+			{ name: "depositAmt", header: "입금액", width: 150, sortable: true,align: "right" },
+			{ name: "status", header: "Status", width: 150, sortable: true,align: "center" },  
+			{ name: "balanceAmt", header: "차액(자동계산)", width: 200, sortable: true,align: "right" }
 		];
 
 		return (

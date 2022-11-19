@@ -17,7 +17,7 @@ import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
 /**
- * 설명 : 제품별 오더 현황 레포트
+ * 설명 : BankSlip 확인
  *
  * @author		: 정병진
  * @since 		: 2022.11.08
@@ -103,7 +103,7 @@ class ConfirmList extends Component {
 			params.storeNo = "";
 		}
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
@@ -187,7 +187,7 @@ class ConfirmList extends Component {
 
     onGridUpdatePages = (params)=>{  
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
             
         ]).then(
@@ -307,16 +307,16 @@ class ConfirmList extends Component {
 		}
 
 		const columns = [
- 			{ name: " ", header: "거래처 코드", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "거래처명", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "요청번호", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "송금 날짜", width: 150, sortable: true,align: "right" },
-			{ name: " ", header: "송금 금액", width: 150, sortable: true,align: "center" },  
-			{ name: " ", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "인보이스 날자", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "증명서", width: 200, sortable: true,align: "left" },
-			{ name: " ", header: "승인상태", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "사유", width: 150, sortable: true,align: "right" },
+ 			{ name: "clientId", header: "거래처 코드", width: 200, sortable: true,align: "center"},
+			{ name: "username", header: "거래처명", width: 200, sortable: true,align: "left"},
+			{ name: "requestNo", header: "요청번호", width: 150, sortable: true,align: "center"},
+			{ name: "remittamceDate", header: "송금 날짜", width: 150, sortable: true,align: "center" },
+			{ name: "remittanceAmount", header: "송금 금액", width: 150, sortable: true,align: "right" },  
+			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceDate", header: "인보이스 날자", width: 150, sortable: true,align: "center"},
+			{ name: "proof", header: "증명서", width: 100, sortable: true,align: "center" },
+			{ name: "status", header: "승인상태", width: 150, sortable: true,align: "center"},
+			{ name: "reason", header: "사유", width: 150, sortable: true,align: "left" }
 		];
 
 		return (

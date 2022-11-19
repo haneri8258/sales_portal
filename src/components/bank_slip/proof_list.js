@@ -17,7 +17,7 @@ import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
 /**
- * 설명 : 제품별 오더 현황 레포트
+ * 설명 : BankSlip 증빙
  *
  * @author		: 정병진
  * @since 		: 2022.11.08
@@ -187,7 +187,7 @@ class ProofList extends Component {
 
     onGridUpdatePages = (params)=>{  
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/proofList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
             
         ]).then(
@@ -307,10 +307,10 @@ class ProofList extends Component {
 		}
 
 		const columns = [
- 			{ name: " ", header: "Invoice", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "Invoice Date", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "Amount", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "잔액", width: 150, sortable: true,align: "right" },
+ 			{ name: "invoiceNo", header: "Invoice", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceDate", header: "Invoice Date", width: 200, sortable: true,align: "left"},
+			{ name: "invoiceAmount", header: "Amount", width: 150, sortable: true,align: "right"},
+			{ name: "balanceAmount", header: "잔액", width: 150, sortable: true,align: "right" }
 		];
 
 		return (
