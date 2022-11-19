@@ -1,5 +1,5 @@
 /**
- * This application was developed by YS.Im, HJ.Yoon and GH.Zhang of GIE&S at 2022 years.
+ * This application was developed by Haneri.Jeong of ITS Community at 2022 years.
  */
 import React, { Component } from "react";
 import { Form,Modal} from "react-bootstrap";
@@ -17,7 +17,7 @@ import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
 /**
- * 설명 : 제품별 오더 현황 레포트
+ * 설명 : SKU 코드 관리
  *
  * @author		: 정병진
  * @since 		: 2022.11.08
@@ -35,16 +35,12 @@ function withRouter(Component){
 class MngList extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			startDate:"",
-			endDate : "",
-			isOpenModal : false,
-			
+		this.state = { 
+			isOpenModal : false, 
 			searchKeySku :"",
 			searchKeyDesc  :"",
-			searchKeyBuyerCode :"",
+			searchKeyBuyerCode :"", 
 			
-		
 			gridData : [],
             pageInfo : {
                 totalPage : 0,
@@ -57,8 +53,6 @@ class MngList extends Component {
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
-			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
-			_STORE_NAME: sessionStorage.getItem('_STORE_NAME'),
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
 		};
 	}
@@ -93,13 +87,8 @@ class MngList extends Component {
     getSku = () => {
         const params = {};
         params.rowStart = 0;
-        params.perPage = this.state.perPage;
-		
-        if(sessionStorage.getItem("_ADMIN_AUTH") === "PART"){
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		} else {
-			params.storeNo = "";
-		}
+        params.perPage = this.state.perPage; 
+    
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngList",{params : params})
              ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngRowCount",{params : params}) 
@@ -236,14 +225,13 @@ class MngList extends Component {
 
     onSearch = (e) =>{
 		const params = {}; 
-		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeySku  = this.state.searchKeySku;
 		params.searchKeyDesc = this.state.searchKeyDesc; 
 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
-        params.perPage = Number(this.state.perPage);
-		//params.storeNo = sessionStorage.getItem("_STORE_NO");
+        params.perPage = Number(this.state.perPage); 
         this.onGridUpdatePages(params);
 	} 
 
