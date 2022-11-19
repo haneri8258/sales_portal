@@ -159,7 +159,7 @@ export class Login extends Component {
                 let params = {};
                 params.userId = this.state.userId;
                 params.password = this.state.password;
-
+				debugger;
                 await axios.post(process.env.REACT_APP_DB_HOST + "/common/getUserLogin", params).then(response => {
                     if(response.status === 200) {
                         if(!response.data) {
@@ -174,10 +174,9 @@ export class Login extends Component {
                                 return;
                             } else if(response.data.username) {
                                 // 사용자정보 저장
-                                sessionStorage.setItem('_USER_ID', response.data.username);
-                                sessionStorage.setItem('_USER_NAME', response.data.nickname);
-                                sessionStorage.setItem('_STORE_NO', response.data.storeNo);
-                                sessionStorage.setItem('_STORE_NAME', response.data.storeName);
+                                debugger;
+                                sessionStorage.setItem('_USER_ID', response.data.id);
+                                sessionStorage.setItem('_USER_NAME', response.data.nickname); 
                                 sessionStorage.setItem('_GROUP_ID', response.data.groupId);
                                 sessionStorage.setItem('_ORGNZ_ID', response.data.orgnzId);
                                 sessionStorage.setItem('_USER_STATUS', response.data.userStatus);

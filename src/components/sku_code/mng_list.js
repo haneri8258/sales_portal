@@ -127,6 +127,8 @@ class MngList extends Component {
 				alert("Buyer Code는 필수 입니다." );
 				return;
 			}
+			skuList[i].crtId =  this.state._USER_ID;
+			skuList[i].updId =  this.state._USER_ID;
 		}
 		let getSku = this.getSku;
 		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
