@@ -40,12 +40,10 @@ class MngList extends Component {
 			endDate : "",
 			isOpenModal : false,
 			
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"",
-			searchKeyVkgrpT :"",
+			searchKeySku :"",
+			searchKeyDesc  :"",
+			searchKeyBuyerCode :"",
+			
 		
 			gridData : [],
             pageInfo : {
@@ -89,14 +87,14 @@ class MngList extends Component {
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
-        this.getOrders();
+        this.getSku();
 	}
 
-    getOrders = () => {
+    getSku = () => {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-
+		
         if(sessionStorage.getItem("_ADMIN_AUTH") === "PART"){
 			params.storeNo = sessionStorage.getItem("_STORE_NO");
 		} else {
@@ -128,65 +126,40 @@ class MngList extends Component {
 		date.setHours(date.getHours() + 9);
 		return date.toISOString().replace('T', ' ').substring(0, 19); 
 	}
-
-	exportDefaultExcel = (e) => {
-		const date = new Date();
-		const year = date.getFullYear();
-		const month = ('0' + (date.getMonth() + 1));
-		const day = ('0' + date.getDate());
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-		const dateStr = [year, month, day,hours,minutes].join('');
-		const titleName = "Order_List_"+dateStr;
-
-        const columnsData = this.gridRef.current.getInstance().getColumns();
-        const columns = [];
-        for(let i in columnsData){
-            const column = {};
-            column.header = columnsData[i].header;
-            column.key=columnsData[i].name
-            columns.push(column);
-        }
-        const params = {};
-        params.searchKeyword = this.state.searchKeyword;
-        params.startDate = this.state.startDate;
-        params.endDate = this.state.endDate;
-        params.searchType = this.state.searchType;
-        params.searchTransStatus = this.state.searchTransStatus;
-		if(sessionStorage.getItem("_GROUP_ID")=== "AG001"){
-			params.storeNo = ""
-		} else {
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
+	
+	onSubmit = (e) => { 
+		const  skuList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  //JSON.stringify
+		if(skuList.length === 0) {
+			alert("수정된 내용이 없습니다.");
+			return;
 		}
-
-        api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/excelOrderReport",{params : params}).then(res=>{
-            if(res.status ===200){
-                const workbook = new ExcelJS.Workbook();
-                const orderReport =workbook.addWorksheet("orderReport");
-                orderReport.columns = columns;
-
-                const data = res.data;
-                data.map((item,index)=>{
-                    orderReport.addRow(item);
-                });
-
-                workbook.xlsx.writeBuffer().then((data)=>{
-                    const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    const url = window.URL.createObjectURL(blob);
-                    const anchor = document.createElement('a');
-                    anchor.href = url;
-                    anchor.download = `${titleName}.xlsx`;
-                    anchor.click();
-                    window.URL.revokeObjectURL(url);
-                })
-        
+		for(let i in skuList){ 
+			if(skuList[i].clientId ==='' ){
+				alert("Buyer Code는 필수 입니다." );
+				return;
+			}
+		}
+		let getSku = this.getSku;
+		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
+		.then(function (res){ 
+         		if(res.data.resultCode >0){
+         			alert("성공적으로 저장 되었습니다");
+         			getSku();
+         		}	
             }
-        })
-
+        ).catch(err => {
+			if(err.response){
+				console.log(err.response.data);
+			}else if(err.request){
+				console.log(err.request);
+			}else{
+				console.log('Error', err.message);
+			}
+		});
 	}
-
+ 
     onGridUpdatePages = (params)=>{  
-        axios.all([
+    	axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngRowCount",{params : params}) 
             
@@ -211,13 +184,11 @@ class MngList extends Component {
     }
     onResetGrid = () => {
 		this.setState({
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"" ,
-			searchKeyVkgrpT :"",
-            pageNumber : 1,
+			searchKeySku :"",
+			searchKeyDesc  :"",
+			searchKeyBuyerCode :"",
+		
+		    pageNumber : 1,
             perPage : 20
 		});
         const params={};
@@ -232,14 +203,9 @@ class MngList extends Component {
         })
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeyDesc = this.state.searchKeyDesc; 
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -253,16 +219,12 @@ class MngList extends Component {
             pageNumber : pageNumber
         });
         const params = {};
- 
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
+ 		
+ 		debugger;
+		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeyDesc = this.state.searchKeyDesc; 
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
-        
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
         params.pageNumber = pageNumber;
@@ -273,27 +235,20 @@ class MngList extends Component {
     }
 
     onSearch = (e) =>{
-		const params = {};
- 
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		const params = {}; 
+		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeyDesc = this.state.searchKeyDesc; 
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
-		params.storeNo = sessionStorage.getItem("_STORE_NO");
+		//params.storeNo = sessionStorage.getItem("_STORE_NO");
         this.onGridUpdatePages(params);
 	} 
 
 	render() {
         const {pageInfo} = this.state;
-
 
 		const onClickedAtag = (e, rowKey) => {
 			e.preventDefault();
@@ -307,13 +262,21 @@ class MngList extends Component {
 		}
 
 		const columns = [
- 			{ name: " ", header: "SKU", width: 200, sortable: true,align: "center"},
-			{ name: " ", header: "DESC", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "Buyer Code", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "생성일", width: 150, sortable: true,align: "right" },
-			{ name: " ", header: "생성자", width: 150, sortable: true,align: "center" },  
-			{ name: " ", header: "수정일", width: 200, sortable: true,align: "left" },
-			{ name: " ", header: "수정자", width: 200, sortable: true,align: "left" },
+ 			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
+			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left", editor: 'text'
+				,formatter({value}){
+					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
+				}
+			},
+			{ name: "clientId", header: "Buyer Code", width: 150, sortable: true,align: "center", editor: 'text'
+				,formatter({value}){
+					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
+				}
+			},
+			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "right" },
+			{ name: "createdId", header: "생성자", width: 150, sortable: true,align: "center"},  
+			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "left"},
+			{ name: "updatedId", header: "수정자", width: 200, sortable: true,align: "left"},
 		];
 
 		return (
@@ -343,24 +306,24 @@ class MngList extends Component {
                                                 <Form.Text><Trans>SKU</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="SKU를입력하세요">
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeySku" value={this.state.searchKeySku} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}} placeholder="SKU를입력하세요">
                                                 </Form.Control> 
                                             </li>
 											<li className="list-inline-item me-1">
                                                 <Form.Text><Trans>DESC</Trans></Form.Text>
                                             </li>
                                            <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="DESC를입력하세요">
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyDesc" value={this.state.searchKeyDesc} onChange={this.onChange}
+                                                       style={{"minHeight": "1rem"}} placeholder="DESC를입력하세요">
                                                 </Form.Control> 
                                             </li>
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>Buyer Code</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="Buyer Code를입력하세요">
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyBuyerCode} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}} placeholder="Buyer Code를입력하세요">
                                                 </Form.Control> 
                                             </li>
                                            
@@ -390,8 +353,8 @@ class MngList extends Component {
 									     <div className="col-sm">
                                             <ul className="list-inline text-end mb-3">
                                                 <li className="list-inline-item me-1">
-                                                    <button type="button" className="btn btn-sm btn-info" onClick={this.exportDefaultExcel}>
-                                                        <Trans>엑셀</Trans>
+                                                    <button type="button" className="btn btn-sm btn-info" onClick={this.onSubmit}>
+                                                        <Trans>저장</Trans>
                                                     </button>
                                                 </li>
                                             </ul>

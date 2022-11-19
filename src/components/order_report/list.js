@@ -402,10 +402,10 @@ class OrdersList extends Component {
                                             
                                             <li className="list-inline-item me-1">
                                                   <MultiSelect 
-                                                    style="{
-													    'minWidth' : '250px',
-													    'height' : '28px'
-													}"                                                    
+                                                    style="{{
+													    'minWidth' : '250px', 
+													    'minHeight': '1rem'
+													}}"                               
                                                     onChange={this.onSelect} 
                                                   	options={options}
 											        value={this.state.selected} 
