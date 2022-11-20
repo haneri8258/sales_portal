@@ -185,11 +185,10 @@ class ProofList extends Component {
 
 	}
 
-    onGridUpdatePages = (params)=>{  
+    onGridUpdatePages = (params)=>{   
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/proofList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
-            
         ]).then(
             axios.spread((res1,res2)=>{
             	this.setState({

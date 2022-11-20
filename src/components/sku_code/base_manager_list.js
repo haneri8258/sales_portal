@@ -89,10 +89,10 @@ class BaseManagerList extends Component {
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
-        this.getOrders();
+        this.getBaseManager();
 	}
 
-    getOrders = () => {
+    getBaseManager = () => {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
@@ -103,7 +103,8 @@ class BaseManagerList extends Component {
 			params.storeNo = "";
 		}
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/BaseManagerList",{params : params})
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseManagerList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseManagerRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -186,9 +187,8 @@ class BaseManagerList extends Component {
 
     onGridUpdatePages = (params)=>{  
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
-            
+            api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseManagerList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseManagerRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{
             	this.setState({
