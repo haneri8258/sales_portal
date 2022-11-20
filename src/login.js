@@ -177,6 +177,8 @@ export class Login extends Component {
                                 debugger;
                                 sessionStorage.setItem('_USER_ID', response.data.id);
                                 sessionStorage.setItem('_USER_NAME', response.data.nickname); 
+                                sessionStorage.setItem('_CLIENT_ID', response.data.clientId);
+                                sessionStorage.setItem('_CLIENT_NAME', response.data.clientName);
                                 sessionStorage.setItem('_GROUP_ID', response.data.groupId);
                                 sessionStorage.setItem('_ORGNZ_ID', response.data.orgnzId);
                                 sessionStorage.setItem('_USER_STATUS', response.data.userStatus);
