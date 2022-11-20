@@ -35,8 +35,8 @@ class Navbar extends Component {
 		this.state = {
             _USER_ID: sessionStorage.getItem('_USER_ID'),
             _USER_NAME: sessionStorage.getItem('_USER_NAME'),
-            _STORE_NO: sessionStorage.getItem('_STORE_NO'),
-            _STORE_NAME: sessionStorage.getItem('_STORE_NAME'),
+            _CLIENT_ID: sessionStorage.getItem('_CLIENT_ID'),
+            _CLIENT_NAME: sessionStorage.getItem('_CLIENT_NAME'),
             _GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
             _ORGNZ_ID: sessionStorage.getItem('_ORGNZ_ID'),
             _USER_STATUS: sessionStorage.getItem('_USER_STATUS'),
@@ -89,8 +89,8 @@ class Navbar extends Component {
                 if(response.status === 200) {
                     sessionStorage.removeItem('_USER_ID');
                     sessionStorage.removeItem('_USER_NAME');
-                    sessionStorage.removeItem('_STORE_NO');
-                    sessionStorage.removeItem('_STORE_NAME');
+                    sessionStorage.removeItem('_CLIENT_ID');
+                    sessionStorage.removeItem('_CLIENT_NAME');
                     sessionStorage.removeItem('_GROUP_ID');
                     sessionStorage.removeItem('_ORGNZ_ID');
                     sessionStorage.removeItem('_USER_STATUS');
@@ -129,23 +129,12 @@ class Navbar extends Component {
                     <button className="navbar-toggler navbar-toggler align-self-center" type="button" onClick={ () => document.body.classList.toggle('sidebar-icon-only') }>
                         <span className="mdi mdi-menu"></span>
                     </button>
-                    <div className='align-self-center'>
-                        <ul className="list-inline mb-5 mt-5">
-                            <li className="list-inline-item me-">
-                                <TrafficLight  RedOn={this.state.redOn} YellowOn={this.state.yellowOn} GreenOn={this.state.greenOn}  Horizontal Size={30} BlackColor={'rgb(246, 248, 250)'}></TrafficLight>
-                            </li>
-                            <li className="list-inline-item me-1 ">
-                                { this.state.redOn && <h4 className='text-danger'>api 수신 비정상</h4>}
-								 { this.state.yellowOn && <h4 className='text-warning'>api 수신 경고</h4>}
-                                { this.state.greenOn && <h4 className='text-success'>api 수신 정상</h4>}
-                            </li>
-                        </ul>
-                    </div>
+                    
                     <ul className="navbar-nav navbar-nav-right">
                         <li className="nav-item">
                             <Dropdown>
                                 <Dropdown.Toggle className="nav-link">
-                                    <span><i className="mdi mdi-account-circle me-2"></i>{this.state._USER_ID}</span>
+                                    <span><i className="mdi mdi-account-circle me-2"></i>{this.state._USER_NAME}</span>
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu className="navbar-dropdown">
                                     <Dropdown.Item href="!#" onClick={(event) => onLogout(event)}>Logout</Dropdown.Item>
