@@ -99,7 +99,7 @@ class Sidebar extends Component {
                     </Collapse> 
                     
                     <Collapse in={this.isShowYn('/bank_slip')}>
-                        {/*  Bank Slip */}
+                        {/*  Bank Slip 거래처 */}
                         <li className={ this.isPathActive('/bank_slip') ? 'nav-item active' : 'nav-item' }>
                             <div className={ this.state.bankSlipMenuOpen ? 'nav-link menu-expanded' : 'nav-link' } onClick={ () => this.toggleMenuState('bankSlipMenuOpen') } data-toggle="collapse">
                                 <span className="menu-title"><div><Trans>Bank Slip </Trans></div></span>
@@ -110,15 +110,15 @@ class Sidebar extends Component {
                                 <ul className="nav flex-column sub-menu">
                                     {/* Bank Slip 증빙 */}
                                     <Collapse in={this.isShowYn('/bank_slip/proof_list')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip/proof_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip/proof_list"><div><Trans>Bank Slip 증빙(거래처)</Trans></div></Link></li>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip/proof_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip/proof_list"><div><Trans>Bank Slip 증빙</Trans></div></Link></li>
                                     </Collapse>
                                     {/* Bank Slip 요청현황 */}
                                     <Collapse in={this.isShowYn('/bank_slip/request_list')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip/request_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip/request_list"><div><Trans>Bank Slip 요청현황(거래처)</Trans></div></Link></li>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip/request_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip/request_list"><div><Trans>Bank Slip 요청현황</Trans></div></Link></li>
                                     </Collapse>
                                     {/* 인보이스별 Bank Slip 현황 */}
                                     <Collapse in={this.isShowYn('/bank_slip/invoice_list')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip/invoice_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip/invoice_list"><div><Trans>인보이스별 Bank Slip 현황(거래처)</Trans></div></Link></li>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip/invoice_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip/invoice_list"><div><Trans>인보이스별 Bank Slip 현황</Trans></div></Link></li>
                                     </Collapse>
                                  </ul>   
                              </Collapse>
@@ -126,7 +126,7 @@ class Sidebar extends Component {
                      </Collapse>
                      
                      <Collapse in={this.isShowYn('/bank_slip_manager')}>
-                          {/*  Bank Slip Manager */}
+                          {/*  Bank Slip Manager (담당자) */}
                          <li className={ this.isPathActive('/bank_slip_manager') ? 'nav-item active' : 'nav-item' }>
                             <div className={ this.state.bankSlipManagerMenuOpen ? 'nav-link menu-expanded' : 'nav-link' } onClick={ () => this.toggleMenuState('bankSlipManagerMenuOpen') } data-toggle="collapse">
                                 <span className="menu-title"><div><Trans>Bank Slip </Trans></div></span>
