@@ -261,7 +261,7 @@ class MngList extends Component {
 					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
 				}
 			},
-			{ name: "clientId", header: "Buyer Code", width: 150, sortable: true,align: "center", editor: 'text'
+			{ name: "clientId", header: "Buyer Code", width: 150, show: false,  sortable: true,align: "center", editor: 'text', hidden: true
 				,formatter({value}){
 					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
 				}
