@@ -126,67 +126,12 @@ class RequestList extends Component {
 		date.setHours(date.getHours() + 9);
 		return date.toISOString().replace('T', ' ').substring(0, 19); 
 	}
-
-	exportDefaultExcel = (e) => {
-		const date = new Date();
-		const year = date.getFullYear();
-		const month = ('0' + (date.getMonth() + 1));
-		const day = ('0' + date.getDate());
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-		const dateStr = [year, month, day,hours,minutes].join('');
-		const titleName = "Order_List_"+dateStr;
-
-        const columnsData = this.gridRef.current.getInstance().getColumns();
-        const columns = [];
-        for(let i in columnsData){
-            const column = {};
-            column.header = columnsData[i].header;
-            column.key=columnsData[i].name
-            columns.push(column);
-        }
-        const params = {};
-        params.searchKeyword = this.state.searchKeyword;
-        params.startDate = this.state.startDate;
-        params.endDate = this.state.endDate;
-        params.searchType = this.state.searchType;
-        params.searchTransStatus = this.state.searchTransStatus;
-		if(sessionStorage.getItem("_GROUP_ID")=== "AG001"){
-			params.storeNo = ""
-		} else {
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		}
-
-        api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/excelOrderReport",{params : params}).then(res=>{
-            if(res.status ===200){
-                const workbook = new ExcelJS.Workbook();
-                const orderReport =workbook.addWorksheet("orderReport");
-                orderReport.columns = columns;
-
-                const data = res.data;
-                data.map((item,index)=>{
-                    orderReport.addRow(item);
-                });
-
-                workbook.xlsx.writeBuffer().then((data)=>{
-                    const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    const url = window.URL.createObjectURL(blob);
-                    const anchor = document.createElement('a');
-                    anchor.href = url;
-                    anchor.download = `${titleName}.xlsx`;
-                    anchor.click();
-                    window.URL.revokeObjectURL(url);
-                })
-        
-            }
-        })
-
-	}
+ 
 
     onGridUpdatePages = (params)=>{  
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/reportRowCount",{params : params}) 
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestRowCount",{params : params}) 
             
         ]).then(
             axios.spread((res1,res2)=>{
@@ -403,7 +348,7 @@ class RequestList extends Component {
 						<div className="card">
 							<div className="card-body">
 								<div>
-									<div className="row">
+									{/*<div className="row">
 									     <div className="col-sm">
                                             <ul className="list-inline text-end mb-3">
                                                 <li className="list-inline-item me-1">
@@ -413,7 +358,7 @@ class RequestList extends Component {
                                                 </li>
                                             </ul>
                                         </div>
-									</div>
+									</div>*/}
 									<div className="">                                        
 										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
 												scrollX={true} columnOptions={{frozenCount : 0}}>
