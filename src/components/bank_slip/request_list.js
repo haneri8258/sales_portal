@@ -40,7 +40,7 @@ class RequestList extends Component {
 			endDate : "",
 			isOpenModal : false,
 			
-			searchKeyPlant :"",
+			searchKeyInvoceNo :"",
 			searchKeyPosi  :"",
 			searchKeyMatnr :"",
 			searchKeyBatch :"",
@@ -58,9 +58,7 @@ class RequestList extends Component {
 
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
-			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
-			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
-			_STORE_NAME: sessionStorage.getItem('_STORE_NAME'),
+			_USER_NAME: sessionStorage.getItem('_USER_NAME'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
 		};
 	}
@@ -188,7 +186,7 @@ class RequestList extends Component {
     onGridUpdatePages = (params)=>{  
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/reportRowCount",{params : params}) 
             
         ]).then(
             axios.spread((res1,res2)=>{
@@ -362,7 +360,7 @@ class RequestList extends Component {
                                                 <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyInvoceNo" value={this.state.searchKeyInvoceNo} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="인보이스번호를입력하세요">
                                                 </Form.Control> 
                                             </li>

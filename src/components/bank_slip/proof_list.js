@@ -1,8 +1,8 @@
 /**
- * This application was developed by YS.Im, HJ.Yoon and GH.Zhang of GIE&S at 2022 years.
+ * This application was developed by BlackLeader of ITS Community  at 2022 years.
  */
 import React, { Component } from "react";
-import { Form,Modal} from "react-bootstrap";
+import { Form, Modal, Badge } from "react-bootstrap"; 
 import Grid from "@toast-ui/react-grid";
 import { Trans, withTranslation } from "react-i18next";
 import DatePicker from "react-datepicker";
@@ -19,7 +19,7 @@ import { Loading } from "../../loading";
 /**
  * 설명 : BankSlip 증빙
  *
- * @author		: 정병진
+ * @author		:  장동희
  * @since 		: 2022.11.08
  * @reference   : 참조 - 
  */
@@ -37,9 +37,8 @@ class ProofList extends Component {
 		super(props);
 		this.state = {
 			startDate:"",
-			endDate : "",
-			isOpenModal : false,
-			
+			endDate : "", 
+			isOpenModalAdd: false,
 			searchKeyPlant :"",
 			searchKeyPosi  :"",
 			searchKeyMatnr :"",
@@ -58,9 +57,7 @@ class ProofList extends Component {
 
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
-			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
-			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
-			_STORE_NAME: sessionStorage.getItem('_STORE_NAME'),
+			_USER_NAME: sessionStorage.getItem('_USER_NAME'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
 		};
 	}
@@ -89,6 +86,7 @@ class ProofList extends Component {
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
+		debugger;
         this.getRequest();
 	}
 
@@ -96,15 +94,10 @@ class ProofList extends Component {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-
-        if(sessionStorage.getItem("_ADMIN_AUTH") === "PART"){
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		} else {
-			params.storeNo = "";
-		}
-        axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/ProofList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestRowCount",{params : params}) 
+  
+        axios.all([ 
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/proofList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/proofRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -128,67 +121,11 @@ class ProofList extends Component {
 		date.setHours(date.getHours() + 9);
 		return date.toISOString().replace('T', ' ').substring(0, 19); 
 	}
-
-	exportDefaultExcel = (e) => {
-		const date = new Date();
-		const year = date.getFullYear();
-		const month = ('0' + (date.getMonth() + 1));
-		const day = ('0' + date.getDate());
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-		const dateStr = [year, month, day,hours,minutes].join('');
-		const titleName = "Order_List_"+dateStr;
-
-        const columnsData = this.gridRef.current.getInstance().getColumns();
-        const columns = [];
-        for(let i in columnsData){
-            const column = {};
-            column.header = columnsData[i].header;
-            column.key=columnsData[i].name
-            columns.push(column);
-        }
-        const params = {};
-        params.searchKeyword = this.state.searchKeyword;
-        params.startDate = this.state.startDate;
-        params.endDate = this.state.endDate;
-        params.searchType = this.state.searchType;
-        params.searchTransStatus = this.state.searchTransStatus;
-		if(sessionStorage.getItem("_GROUP_ID")=== "AG001"){
-			params.storeNo = ""
-		} else {
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		}
-
-        api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/excelOrderReport",{params : params}).then(res=>{
-            if(res.status ===200){
-                const workbook = new ExcelJS.Workbook();
-                const orderReport =workbook.addWorksheet("orderReport");
-                orderReport.columns = columns;
-
-                const data = res.data;
-                data.map((item,index)=>{
-                    orderReport.addRow(item);
-                });
-
-                workbook.xlsx.writeBuffer().then((data)=>{
-                    const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    const url = window.URL.createObjectURL(blob);
-                    const anchor = document.createElement('a');
-                    anchor.href = url;
-                    anchor.download = `${titleName}.xlsx`;
-                    anchor.click();
-                    window.URL.revokeObjectURL(url);
-                })
-        
-            }
-        })
-
-	}
-
+ 
     onGridUpdatePages = (params)=>{   
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/proofList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/proofRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{
             	this.setState({
@@ -224,6 +161,30 @@ class ProofList extends Component {
         params.perPage =20;
         this.onGridUpdatePages(params);
 	}
+	
+	// 등록창 열기
+    onOpenModalAdd = async () => { 
+        this.setState({
+            isOpenModalAdd: true
+        });
+    }
+
+    // 등록창 닫기
+    onCloseModalAdd = () => {
+       // this.emptyChoiceData();
+
+        this.setState({
+            isOpenModalAdd: false 
+        });
+    }
+    
+      // 선택 정보 비우기
+    emptyChoiceData = () => {
+        this.setState({ 
+			 
+        });
+    }
+    
 
     onChangePerPage = (perPage,e) =>{
         this.setState({
@@ -309,8 +270,25 @@ class ProofList extends Component {
  			{ name: "invoiceNo", header: "Invoice", width: 200, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "Invoice Date", width: 200, sortable: true,align: "left"},
 			{ name: "invoiceAmount", header: "Amount", width: 150, sortable: true,align: "right"},
-			{ name: "balanceAmount", header: "잔액", width: 150, sortable: true,align: "right" }
+			{ name: "balanceAmount", header: "잔액", width: 150, sortable: true,align: "right" },
+			{ name: "selectYn", header: "선택", minWidth: 100, align: "center", editor: 'text', formatter: "listItemText", 
+                editor:{
+                    type:'checkbox', 
+                    useViewMode: false,
+                    options:{
+                        listItems:[
+                            {text: '', value:'Y'}
+                        ],
+                    }
+                },
+            }    
 		];
+		
+		// 등록
+        const addBankSlip = async (event) => {
+        
+        
+        }
 
 		return (
 			<div>
@@ -342,7 +320,7 @@ class ProofList extends Component {
                                             </li>
                                             <li className="list-inline-item me-1">
                                                 <button	type="button" className="btn btn-sm btn-dark" onClick={this.onResetGrid}>
-                                                    <Trans>송금입력</Trans>
+                                                    <Trans>초기화</Trans>
                                                 </button>
                                             </li>
                                         </ul>
@@ -361,8 +339,8 @@ class ProofList extends Component {
 									     <div className="col-sm">
                                             <ul className="list-inline text-end mb-3">
                                                 <li className="list-inline-item me-1">
-                                                    <button type="button" className="btn btn-sm btn-info" onClick={this.exportDefaultExcel}>
-                                                        <Trans>엑셀</Trans>
+                                                    <button type="button" className="btn btn-sm btn-info" onClick={this.onOpenModalAdd}>
+                                                        <Trans>송금입력</Trans>
                                                     </button>
                                                 </li>
                                             </ul>
@@ -399,6 +377,116 @@ class ProofList extends Component {
 						</div>
 					</div>
 				</div> 
+				
+				               {/* 등록 Modal */}
+                <Modal className="modal fade" show={this.state.isOpenModalAdd} onHide={this.onCloseModalAdd} aria-labelledby="contained-modal-title-vcenter" aria-hidden="true" centered scrollable>
+					<Modal.Header className="modal-header" closeButton>
+						<Modal.Title><Trans>Channel 등록</Trans></Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+                        {/* 등록 Form Start */}
+						<Form controlid="form01" noValidate validated={this.state.vldtAdd} ref={this.formAddRef}>
+							<Form.Group className="row border-bottom m-0">
+								<Form.Label htmlFor="mallIdAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
+                                    <Badge className="badge rounded-pill bg-danger">필수</Badge>&nbsp;<Trans>채널 ID</Trans>
+                                </Form.Label>
+								<div className="col-sm-8 p-1">
+									<Form.Control type="text" name="mallIdAdd" className="form-control-sm"value={this.state.mallIdAdd || ""} 
+										          onChange={(event) => this.onChangeHandler(event)} placeholder="영문/숫자 20글자 이내" required
+                                                  maxLength={"20"} aria-describedby="mallIdAddHelp"autoFocus >
+                                    </Form.Control>
+                                    <Form.Control.Feedback type="invalid"><Trans>채널 ID를</Trans>&nbsp;<Trans>입력해주세요.</Trans></Form.Control.Feedback>
+                                    {this.state.isMallIdIdAddX && <span id="mallIdAddHelp" className="text-danger small" muted><Trans>이미 사용중인 채널 ID 입니다.</Trans></span>}
+                                    {this.state.isMallIdAddO && <span id="mallIdAddHelp" className="text-success small" muted><Trans>사용이 가능한 채널 ID 입니다.</Trans></span>}
+                                    {this.state.isMallId && <span id="mallIdAddHelp" className="text-danger small" muted><Trans>채널 ID를 입력하세요.</Trans></span>}
+								</div>
+							</Form.Group>
+							<Form.Group className="row border-bottom m-0">
+								<Form.Label htmlFor="mallNameAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
+                                    <Badge className="badge rounded-pill bg-danger">필수</Badge>&nbsp;<Trans>채널 명</Trans>
+                                </Form.Label>
+								<div className="col-sm-8 p-1">
+									<Form.Control type="text" name="mallNameAdd" className="form-control-sm" value={this.state.mallNameAdd || ""} 
+										          onChange={(event) => this.onChangeHandler(event)} placeholder="100글자 이내" required
+                                                  maxLength={"100"} aria-describedby="mallNameAddHelp"autoFocus>
+                                    </Form.Control>
+                                    <Form.Control.Feedback type="invalid"><Trans>채널 명을</Trans>&nbsp;<Trans>입력해주세요.</Trans></Form.Control.Feedback>
+                                    {this.state.isMallName && <span id="mallNameAddHelp" className="text-danger small" muted><Trans>채널명을 입력하세요.</Trans></span>}
+								</div>
+							</Form.Group>
+							<Form.Group className="row border-bottom m-0">
+								<Form.Label htmlFor="mallAliasAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
+                                    <Badge className="badge rounded-pill bg-danger">필수</Badge>&nbsp;<Trans>채널 Alias</Trans>
+                                </Form.Label>
+								<div className="col-sm-8 p-1">
+									<Form.Control type="text" name="mallAliasAdd" className="form-control-sm" value={this.state.mallAliasAdd || ""} 
+										          onChange={(event) => this.onChangeHandler(event)} placeholder="30글자 이내" required
+                                                  maxLength={"30"} aria-describedby="mallAliasAddHelp"autoFocus>
+                                    </Form.Control>
+                                    <Form.Control.Feedback type="invalid"><Trans>채널 명을</Trans>&nbsp;<Trans>입력해주세요.</Trans></Form.Control.Feedback>
+                                    {this.state.isMallAlias && <span id="mallAliasAddHelp" className="text-danger small" muted><Trans>채널Alias를 입력하세요.</Trans></span>}
+								</div>
+							</Form.Group> 
+
+	  					
+							<Form.Group className="row border-bottom m-0"> 
+								<Form.Label htmlFor="openDateAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
+                                    <Trans>시작일자</Trans>
+                                </Form.Label> 
+								<div className="col-sm-8 p-1"> 
+									<Form.Control type="date" name="openDateAdd" className="form-control-sm" 
+										          onChange={(event) => this.onChangeHandler(event)}   
+                                                  maxLength={"10"} aria-describedby="openDateAddHelp"autoFocus>
+                                    </Form.Control> 
+ 
+								</div>	 
+                            </Form.Group> 
+	
+							<Form.Group className="row border-bottom m-0"> 
+								<Form.Label htmlFor="closeDateAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
+                                    <Trans>종료일자</Trans>
+                                </Form.Label> 
+								<div className="col-sm-8 p-1">
+									<Form.Control type="date" name="closeDateAdd" className="form-control-sm" 
+										          onChange={(event) => this.onChangeHandler(event)}  
+                                                  maxLength={"10"} aria-describedby="openDateAddHelp"autoFocus>
+                                    </Form.Control> 
+								</div> 
+                            </Form.Group>
+	
+							<Form.Group className="row border-bottom m-0">
+								<Form.Label htmlFor="remarkAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
+                                    <Trans>비고</Trans>
+                                </Form.Label>
+								<div className="col-sm-8 p-1">
+									<Form.Control type="text" name="remarkAdd" className="form-control-sm" value={this.state.remarkAdd || ""} 
+										          onChange={(event) => this.onChangeHandler(event)} placeholder="100글자 이내"
+                                                  maxLength={"30"} aria-describedby="remarkAddHelp" autoFocus >
+                                    </Form.Control> 
+								</div>
+							</Form.Group>	
+
+							<Form.Group className="row border-bottom m-0">
+								<Form.Label htmlFor="useYnAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
+                                    <Trans>사용여부</Trans>
+                                </Form.Label>
+								<div className="col-sm-8 p-1">
+                                    <Form.Select name="useYnAdd" className="form-select-sm" onChange={(event) => this.onChangeHandler(event)} value={this.state.useYnAdd || ""}>
+                                        <option value="Y">사용중</option>
+                                        <option value="N">미사용</option>
+                                    </Form.Select>
+								</div>
+							</Form.Group> 
+
+						</Form>
+                        {/* 등록 Form End */}
+					</Modal.Body>
+					<Modal.Footer>
+						<button className="btn btn-sm btn-dark" onClick={this.onCloseModalAdd}><Trans>취소</Trans></button>
+						<button className="btn btn-sm btn-success" onClick={(event) => addBankSlip(event)} disabled={this.state.isBtnAddDisabled}><Trans>등록</Trans></button>
+					</Modal.Footer>
+                </Modal> 
+				
 			</div>
 		);
 	}
