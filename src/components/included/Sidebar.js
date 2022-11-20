@@ -137,11 +137,11 @@ class Sidebar extends Component {
                              	<ul className="nav flex-column sub-menu">     
                                     {/* Bank Slip 확인 */}
                                     <Collapse in={this.isShowYn('/bank_slip_manager/confirm_list')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip_manager/confirm_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip_manager/confirm_list"><div><Trans>Bank Slip 확인(담당자)</Trans></div></Link></li>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip_manager/confirm_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip_manager/confirm_list"><div><Trans>Bank Slip 확인</Trans></div></Link></li>
                                     </Collapse>
                                     {/* 인보이스별 Bank Slip 현황 */}
                                     <Collapse in={this.isShowYn('/bank_slip_manager/invoice_list')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip_manager/invoice_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip_manager/invoice_list"><div><Trans>인보이스별 Bank Slip 현황(담당자)</Trans></div></Link></li>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/bank_slip_manager/invoice_list') ? 'nav-link active' : 'nav-link' } to="/bank_slip_manager/invoice_list"><div><Trans>인보이스별 Bank Slip 현황</Trans></div></Link></li>
                                     </Collapse>
                                 </ul>
                             </Collapse>

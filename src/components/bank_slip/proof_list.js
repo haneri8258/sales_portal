@@ -83,10 +83,10 @@ class ProofList extends Component {
 		});
 	}
 
-	gridRef = React.createRef();
+	gridRef   = React.createRef();
+	gridSlip  = React.createRef()
 
 	onGridMounted = (e) => { 
-		debugger;
         this.getRequest();
 	}
 
@@ -116,6 +116,12 @@ class ProofList extends Component {
 			}
 		});
     }
+    
+   onGridSlipMounted = (e) => { 
+        debugger;
+        //this.getRequest();
+	}
+    
     
 	timestamp = (date)=>{
 		date.setHours(date.getHours() + 9);
@@ -164,9 +170,24 @@ class ProofList extends Component {
 	
 	// 등록창 열기
     onOpenModalAdd = async () => { 
+        const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
+        if(checkedRows.length===0) {
+        	alert("송금할 데이터를 선택하세요!");
+        	return;
+        }
+        let balanceAmount = 0;
+        for(let i in checkedRows){ 
+        	balanceAmount += checkedRows[i].balanceAmount;        
+        }
+        if(balanceAmount ===0 ) {
+        	 alert("선택한 자료의 송금할 금액이 0 입니다.");
+        	return;
+        }
+        
         this.setState({
             isOpenModalAdd: true
         });
+        
     }
 
     // 등록창 닫기
@@ -267,22 +288,35 @@ class ProofList extends Component {
 		}
 
 		const columns = [
- 			{ name: "invoiceNo", header: "Invoice", width: 200, sortable: true,align: "center"},
+ 			{ name: "invoiceNo", header: "Invoice", width: 200, sortable: true,align: "left"},
 			{ name: "invoiceDate", header: "Invoice Date", width: 200, sortable: true,align: "left"},
-			{ name: "invoiceAmount", header: "Amount", width: 150, sortable: true,align: "right"},
-			{ name: "balanceAmount", header: "잔액", width: 150, sortable: true,align: "right" },
-			{ name: "selectYn", header: "선택", minWidth: 100, align: "center", editor: 'text', formatter: "listItemText", 
-                editor:{
-                    type:'checkbox', 
-                    useViewMode: false,
-                    options:{
-                        listItems:[
-                            {text: '', value:'Y'}
-                        ],
-                    }
-                },
-            }    
+			{ name: "invoiceAmount", header: "Amount", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+			},
+			{ name: "balanceAmount", header: "잔액", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				} 
+			} 
 		];
+		 
+		const slipColumns = [
+ 			{ name: "gubun", header: "구분", width: 100, sortable: false, align: "center"},
+			{ name: "invoiceDate", header: "인보이스 Total 송금액 ", width: 300, sortable: false, align: "left"},
+			{ name: "invoiceAmount", header: "송금날짜(input)", width: 150, sortable: false, align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+			},
+			{ name: "balanceAmount", header: "증명서", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return "파일업로드";
+				} 
+			} 
+		];
+		
 		
 		// 등록
         const addBankSlip = async (event) => {
@@ -346,8 +380,8 @@ class ProofList extends Component {
                                             </ul>
                                         </div>
 									</div>
-									<div className="">                                        
-										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
+									<div className="">                                        	
+										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum","checkbox"]}
 												scrollX={true} columnOptions={{frozenCount : 0}}>
 										</Grid>
 									</div>
@@ -378,112 +412,29 @@ class ProofList extends Component {
 					</div>
 				</div> 
 				
-				               {/* 등록 Modal */}
+				{/* 등록 Modal */}
                 <Modal className="modal fade" show={this.state.isOpenModalAdd} onHide={this.onCloseModalAdd} aria-labelledby="contained-modal-title-vcenter" aria-hidden="true" centered scrollable>
 					<Modal.Header className="modal-header" closeButton>
-						<Modal.Title><Trans>Channel 등록</Trans></Modal.Title>
+						<Modal.Title><Trans>송금증빙 요청</Trans></Modal.Title>
 					</Modal.Header>
 					<Modal.Body>
                         {/* 등록 Form Start */}
 						<Form controlid="form01" noValidate validated={this.state.vldtAdd} ref={this.formAddRef}>
-							<Form.Group className="row border-bottom m-0">
-								<Form.Label htmlFor="mallIdAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
-                                    <Badge className="badge rounded-pill bg-danger">필수</Badge>&nbsp;<Trans>채널 ID</Trans>
-                                </Form.Label>
-								<div className="col-sm-8 p-1">
-									<Form.Control type="text" name="mallIdAdd" className="form-control-sm"value={this.state.mallIdAdd || ""} 
-										          onChange={(event) => this.onChangeHandler(event)} placeholder="영문/숫자 20글자 이내" required
-                                                  maxLength={"20"} aria-describedby="mallIdAddHelp"autoFocus >
-                                    </Form.Control>
-                                    <Form.Control.Feedback type="invalid"><Trans>채널 ID를</Trans>&nbsp;<Trans>입력해주세요.</Trans></Form.Control.Feedback>
-                                    {this.state.isMallIdIdAddX && <span id="mallIdAddHelp" className="text-danger small" muted><Trans>이미 사용중인 채널 ID 입니다.</Trans></span>}
-                                    {this.state.isMallIdAddO && <span id="mallIdAddHelp" className="text-success small" muted><Trans>사용이 가능한 채널 ID 입니다.</Trans></span>}
-                                    {this.state.isMallId && <span id="mallIdAddHelp" className="text-danger small" muted><Trans>채널 ID를 입력하세요.</Trans></span>}
-								</div>
-							</Form.Group>
-							<Form.Group className="row border-bottom m-0">
-								<Form.Label htmlFor="mallNameAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
-                                    <Badge className="badge rounded-pill bg-danger">필수</Badge>&nbsp;<Trans>채널 명</Trans>
-                                </Form.Label>
-								<div className="col-sm-8 p-1">
-									<Form.Control type="text" name="mallNameAdd" className="form-control-sm" value={this.state.mallNameAdd || ""} 
-										          onChange={(event) => this.onChangeHandler(event)} placeholder="100글자 이내" required
-                                                  maxLength={"100"} aria-describedby="mallNameAddHelp"autoFocus>
-                                    </Form.Control>
-                                    <Form.Control.Feedback type="invalid"><Trans>채널 명을</Trans>&nbsp;<Trans>입력해주세요.</Trans></Form.Control.Feedback>
-                                    {this.state.isMallName && <span id="mallNameAddHelp" className="text-danger small" muted><Trans>채널명을 입력하세요.</Trans></span>}
-								</div>
-							</Form.Group>
-							<Form.Group className="row border-bottom m-0">
-								<Form.Label htmlFor="mallAliasAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
-                                    <Badge className="badge rounded-pill bg-danger">필수</Badge>&nbsp;<Trans>채널 Alias</Trans>
-                                </Form.Label>
-								<div className="col-sm-8 p-1">
-									<Form.Control type="text" name="mallAliasAdd" className="form-control-sm" value={this.state.mallAliasAdd || ""} 
-										          onChange={(event) => this.onChangeHandler(event)} placeholder="30글자 이내" required
-                                                  maxLength={"30"} aria-describedby="mallAliasAddHelp"autoFocus>
-                                    </Form.Control>
-                                    <Form.Control.Feedback type="invalid"><Trans>채널 명을</Trans>&nbsp;<Trans>입력해주세요.</Trans></Form.Control.Feedback>
-                                    {this.state.isMallAlias && <span id="mallAliasAddHelp" className="text-danger small" muted><Trans>채널Alias를 입력하세요.</Trans></span>}
-								</div>
-							</Form.Group> 
-
-	  					
-							<Form.Group className="row border-bottom m-0"> 
-								<Form.Label htmlFor="openDateAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
-                                    <Trans>시작일자</Trans>
-                                </Form.Label> 
-								<div className="col-sm-8 p-1"> 
-									<Form.Control type="date" name="openDateAdd" className="form-control-sm" 
-										          onChange={(event) => this.onChangeHandler(event)}   
-                                                  maxLength={"10"} aria-describedby="openDateAddHelp"autoFocus>
-                                    </Form.Control> 
- 
-								</div>	 
-                            </Form.Group> 
-	
-							<Form.Group className="row border-bottom m-0"> 
-								<Form.Label htmlFor="closeDateAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
-                                    <Trans>종료일자</Trans>
-                                </Form.Label> 
-								<div className="col-sm-8 p-1">
-									<Form.Control type="date" name="closeDateAdd" className="form-control-sm" 
-										          onChange={(event) => this.onChangeHandler(event)}  
-                                                  maxLength={"10"} aria-describedby="openDateAddHelp"autoFocus>
-                                    </Form.Control> 
+							<div classname ="col-12 grid-margin">
+								<div className="card">   
+									<div className="card-body">                                    	
+										<Grid columns={slipColumns} onGridMounted={(e) => this.onGridSlipMounted(e)} ref={this.gridSlip} 
+												scrollX={true} columnOptions={{frozenCount : 0}}>
+										</Grid>
+									</div>	
 								</div> 
-                            </Form.Group>
-	
-							<Form.Group className="row border-bottom m-0">
-								<Form.Label htmlFor="remarkAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
-                                    <Trans>비고</Trans>
-                                </Form.Label>
-								<div className="col-sm-8 p-1">
-									<Form.Control type="text" name="remarkAdd" className="form-control-sm" value={this.state.remarkAdd || ""} 
-										          onChange={(event) => this.onChangeHandler(event)} placeholder="100글자 이내"
-                                                  maxLength={"30"} aria-describedby="remarkAddHelp" autoFocus >
-                                    </Form.Control> 
-								</div>
-							</Form.Group>	
-
-							<Form.Group className="row border-bottom m-0">
-								<Form.Label htmlFor="useYnAdd" className="col-sm-4 col-form-label-sm mb-0 bg-light text-end">
-                                    <Trans>사용여부</Trans>
-                                </Form.Label>
-								<div className="col-sm-8 p-1">
-                                    <Form.Select name="useYnAdd" className="form-select-sm" onChange={(event) => this.onChangeHandler(event)} value={this.state.useYnAdd || ""}>
-                                        <option value="Y">사용중</option>
-                                        <option value="N">미사용</option>
-                                    </Form.Select>
-								</div>
-							</Form.Group> 
-
+							</div>	
 						</Form>
                         {/* 등록 Form End */}
 					</Modal.Body>
 					<Modal.Footer>
 						<button className="btn btn-sm btn-dark" onClick={this.onCloseModalAdd}><Trans>취소</Trans></button>
-						<button className="btn btn-sm btn-success" onClick={(event) => addBankSlip(event)} disabled={this.state.isBtnAddDisabled}><Trans>등록</Trans></button>
+						<button className="btn btn-sm btn-success" onClick={(event) => addBankSlip(event)} disabled={this.state.isBtnAddDisabled}><Trans>송금증빙 요청</Trans></button>
 					</Modal.Footer>
                 </Modal> 
 				

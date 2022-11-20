@@ -1,5 +1,5 @@
 /**
- * This application was developed by YS.Im, HJ.Yoon and GH.Zhang of GIE&S at 2022 years.
+ * This application was developed by  Haneri.jeong  of ITS Community at 2022 years.
  */
 import React, { Component } from "react";
 import { Form,Modal} from "react-bootstrap";

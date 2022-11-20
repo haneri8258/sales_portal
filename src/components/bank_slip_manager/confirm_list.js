@@ -36,16 +36,16 @@ class ConfirmList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			startDate:"",
-			endDate : "",
+			
 			isOpenModal : false,
 			
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"",
-			searchKeyVkgrpT :"",
+			searchKeyBuyerCode :"",
+			searchKeyBuyerName :"",
+			searchKeyRequestNo :"",
+			searchKeyRemittamceDate:"",
+			searchKeyInvoiceNo : "",
+			searchKeyInvoiceDate : "",
+		 
 		
 			gridData : [],
             pageInfo : {
@@ -58,9 +58,7 @@ class ConfirmList extends Component {
 
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
-			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
-			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
-			_STORE_NAME: sessionStorage.getItem('_STORE_NAME'),
+			_USER_NAME: sessionStorage.getItem('_USER_NAME'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
 		};
 	}
@@ -96,15 +94,10 @@ class ConfirmList extends Component {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-
-        if(sessionStorage.getItem("_ADMIN_AUTH") === "PART"){
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		} else {
-			params.storeNo = "";
-		}
+ 
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceRowCount",{params : params}) 
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -125,70 +118,17 @@ class ConfirmList extends Component {
     }
     
 	timestamp = (date)=>{
-		date.setHours(date.getHours() + 9);
-		return date.toISOString().replace('T', ' ').substring(0, 19); 
+		if(date) {
+			date.setHours(date.getHours() + 9);
+			return date.toISOString().replace('T', ' ').substring(0, 19);
+		} 
 	}
-
-	exportDefaultExcel = (e) => {
-		const date = new Date();
-		const year = date.getFullYear();
-		const month = ('0' + (date.getMonth() + 1));
-		const day = ('0' + date.getDate());
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-		const dateStr = [year, month, day,hours,minutes].join('');
-		const titleName = "Order_List_"+dateStr;
-
-        const columnsData = this.gridRef.current.getInstance().getColumns();
-        const columns = [];
-        for(let i in columnsData){
-            const column = {};
-            column.header = columnsData[i].header;
-            column.key=columnsData[i].name
-            columns.push(column);
-        }
-        const params = {};
-        params.searchKeyword = this.state.searchKeyword;
-        params.startDate = this.state.startDate;
-        params.endDate = this.state.endDate;
-        params.searchType = this.state.searchType;
-        params.searchTransStatus = this.state.searchTransStatus;
-		if(sessionStorage.getItem("_GROUP_ID")=== "AG001"){
-			params.storeNo = ""
-		} else {
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		}
-
-        api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/excelOrderReport",{params : params}).then(res=>{
-            if(res.status ===200){
-                const workbook = new ExcelJS.Workbook();
-                const orderReport =workbook.addWorksheet("orderReport");
-                orderReport.columns = columns;
-
-                const data = res.data;
-                data.map((item,index)=>{
-                    orderReport.addRow(item);
-                });
-
-                workbook.xlsx.writeBuffer().then((data)=>{
-                    const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    const url = window.URL.createObjectURL(blob);
-                    const anchor = document.createElement('a');
-                    anchor.href = url;
-                    anchor.download = `${titleName}.xlsx`;
-                    anchor.click();
-                    window.URL.revokeObjectURL(url);
-                })
-        
-            }
-        })
-
-	}
+ 
 
     onGridUpdatePages = (params)=>{  
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmRowCount",{params : params}) 
             
         ]).then(
             axios.spread((res1,res2)=>{
@@ -211,12 +151,13 @@ class ConfirmList extends Component {
     }
     onResetGrid = () => {
 		this.setState({
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"" ,
-			searchKeyVkgrpT :"",
+			searchKeyBuyerCode :"",
+			searchKeyBuyerName :"",
+			searchKeyRequestNo :"",
+			searchKeyRemittamceDate:"",
+			searchKeyInvoiceNo : "",
+			searchKeyInvoiceDate : "",
+			
             pageNumber : 1,
             perPage : 20
 		});
@@ -232,14 +173,14 @@ class ConfirmList extends Component {
         })
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;
+		params.searchKeyBuyerName = this.state.searchKeyBuyerName; 
 
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
+		params.searchKeyRequestNo = this.state.searchKeyRequestNo;
+		params.searchKeyRemittamceDate = this.timestamp(this.state.searchKeyRemittamceDate);
 		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -254,14 +195,14 @@ class ConfirmList extends Component {
         });
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;
+		params.searchKeyBuyerName = this.state.searchKeyBuyerName; 
 
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
+		params.searchKeyRequestNo = this.state.searchKeyRequestNo;
+		params.searchKeyRemittamceDate = this.timestamp(this.state.searchKeyRemittamceDate);
 		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
@@ -275,14 +216,14 @@ class ConfirmList extends Component {
     onSearch = (e) =>{
 		const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;
+		params.searchKeyBuyerName = this.state.searchKeyBuyerName; 
+ 
+		params.searchKeyRequestNo = this.state.searchKeyRequestNo;
+		params.searchKeyRemittamceDate = this.timestamp(this.state.searchKeyRemittamceDate);
 		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -307,8 +248,8 @@ class ConfirmList extends Component {
 		}
 
 		const columns = [
- 			{ name: "clientId", header: "거래처 코드", width: 200, sortable: true,align: "center"},
-			{ name: "username", header: "거래처명", width: 200, sortable: true,align: "left"},
+ 			{ name: "clientId", header: "거래처 코드", width: 200, sortable: true,align: "left"},
+			{ name: "companyname", header: "거래처명", width: 200, sortable: true,align: "left"},
 			{ name: "requestNo", header: "요청번호", width: 150, sortable: true,align: "center"},
 			{ name: "remittamceDate", header: "송금 날짜", width: 150, sortable: true,align: "center" },
 			{ name: "remittanceAmount", header: "송금 금액", width: 150, sortable: true,align: "right" },  
@@ -346,7 +287,7 @@ class ConfirmList extends Component {
                                                 <Form.Text><Trans>거래처 코드</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyBuyerCode} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="거래처 코드를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -354,7 +295,7 @@ class ConfirmList extends Component {
                                                 <Form.Text><Trans>거래처명</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerName" value={this.state.searchKeyBuyerName} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="거래처명를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -362,7 +303,7 @@ class ConfirmList extends Component {
                                                 <Form.Text><Trans>요청 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyRequestNo" value={this.state.searchKeyRequestNo} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="요청번호를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -370,23 +311,17 @@ class ConfirmList extends Component {
                                                 <Form.Text><Trans>송금 날짜</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
-                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
-                                                            onChange={(date) =>   this.setState({ startDate: date })}>
+                                                <DatePicker selected={this.state.searchKeyRemittamceDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="송금 날짜" 
+                                                            onChange={(date) =>   this.setState({ searchKeyRemittamceDate: date })}>
                                                 </DatePicker>
                                             </li>
-                                            <li className="list-inline-item me-1"> ~</li>
-                                            <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
-                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
-                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
-                                                </DatePicker>
-                                            </li>
+                                             
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyInvoiceNo" value={this.state.searchKeyInvoiceNo} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="인보이스번호를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -394,19 +329,12 @@ class ConfirmList extends Component {
                                                 <Form.Text><Trans>인보이스 날짜</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
-                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
-                                                            onChange={(date) =>   this.setState({ startDate: date })}>
+                                                <DatePicker selected={this.state.searchKeyInvoiceDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="인보이스 날짜" 
+                                                            onChange={(date) =>   this.setState({ searchKeyInvoiceDate: date })}>
                                                 </DatePicker>
                                             </li>
-                                            <li className="list-inline-item me-1"> ~</li>
-                                            <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
-                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
-                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
-                                                </DatePicker>
-                                            </li>
-                                           
+                                             
                                             <li className="list-inline-item me-1">
                                                 <button type="button" className="btn btn-sm btn-success"  onClick={this.onSearch}>
                                                     <Trans>검색</Trans>

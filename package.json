@@ -54,6 +54,7 @@
     "react-bootstrap-validation": "^0.1.11",
     "react-chartjs-2": "^4.0.1",
     "react-checkbox-tree": "^1.7.3",
+    "react-confirm-alert": "^3.0.6",
     "react-datepicker": "^4.7.0",
     "react-daum-postcode": "^3.0.1",
     "react-dnd": "^14.0.5",

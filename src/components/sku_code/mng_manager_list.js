@@ -11,6 +11,7 @@ import axios from "axios";
 import LinkInGrid from "../utils/linkInGrid";
 import { useNavigate } from "react-router-dom";
 import { alert } from "react-bootstrap-confirmation";
+ 
 import api from '../../CustomAxios';
 import Pagination from "react-js-pagination";
 import ExcelJS from 'exceljs';
@@ -53,12 +54,10 @@ class MngManagerList extends Component {
             activePage : 1,
             perPage : 20,
             pageNumber : "",
-
-
+ 			
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
-			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
-			_STORE_NAME: sessionStorage.getItem('_STORE_NAME'),
+			_MANAGER_ID: sessionStorage.getItem('_MANAGER_ID'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
 		};
 	}
@@ -123,30 +122,41 @@ class MngManagerList extends Component {
 	}
 
 	onSubmit = (e) => { 
-		debugger;
 		const skuList = this.gridRef.current.getInstance().getCheckedRows();
 		//const skuList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  //JSON.stringify
+	 
 		if(skuList.length === 0) {
-			alert("수정된 내용이 없습니다.");
+			alert("저장할 자료를 선택하세요.");
 			return;
 		}
-		let getSku = this.getSku;
-		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
-		.then(function (res){ 
-         		if(res.data.resultCode >0){
-         			alert("성공적으로 저장 되었습니다");
-         			getSku();
-         		}	
-            }
-        ).catch(err => {
-			if(err.response){
-				console.log(err.response.data);
-			}else if(err.request){
-				console.log(err.request);
-			}else{
-				console.log('Error', err.message);
-			}
-		});
+		for(let i in skuList){ 
+			if(skuList[i].managerSku ==='' ){
+				alert("관리자 SKU 코드는 필수 입니다." );
+				return;
+			} 
+			skuList[i].managerId    =  this.state._MANAGER_ID;
+			skuList[i].crtId        =  this.state._USER_ID;
+			skuList[i].updId        =  this.state._USER_ID;
+		}
+ 		if(window.confirm(skuList.length +"건을 저장하시겠습니까?")) { 
+	  		let getSku = this.getSku;
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
+			.then(function (res){ 
+	         		if(res.data.resultCode >0){
+	         			alert("성공적으로 저장 되었습니다");
+	         			getSku();
+	         		}	
+	            }
+	        ).catch(err => {
+				if(err.response){
+					console.log(err.response.data);
+				}else if(err.request){
+					console.log(err.request);
+				}else{
+					console.log('Error', err.message);
+				}
+			});   
+		}	
 	}
 	
     onGridUpdatePages = (params)=>{  
@@ -241,46 +251,10 @@ class MngManagerList extends Component {
         this.onGridUpdatePages(params);
 	} 
 	
-	onSubmit = (e) => { 
-		const  skuList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  //JSON.stringify
-		if(skuList.length === 0) {
-			alert("수정된 내용이 없습니다.");
-			return;
-		}
-		let getSku = this.getSku;
-		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
-		.then(function (res){ 
-         		if(res.data.resultCode >0){
-         			alert("성공적으로 저장 되었습니다");
-         			getSku();
-         		}	
-            }
-        ).catch(err => {
-			if(err.response){
-				console.log(err.response.data);
-			}else if(err.request){
-				console.log(err.request);
-			}else{
-				console.log('Error', err.message);
-			}
-		});
-	}
 
 	render() {
         const {pageInfo} = this.state;
-
-
-		const onClickedAtag = (e, rowKey) => {
-			e.preventDefault();
-            const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
-            if(productName === null || productName === ""){
-                alert("미연동 상품입니다. 관리자에게 문의 바랍니다.");
-                return;
-            }
-			const orderNo = this.gridRef.current.getInstance().getRow(rowKey).orderNo;
-			this.props.router.navigate('/order/order/'+orderNo, {state : {"orderNo": orderNo}});
-		}
-
+ 
 		const columns = [
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
 			{ name: "clientId", header: "거래처 id", width: 200, sortable: true,align: "center" },

@@ -124,8 +124,8 @@ class MngList extends Component {
 			return;
 		}
 		for(let i in skuList){ 
-			if(skuList[i].clientId ==='' ){
-				alert("Buyer Code는 필수 입니다." );
+			if(skuList[i].clientSku ==='' ){
+				alert("Buyer SKU Code는 필수 입니다." );
 				return;
 			}
 			skuList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
@@ -257,6 +257,11 @@ class MngList extends Component {
 		const columns = [
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left", editor: 'text'
+				,formatter({value}){
+					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
+				}
+			},
+			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true,align: "left", editor: 'text'
 				,formatter({value}){
 					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
 				}
