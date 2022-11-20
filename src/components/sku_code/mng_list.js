@@ -39,7 +39,7 @@ class MngList extends Component {
 			isOpenModal : false, 
 			searchKeySku :"",
 			searchKeyDesc  :"",
-			searchKeyBuyerCode :"", 
+			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'), 
 			
 			gridData : [],
             pageInfo : {
@@ -88,7 +88,8 @@ class MngList extends Component {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage; 
-    
+        params.searchKeyBuyerCode  = sessionStorage.getItem('_CLIENT_ID');
+        
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngList",{params : params})
              ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngRowCount",{params : params}) 
@@ -127,8 +128,9 @@ class MngList extends Component {
 				alert("Buyer Code는 필수 입니다." );
 				return;
 			}
-			skuList[i].crtId =  this.state._USER_ID;
-			skuList[i].updId =  this.state._USER_ID;
+			skuList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
+			skuList[i].crtId     =  this.state._USER_ID;
+			skuList[i].updId     =  this.state._USER_ID;
 		}
 		let getSku = this.getSku;
 		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
@@ -150,6 +152,7 @@ class MngList extends Component {
 	}
  
     onGridUpdatePages = (params)=>{  
+    	debugger;
     	axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngRowCount",{params : params}) 
@@ -177,7 +180,7 @@ class MngList extends Component {
 		this.setState({
 			searchKeySku :"",
 			searchKeyDesc  :"",
-			searchKeyBuyerCode :"",
+			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'),
 		
 		    pageNumber : 1,
             perPage : 20
@@ -308,14 +311,15 @@ class MngList extends Component {
                                                        style={{"minHeight": "1rem"}} placeholder="DESC를입력하세요">
                                                 </Form.Control> 
                                             </li>
-                                            <li className="list-inline-item me-1">
+                                            
+                                            {/*<li className="list-inline-item me-1">
                                                 <Form.Text><Trans>Buyer Code</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyBuyerCode} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}} placeholder="Buyer Code를입력하세요">
                                                 </Form.Control> 
-                                            </li>
+                                            </li>*/}
                                            
                                             <li className="list-inline-item me-1">
                                                 <button type="button" className="btn btn-sm btn-success"  onClick={this.onSearch}>
