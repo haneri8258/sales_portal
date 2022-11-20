@@ -123,11 +123,9 @@ class MngManagerList extends Component {
 	}
 
 	onSubmit = (e) => { 
-		const skuList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  //JSON.stringify
-		if(skuList.length === '') {
-			alert("수정된 내용이 없습니다.");
-			return;
-		}
+		debugger;
+		const skuList = this.gridRef.current.getInstance().getCheckedRows();
+		//const skuList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  //JSON.stringify
 		if(skuList.length === 0) {
 			alert("수정된 내용이 없습니다.");
 			return;
@@ -315,11 +313,6 @@ class MngManagerList extends Component {
                    	}
                	}
             },
-            { name: "selectYn", header: "선택", width: 100, align: "center",
-                formatter({value}){
-               return "<input type='checkbox' value ='Y' onClick=\"onClickedAtag(this);\" />" ; 
-            }
-            }
 		];
 
 		return (
@@ -396,7 +389,7 @@ class MngManagerList extends Component {
                                         </div>
 									</div>
 									<div className="">                                        
-										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
+										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum","checkbox"]}
 												scrollX={true} columnOptions={{frozenCount : 0}}>
 										</Grid>
 									</div>
