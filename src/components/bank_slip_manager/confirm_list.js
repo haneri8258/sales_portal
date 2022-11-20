@@ -357,7 +357,7 @@ class ConfirmList extends Component {
 						<div className="card">
 							<div className="card-body">
 								<div>
-									<div className="row">
+									{/*<div className="row">
 									     <div className="col-sm">
                                             <ul className="list-inline text-end mb-3">
                                                 <li className="list-inline-item me-1">
@@ -367,7 +367,7 @@ class ConfirmList extends Component {
                                                 </li>
                                             </ul>
                                         </div>
-									</div>
+									</div>*/}
 									<div className="">                                        
 										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
 												scrollX={true} columnOptions={{frozenCount : 0}}>

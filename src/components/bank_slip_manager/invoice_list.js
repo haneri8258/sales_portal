@@ -43,12 +43,7 @@ class InvoiceManagerList extends Component {
 			endDate : "",
 			isOpenModal : false,
 			
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"",
-			searchKeyVkgrpT :"",
+			searchKeyInvoiceDate : "",
 		
 			gridData : [],
             pageInfo : {
@@ -189,14 +184,7 @@ class InvoiceManagerList extends Component {
         })
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -211,14 +199,7 @@ class InvoiceManagerList extends Component {
         });
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
@@ -232,14 +213,7 @@ class InvoiceManagerList extends Component {
     onSearch = (e) =>{
 		const params = {};
 
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -325,18 +299,12 @@ class InvoiceManagerList extends Component {
                                                 <Form.Text><Trans>인보이스 날짜</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
-                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
-                                                            onChange={(date) =>   this.setState({ startDate: date })}>
+                                                <DatePicker selected={this.state.searchKeyInvoiceDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="인보이스 날짜" 
+                                                            onChange={(date) =>   this.setState({ searchKeyInvoiceDate: date })}>
                                                 </DatePicker>
                                             </li>
-                                            <li className="list-inline-item me-1"> ~</li>
-                                            <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
-                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
-                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
-                                                </DatePicker>
-                                            </li>
+                                             
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>Status</Trans></Form.Text>
                                             </li>
@@ -368,7 +336,7 @@ class InvoiceManagerList extends Component {
 						<div className="card">
 							<div className="card-body">
 								<div>
-									<div className="row">
+									{/*<div className="row">
 									     <div className="col-sm">
                                             <ul className="list-inline text-end mb-3">
                                                 <li className="list-inline-item me-1">
@@ -378,7 +346,7 @@ class InvoiceManagerList extends Component {
                                                 </li>
                                             </ul>
                                         </div>
-									</div>
+									</div>*/}
 									<div className="">                                        
 										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
 												scrollX={true} columnOptions={{frozenCount : 0}}>
