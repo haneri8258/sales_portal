@@ -285,17 +285,15 @@ class MngManagerList extends Component {
 
 		const columns = [
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
-			{ name: "clientId", header: "거래처id", width: 200, sortable: true,align: "left"},
-			{ name: "clientSku", header: "거래처 SKU 코드", width: 150, sortable: true,align: "center"},
-			{ name: "managerId", header: "관리자id", width: 150, sortable: true,align: "right" },
-			{ name: "managerSku", header: "관리자SKU", width: 150, sortable: true,align: "center" },  
-			{ name: "clientUseYn",
-                header: "거래처사용여부",
-                sortable: true ,
-                filter : 'select',
-                align: 'center',
-                width : 150,
-                formatter: 'listItemText',
+			{ name: "clientId", header: "거래처 id", width: 200, sortable: true,align: "center" },
+			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true,align: "center" },  
+			{ name: "managerId", header: "관리자 id", width: 200, sortable: true,align: "center" },  
+			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true,align: "center", editor: 'text'
+				,formatter({value}){
+					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
+				}
+			},
+			{ name: "clientUseYn", header: "거래처사용여부", sortable: true , filter : 'select', align: 'center', width : 200, formatter: 'listItemText',
                 editor:{ 
                     type:'select',
                     options : {
@@ -306,13 +304,7 @@ class MngManagerList extends Component {
                     }
                 },
             },
-            { name: "managerUseYn",
-                header: "관리자사용여부",
-                sortable: true ,
-                filter : 'select',
-                align: 'center',
-                width : 150,
-                formatter: 'listItemText',
+            { name: "managerUseYn", header: "관리자사용여부", sortable: true , filter : 'select', align: 'center', width : 200, formatter: 'listItemText',
                 editor:{ 
                     type:'select',
                     options : {
@@ -322,22 +314,12 @@ class MngManagerList extends Component {
                        	]
                    	}
                	}
-            },{ name: " ",
-                header: "선택",
-                sortable: true ,
-                filter : 'checkbox',
-                align: 'center',
-                width : 150,
-                formatter: 'listItemText',
-                editor:{ 
-                    type:'checkbox',
-                    options : {
-                        listItems : [
-                            {text : "Y", value : "Y"}
-                       	]
-                   	}
-               	}
             },
+            { name: "selectYn", header: "선택", width: 100, align: "center",
+                formatter({value}){
+               return "<input type='checkbox' value ='Y' onClick=\"onClickedAtag(this);\" />" ; 
+            }
+            }
 		];
 
 		return (
@@ -372,11 +354,11 @@ class MngManagerList extends Component {
                                                 </Form.Control> 
                                             </li>
 											<li className="list-inline-item me-1">
-                                                <Form.Text><Trans>Buyer code</Trans></Form.Text>
+                                                <Form.Text><Trans>거래처 id</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="Buyer Code를입력하세요">
+                                                        style={{"minHeight": "1rem"}}placeholder="거래처 id를입력하세요">
                                                 </Form.Control> 
                                             </li>
                                            
