@@ -15,6 +15,7 @@ import api from '../../CustomAxios';
 import Pagination from "react-js-pagination";
 import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
+import 'tui-date-picker/dist/tui-date-picker.css';
 import { Loading } from "../../loading";
 /**
  * 설명 : BankSlip 증빙
@@ -39,14 +40,10 @@ class ProofList extends Component {
 			startDate:"",
 			endDate : "", 
 			isOpenModalAdd: false,
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"",
-			searchKeyVkgrpT :"",
-		
+			isOpenModalFile: false, 
+			rowKey	: 0, 
 			gridData : [],
+			slipData : [],
             pageInfo : {
                 totalPage : 0,
                 totalCount : 0
@@ -117,10 +114,10 @@ class ProofList extends Component {
 		});
     }
     
-   onGridSlipMounted = (e) => { 
-        debugger;
-        //this.getRequest();
-	}
+    // Slip 요청그리드 열림
+    onGridSlipMounted = (e) => { 
+       //this.getRequest();
+    }
     
     
 	timestamp = (date)=>{
@@ -152,13 +149,7 @@ class ProofList extends Component {
 		});
     }
     onResetGrid = () => {
-		this.setState({
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"" ,
-			searchKeyVkgrpT :"",
+		this.setState({ 
             pageNumber : 1,
             perPage : 20
 		});
@@ -175,27 +166,54 @@ class ProofList extends Component {
         	alert("송금할 데이터를 선택하세요!");
         	return;
         }
+        
+        const date = new Date();
+		const year = date.getFullYear();
+		const month = (date.getMonth() < 10 ?  '0' + date.getMonth() + 1 :  date.getMonth() + 1);
+		const day = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate() );
+		const dateStr = [year, month, day].join('-');
+		 
         let balanceAmount = 0;
+        const fileRows = [{gubun : '선급금', invoiceNo : '', fileUpload : "파일업로드", remittamceDate : dateStr , balanceAmount: 0 , remittanceAmount : 0 }];
         for(let i in checkedRows){ 
-        	balanceAmount += checkedRows[i].balanceAmount;        
+        	balanceAmount += checkedRows[i].balanceAmount; 
+        	checkedRows[i].gubun = checkedRows[i].invoiceNo;
+        	checkedRows[i].fileUpload ="파일업로드";  
+        	checkedRows[i].remittamceDate   =  dateStr;  
+        	checkedRows[i].remittanceAmount = 0; 
+        	fileRows.push(checkedRows[i]); 
         }
         if(balanceAmount ===0 ) {
         	 alert("선택한 자료의 송금할 금액이 0 입니다.");
         	return;
-        }
-        
+        } 		 
         this.setState({
-            isOpenModalAdd: true
+            isOpenModalAdd: true,
+            slipData : fileRows
         });
         
     }
 
     // 등록창 닫기
     onCloseModalAdd = () => {
-       // this.emptyChoiceData();
-
         this.setState({
             isOpenModalAdd: false 
+        });
+    }
+    
+    // 증빙파일업로드 열기
+    onOpenModalFile = async (rowKey) => { 
+    	this.setState({
+    		isOpenModalAdd: false,
+            isOpenModalFile: true,
+            rowKey	: rowKey
+        }); 
+    }
+    //  증빙업로드 등록창 닫기
+    onCloseModalFile = () => {
+        this.setState({
+        	isOpenModalAdd: true,
+            isOpenModalFile: false 
         });
     }
     
@@ -206,21 +224,11 @@ class ProofList extends Component {
         });
     }
     
-
     onChangePerPage = (perPage,e) =>{
         this.setState({
             perPage : Number(perPage),
         })
-        const params = {};
- 
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+        const params = {}; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -234,15 +242,6 @@ class ProofList extends Component {
             pageNumber : pageNumber
         });
         const params = {};
- 
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
@@ -255,16 +254,7 @@ class ProofList extends Component {
 
     onSearch = (e) =>{
 		const params = {};
- 
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
-		
+  	
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
@@ -278,51 +268,70 @@ class ProofList extends Component {
 
 		const onClickedAtag = (e, rowKey) => {
 			e.preventDefault();
-            const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
-            if(productName === null || productName === ""){
-                alert("미연동 상품입니다. 관리자에게 문의 바랍니다.");
-                return;
-            }
-			const orderNo = this.gridRef.current.getInstance().getRow(rowKey).orderNo;
-			this.props.router.navigate('/order/order/'+orderNo, {state : {"orderNo": orderNo}});
+            this.onOpenModalFile(rowKey);
 		}
 
 		const columns = [
- 			{ name: "invoiceNo", header: "Invoice", width: 200, sortable: true,align: "left"},
+ 			{ name: "invoiceNo", header: "Invoice No.", width: 200, sortable: true,align: "left"},
 			{ name: "invoiceDate", header: "Invoice Date", width: 200, sortable: true,align: "left"},
 			{ name: "invoiceAmount", header: "Amount", width: 150, sortable: true,align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 			},
-			{ name: "balanceAmount", header: "잔액", width: 150, sortable: true,align: "right"
+			{ name: "balanceAmount", header: "Balance", width: 150, sortable: true,align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-				} 
+				}
 			} 
 		];
+		
 		 
 		const slipColumns = [
  			{ name: "gubun", header: "구분", width: 100, sortable: false, align: "center"},
-			{ name: "invoiceDate", header: "인보이스 Total 송금액 ", width: 300, sortable: false, align: "left"},
-			{ name: "invoiceAmount", header: "송금날짜(input)", width: 150, sortable: false, align: "right"
+ 			{ name: "invoiceNo", header: "invoiceNo", hidden : true },
+			{ name: "balanceAmount", header: "인보이스 Total 송금액 ", width: 150, sortable: false
+				, align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 			},
-			{ name: "balanceAmount", header: "증명서", width: 150, sortable: true,align: "right"
+			{ name: "remittamceDate", header: "송금날짜", width: 120, sortable: false
+				, align: "center", editor: 'text'
+			},
+			{ name: "remittanceAmount", header: "송금액", width: 120, sortable: true
+				, align: "right", editor: 'text'
 				,formatter({value}){
-					return "파일업로드";
-				} 
-			} 
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+			},
+			{ name: "fileUpload", header: "증빙", width: 100, sortable: false, align: "center"
+				,renderer: {
+                    type: LinkInGrid,
+                    options: {
+                        onClickedAtag
+                    }
+                } 
+			}			 
 		];
-		
-		
+				
 		// 등록
         const addBankSlip = async (event) => {
-        
-        
+         
         }
+        
+        const addFileSlip = async (event) => {
+         
+        }
+         
+        const fileList  = [];  
+        
+        // 파일 업로드 핸들러
+        const handleChangeFile = (event) => {
+        	debugger;
+		    console.log(event.target.files)
+		    fileList.push(event.target.files); 
+		} 
 
 		return (
 			<div>
@@ -423,7 +432,7 @@ class ProofList extends Component {
 							<div classname ="col-12 grid-margin">
 								<div className="card">   
 									<div className="card-body">                                    	
-										<Grid columns={slipColumns} onGridMounted={(e) => this.onGridSlipMounted(e)} ref={this.gridSlip} 
+										<Grid columns={slipColumns}  data={this.state.slipData} onGridMounted={(e) => this.onGridSlipMounted(e)} ref={this.gridSlip} 
 												scrollX={true} columnOptions={{frozenCount : 0}}>
 										</Grid>
 									</div>	
@@ -437,6 +446,31 @@ class ProofList extends Component {
 						<button className="btn btn-sm btn-success" onClick={(event) => addBankSlip(event)} disabled={this.state.isBtnAddDisabled}><Trans>송금증빙 요청</Trans></button>
 					</Modal.Footer>
                 </Modal> 
+                
+                {/* 등록 Modal */}
+                <Modal className="modal fade" show={this.state.isOpenModalFile} onHide={this.onCloseModalFile} aria-labelledby="contained-modal-title-vcenter" aria-hidden="true" centered scrollable>
+					<Modal.Header className="modal-header" closeButton>
+						<Modal.Title><Trans>증빙파일업로드</Trans></Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+                        {/* 등록 Form Start */}
+						<Form controlid="form02">
+							<div classname ="col-12 grid-margin">
+								<div className="card">   
+									<div className="card-body">                                    	
+										<input type="file" id="file"  onChange={handleChangeFile} multiple="multiple" />
+									</div>	
+								</div> 
+							</div>	
+						</Form>
+                        {/* 등록 Form End */}
+					</Modal.Body>
+					<Modal.Footer>
+						<button className="btn btn-sm btn-dark" onClick={this.onCloseModalFile}><Trans>취소</Trans></button>
+						<button className="btn btn-sm btn-success" onClick={(event) => addFileSlip(event)} ><Trans>파일 저장</Trans></button>
+					</Modal.Footer>
+                </Modal> 
+                
 				
 			</div>
 		);

@@ -395,3 +395,21 @@
     }
   }
 }
+
+.modal-dialog {
+    max-width: 700px; 
+}
+.rmsc {
+	 .dropdown-heading {
+	    position: relative;
+	    padding: 0 var(--rmsc-p);
+	    display: flex;
+	    align-items: center;
+	    min-width: 300px;
+	    height: 28px !important;
+	    cursor: default;
+	    outline: 0;
+		text-align: left;
+   		z-index: 1000;
+	  }
+}	
