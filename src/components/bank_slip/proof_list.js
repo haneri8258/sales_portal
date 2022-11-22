@@ -44,6 +44,7 @@ class ProofList extends Component {
 			rowKey	: 0, 
 			gridData : [],
 			slipData : [],
+			fileInfo : [],
             pageInfo : {
                 totalPage : 0,
                 totalCount : 0
@@ -79,9 +80,9 @@ class ProofList extends Component {
 			isOpenModal : false
 		});
 	}
-
-	gridRef   = React.createRef();
-	gridSlip  = React.createRef()
+	
+ 	gridRef   = React.createRef();
+	slipRef   = React.createRef();	
 
 	onGridMounted = (e) => { 
         this.getRequest();
@@ -173,25 +174,30 @@ class ProofList extends Component {
 		const day = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate() );
 		const dateStr = [year, month, day].join('-');
 		 
-        let balanceAmount = 0;
-        const fileRows = [{gubun : '선급금', invoiceNo : '', fileUpload : "파일업로드", remittamceDate : dateStr , balanceAmount: 0 , remittanceAmount : 0 }];
+        let balanceAmount = 0; 
+        const slipRows = [];
+        
+        slipRows.push({gubun : '선급금', invoiceNo : '',  fileName : "파일업로드", remittamceDate : dateStr , balanceAmount: 0 , remittanceAmount : 0  , fileInfo : [] } ); 
         for(let i in checkedRows){ 
         	balanceAmount += checkedRows[i].balanceAmount; 
-        	checkedRows[i].gubun = checkedRows[i].invoiceNo;
-        	checkedRows[i].fileUpload ="파일업로드";  
-        	checkedRows[i].remittamceDate   =  dateStr;  
-        	checkedRows[i].remittanceAmount = 0; 
-        	fileRows.push(checkedRows[i]); 
-        }
+        	checkedRows[i].gubun      = checkedRows[i].invoiceNo;
+        	checkedRows[i].invoiceNo  = checkedRows[i].invoiceNo; 
+        	checkedRows[i].fileName   = "파일업로드";  
+        	checkedRows[i].remittamceDate   =  dateStr;
+        	checkedRows[i].remittanceAmount = 0;  
+        	checkedRows[i].fileInfo = [];
+        	slipRows.push(checkedRows[i]);
+        } 
+        
         if(balanceAmount ===0 ) {
         	 alert("선택한 자료의 송금할 금액이 0 입니다.");
         	return;
         } 		 
         this.setState({
             isOpenModalAdd: true,
-            slipData : fileRows
-        });
-        
+            slipData : slipRows 
+        }); 
+          
     }
 
     // 등록창 닫기
@@ -204,7 +210,7 @@ class ProofList extends Component {
     // 증빙파일업로드 열기
     onOpenModalFile = async (rowKey) => { 
     	this.setState({
-    		isOpenModalAdd: false,
+    	//	isOpenModalAdd: false,
             isOpenModalFile: true,
             rowKey	: rowKey
         }); 
@@ -212,7 +218,7 @@ class ProofList extends Component {
     //  증빙업로드 등록창 닫기
     onCloseModalFile = () => {
         this.setState({
-        	isOpenModalAdd: true,
+        //	isOpenModalAdd: true,
             isOpenModalFile: false 
         });
     }
@@ -247,7 +253,6 @@ class ProofList extends Component {
         params.perPage = Number(this.state.perPage);
         params.pageNumber = pageNumber;
 		
-		//params.storeNo = sessionStorage.getItem("_STORE_NO");
         this.onGridUpdatePages(params);
 
     }
@@ -263,9 +268,8 @@ class ProofList extends Component {
 	} 
 
 	render() {
-        const {pageInfo} = this.state;
-
-
+        const {pageInfo} = this.state; 
+		
 		const onClickedAtag = (e, rowKey) => {
 			e.preventDefault();
             this.onOpenModalFile(rowKey);
@@ -290,22 +294,22 @@ class ProofList extends Component {
 		const slipColumns = [
  			{ name: "gubun", header: "구분", width: 100, sortable: false, align: "center"},
  			{ name: "invoiceNo", header: "invoiceNo", hidden : true },
-			{ name: "balanceAmount", header: "인보이스 Total 송금액 ", width: 150, sortable: false
+			{ name: "balanceAmount", header: "인보이스금액", width: 100, sortable: false
 				, align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-				}
+				} 
 			},
 			{ name: "remittamceDate", header: "송금날짜", width: 120, sortable: false
 				, align: "center", editor: 'text'
 			},
-			{ name: "remittanceAmount", header: "송금액", width: 120, sortable: true
+			{ name: "remittanceAmount", header: "송금액", width: 120, sortable: false
 				, align: "right", editor: 'text'
-				,formatter({value}){
+			 	,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 			},
-			{ name: "fileUpload", header: "증빙", width: 100, sortable: false, align: "center"
+			{ name: "fileName", header: "증빙", width: 150, sortable: false, align: "center"
 				,renderer: {
                     type: LinkInGrid,
                     options: {
@@ -316,21 +320,52 @@ class ProofList extends Component {
 		];
 				
 		// 등록
-        const addBankSlip = async (event) => {
-         
+        const addBankSlip = async (event) => { 
+         	const slipData = this.slipRef.current.getInstance().getData();
+          	const formData = new FormData(); 
+	        for(let i = 0; i < slipData.length; i++){
+	            formData.append(i, slipData[i].fileInfo);  
+	        }
+	        formData.append("slipData", JSON.stringify(slipData));         
+	        const url = process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadProof";
+ 	        await api.post(url, formData, {header: {"Content-Type": "multipart/form-data;"}} )
+ 	        .then(function (res){ 
+         		if(res.data.resultCode >0){
+         			alert("성공적으로 저장 되었습니다"); 
+         		}	 
+              }).catch(err => {
+				if(err.response){
+					console.log(err.response.data);
+				}else if(err.request){
+					console.log(err.request);
+				}else{
+					console.log('Error', err.message);
+				}
+			}); 
+	        
         }
-        
-        const addFileSlip = async (event) => {
          
-        }
-         
-        const fileList  = [];  
-        
+           
         // 파일 업로드 핸들러
         const handleChangeFile = (event) => {
-        	debugger;
-		    console.log(event.target.files)
-		    fileList.push(event.target.files); 
+        	 
+		    const rowKey   = this.state.rowKey;  
+		    
+		    const slipData = this.slipRef.current.getInstance().getData();
+		    slipData[rowKey].fileInfo = event.target.files[0];
+		    slipData[rowKey].fileName = event.target.files[0].name;  
+		    
+		    const slipRows = [];
+        
+	        for(let i in slipData){  
+	         	slipRows.push(slipData[i]);
+	        } 
+	       	 
+	        this.setState({ 
+	            slipData : slipRows 
+	        });  
+		      
+			this.onCloseModalFile();
 		} 
 
 		return (
@@ -390,7 +425,7 @@ class ProofList extends Component {
                                         </div>
 									</div>
 									<div className="">                                        	
-										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum","checkbox"]}
+										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} data={this.state.gridData} ref={this.gridRef} rowHeaders={["rowNum","checkbox"]}
 												scrollX={true} columnOptions={{frozenCount : 0}}>
 										</Grid>
 									</div>
@@ -429,12 +464,12 @@ class ProofList extends Component {
 					<Modal.Body>
                         {/* 등록 Form Start */}
 						<Form controlid="form01" noValidate validated={this.state.vldtAdd} ref={this.formAddRef}>
-							<div classname ="col-12 grid-margin">
+							<div className ="col-12 grid-margin">
 								<div className="card">   
 									<div className="card-body">                                    	
-										<Grid columns={slipColumns}  data={this.state.slipData} onGridMounted={(e) => this.onGridSlipMounted(e)} ref={this.gridSlip} 
+										<Grid columns={slipColumns} ref={this.slipRef}   data={this.state.slipData} onGridMounted={(e) => this.onGridSlipMounted(e)}  
 												scrollX={true} columnOptions={{frozenCount : 0}}>
-										</Grid>
+										</Grid> 
 									</div>	
 								</div> 
 							</div>	
@@ -455,20 +490,16 @@ class ProofList extends Component {
 					<Modal.Body>
                         {/* 등록 Form Start */}
 						<Form controlid="form02">
-							<div classname ="col-12 grid-margin">
+							<div className ="col-12 grid-margin">
 								<div className="card">   
 									<div className="card-body">                                    	
-										<input type="file" id="file"  onChange={handleChangeFile} multiple="multiple" />
+										<input type="file" id="file"  onChange={handleChangeFile} accept='image/jpeg,image/gif,image/png' />
 									</div>	
 								</div> 
 							</div>	
 						</Form>
                         {/* 등록 Form End */}
-					</Modal.Body>
-					<Modal.Footer>
-						<button className="btn btn-sm btn-dark" onClick={this.onCloseModalFile}><Trans>취소</Trans></button>
-						<button className="btn btn-sm btn-success" onClick={(event) => addFileSlip(event)} ><Trans>파일 저장</Trans></button>
-					</Modal.Footer>
+					</Modal.Body> 
                 </Modal> 
                 
 				
