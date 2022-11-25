@@ -40,12 +40,9 @@ class InvoceList extends Component {
 			endDate : "",
 			isOpenModal : false,
 			
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"",
-			searchKeyVkgrpT :"",
+			searchKeyInvoiceDate :"",
+			searchKeyStatus  :"",
+			searchKeyInvoiceNo :"", 
 		
 			gridData : [],
             pageInfo : {
@@ -58,10 +55,9 @@ class InvoceList extends Component {
 
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
-			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
-			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
-			_STORE_NAME: sessionStorage.getItem('_STORE_NAME'),
+			_USER_NAME: sessionStorage.getItem('_USER_NAME'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
+			_CLIENT_ID: sessionStorage.getItem('_CLIENT_ID')
 		};
 	}
     componentDidMount(){
@@ -89,19 +85,14 @@ class InvoceList extends Component {
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
-        this.getOrders();
+        this.getRequest();
 	}
 
-    getOrders = () => {
+    getRequest = () => {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-
-        if(sessionStorage.getItem("_ADMIN_AUTH") === "PART"){
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		} else {
-			params.storeNo = "";
-		}
+ 		params.clientId = sessionStorage.getItem('_CLIENT_ID');
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceClientList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceRowCount",{params : params}) 
@@ -125,66 +116,12 @@ class InvoceList extends Component {
     }
     
 	timestamp = (date)=>{
-		date.setHours(date.getHours() + 9);
-		return date.toISOString().replace('T', ' ').substring(0, 19); 
-	}
-
-	exportDefaultExcel = (e) => {
-		const date = new Date();
-		const year = date.getFullYear();
-		const month = ('0' + (date.getMonth() + 1));
-		const day = ('0' + date.getDate());
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-		const dateStr = [year, month, day,hours,minutes].join('');
-		const titleName = "Order_List_"+dateStr;
-
-        const columnsData = this.gridRef.current.getInstance().getColumns();
-        const columns = [];
-        for(let i in columnsData){
-            const column = {};
-            column.header = columnsData[i].header;
-            column.key=columnsData[i].name
-            columns.push(column);
-        }
-        const params = {};
-        params.searchKeyword = this.state.searchKeyword;
-        params.startDate = this.state.startDate;
-        params.endDate = this.state.endDate;
-        params.searchType = this.state.searchType;
-        params.searchTransStatus = this.state.searchTransStatus;
-		if(sessionStorage.getItem("_GROUP_ID")=== "AG001"){
-			params.storeNo = ""
-		} else {
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
+		if(date){
+			date.setHours(date.getHours() + 9);
+			return date.toISOString().replace('T', ' ').substring(0, 10); 
 		}
-
-        api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/excelOrderReport",{params : params}).then(res=>{
-            if(res.status ===200){
-                const workbook = new ExcelJS.Workbook();
-                const orderReport =workbook.addWorksheet("orderReport");
-                orderReport.columns = columns;
-
-                const data = res.data;
-                data.map((item,index)=>{
-                    orderReport.addRow(item);
-                });
-
-                workbook.xlsx.writeBuffer().then((data)=>{
-                    const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    const url = window.URL.createObjectURL(blob);
-                    const anchor = document.createElement('a');
-                    anchor.href = url;
-                    anchor.download = `${titleName}.xlsx`;
-                    anchor.click();
-                    window.URL.revokeObjectURL(url);
-                })
-        
-            }
-        })
-
 	}
-
+  
     onGridUpdatePages = (params)=>{  
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceClientList",{params : params})
@@ -211,12 +148,11 @@ class InvoceList extends Component {
     }
     onResetGrid = () => {
 		this.setState({
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"" ,
-			searchKeyVkgrpT :"",
+		
+			searchKeyInvoiceDate :"",
+			searchKeyStatus  :"",
+			searchKeyInvoiceNo :"", 
+        
             pageNumber : 1,
             perPage : 20
 		});
@@ -232,14 +168,9 @@ class InvoceList extends Component {
         })
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyStatus = this.state.searchKeyStatus;  
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -254,20 +185,15 @@ class InvoceList extends Component {
         });
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyStatus = this.state.searchKeyStatus;  
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
+        params.clientId = sessionStorage.getItem('_CLIENT_ID');
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
         params.pageNumber = pageNumber;
-		
-		//params.storeNo = sessionStorage.getItem("_STORE_NO");
+		 
         this.onGridUpdatePages(params);
 
     }
@@ -275,44 +201,46 @@ class InvoceList extends Component {
     onSearch = (e) =>{
 		const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyStatus =  this.state.searchKeyStatus;  
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
-		params.storeNo = sessionStorage.getItem("_STORE_NO");
+		params.clientId = sessionStorage.getItem('_CLIENT_ID');
         this.onGridUpdatePages(params);
 	} 
 
 	render() {
         const {pageInfo} = this.state;
-
-
-		const onClickedAtag = (e, rowKey) => {
-			e.preventDefault();
-            const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
-            if(productName === null || productName === ""){
-                alert("미연동 상품입니다. 관리자에게 문의 바랍니다.");
-                return;
-            }
-			const orderNo = this.gridRef.current.getInstance().getRow(rowKey).orderNo;
-			this.props.router.navigate('/order/order/'+orderNo, {state : {"orderNo": orderNo}});
-		}
+ 
 
 		const columns = [
  			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "인보이스 일자", width: 200, sortable: true,align: "left"},
-			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true,align: "right"},
-			{ name: "depositAmt", header: "입금액", width: 150, sortable: true,align: "right" },
-			{ name: "status", header: "Status", width: 150, sortable: true,align: "center" },  
-			{ name: "balanceAmt", header: "차액(자동계산)", width: 200, sortable: true,align: "right" }
+			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+			},
+			{ name: "depositAmt", header: "송금액", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				} 
+			 },
+			{ name: "status", header: "Status", width: 150, sortable: true,align: "center"
+				,formatter({value}){
+					return value === '정산완료' ? '<span style="width:100%;height:100%;color:blue;font-weight:bold;">'+value+'</span>' 
+					:  (value === '미정산' ? '<span style="width:100%;height:100%;color:red;font-weight:bold;">'+value+'</span>' : '<span style="width:100%;height:100%;color:black;font-weight:bold;">'+value+'</span>')  ; 
+				} 
+		
+			},  
+			{ name: "balanceAmt", header: "차액(자동계산)", width: 200, sortable: true,align: "right" 
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				} 
+			}
 		];
 
 		return (
@@ -342,7 +270,7 @@ class InvoceList extends Component {
                                                 <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyInvoiceNo" value={this.state.searchKeyInvoiceNo} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="인보이스번호를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -350,25 +278,22 @@ class InvoceList extends Component {
                                                 <Form.Text><Trans>인보이스 날짜</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
-                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
-                                                            onChange={(date) =>   this.setState({ startDate: date })}>
+                                                <DatePicker selected={this.state.searchKeyInvoiceDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="인보이스 날짜" 
+                                                            onChange={(date) =>   this.setState({ searchKeyInvoiceDate: date })}>
                                                 </DatePicker>
                                             </li>
-                                            <li className="list-inline-item me-1"> ~</li>
-                                            <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
-                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
-                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
-                                                </DatePicker>
-                                            </li>
+                                             
                                             <li className="list-inline-item me-1">
                                                 <Form.Text><Trans>Status</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="Status를입력하세요">
-                                                </Form.Control> 
+                                                <Form.Select name="searchKeyStatus" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyStatus}>
+                                                    <option value="null">전체</option>
+                                                    <option value="미정산">미정산</option>
+                                                    <option value="정산중">정산중</option>
+                                                    <option value="정산완료">정산완료</option> 
+                                                </Form.Select>
                                             </li>
                                            
                                             <li className="list-inline-item me-1">

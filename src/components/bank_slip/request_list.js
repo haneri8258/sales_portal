@@ -1,8 +1,8 @@
 /**
- * This application was developed by YS.Im, HJ.Yoon and GH.Zhang of GIE&S at 2022 years.
- */
+ * This application was developed by Haneri.jeong  of ITS Community at 2022 years.
+ */ 
 import React, { Component } from "react";
-import { Form,Modal} from "react-bootstrap";
+import { Form, Modal, Badge } from "react-bootstrap"; 
 import Grid from "@toast-ui/react-grid";
 import { Trans, withTranslation } from "react-i18next";
 import DatePicker from "react-datepicker";
@@ -15,6 +15,7 @@ import api from '../../CustomAxios';
 import Pagination from "react-js-pagination";
 import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
+import 'tui-date-picker/dist/tui-date-picker.css';
 import { Loading } from "../../loading";
 /**
  * 설명 : BankSlip 요청현황
@@ -40,12 +41,9 @@ class RequestList extends Component {
 			endDate : "",
 			isOpenModal : false,
 			
-			searchKeyInvoceNo :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"",
-			searchKeyVkgrpT :"",
+			searchKeyInvoiceDate :"",
+			searchKeyRemittanceDate  :"",
+			searchKeyInvoiceNo :"", 
 		
 			gridData : [],
             pageInfo : {
@@ -60,6 +58,7 @@ class RequestList extends Component {
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
+			_CLIENT_ID: sessionStorage.getItem('_CLIENT_ID')
 		};
 	}
     componentDidMount(){
@@ -94,12 +93,8 @@ class RequestList extends Component {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-
-        if(sessionStorage.getItem("_ADMIN_AUTH") === "PART"){
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		} else {
-			params.storeNo = "";
-		}
+		params.clientId = sessionStorage.getItem('_CLIENT_ID');
+        
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestRowCount",{params : params}) 
@@ -123,8 +118,10 @@ class RequestList extends Component {
     }
     
 	timestamp = (date)=>{
-		date.setHours(date.getHours() + 9);
-		return date.toISOString().replace('T', ' ').substring(0, 19); 
+		if(date) {
+			date.setHours(date.getHours() + 9);
+			return date.toISOString().replace('T', ' ').substring(0, 10); 
+		}
 	}
  
 
@@ -154,12 +151,9 @@ class RequestList extends Component {
     }
     onResetGrid = () => {
 		this.setState({
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"" ,
-			searchKeyVkgrpT :"",
+			searchKeyInvoiceDate :"",
+			searchKeyRemittanceDate  :"",
+			searchKeyInvoiceNo :"", 
             pageNumber : 1,
             perPage : 20
 		});
@@ -175,14 +169,9 @@ class RequestList extends Component {
         })
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyRemittanceDate = this.timestamp(this.state.searchKeyRemittanceDate);  
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -197,20 +186,14 @@ class RequestList extends Component {
         });
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
-        
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyRemittanceDate = this.timestamp(this.state.searchKeyRemittanceDate);  
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
+        params.clientId = sessionStorage.getItem('_CLIENT_ID');
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
         params.pageNumber = pageNumber;
-		
-		//params.storeNo = sessionStorage.getItem("_STORE_NO");
+		 
         this.onGridUpdatePages(params);
 
     }
@@ -218,19 +201,14 @@ class RequestList extends Component {
     onSearch = (e) =>{
 		const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyRemittanceDate = this.timestamp(this.state.searchKeyRemittanceDate);  
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
-		params.storeNo = sessionStorage.getItem("_STORE_NO");
+		params.clientId = sessionStorage.getItem('_CLIENT_ID');
         this.onGridUpdatePages(params);
 	} 
 
@@ -240,25 +218,37 @@ class RequestList extends Component {
 
 		const onClickedAtag = (e, rowKey) => {
 			e.preventDefault();
-            const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
-            if(productName === null || productName === ""){
-                alert("미연동 상품입니다. 관리자에게 문의 바랍니다.");
+            const serverFileName = this.gridRef.current.getInstance().getRow(rowKey).serverFileName;
+            if(serverFileName === null || serverFileName === ""){
+                alert("증빙파일이 존재하지 않습니다. 관리자에게 문의 바랍니다.");
                 return;
-            }
-			const orderNo = this.gridRef.current.getInstance().getRow(rowKey).orderNo;
-			this.props.router.navigate('/order/order/'+orderNo, {state : {"orderNo": orderNo}});
+            } 
+            
+			// this.props.router.navigate('/order/order/'+orderNo, {state : {"serverFileName": serverFileName}});
 		}
 
 		const columns = [
- 			{ name: "requestNo", header: "요청번호", width: 200, sortable: true,align: "center"},
-			{ name: "requestDate", header: "요청일자", width: 200, sortable: true,align: "left"},
-			{ name: "remittamceDate", header: "송금날짜", width: 150, sortable: true,align: "center"},
-			{ name: "remittanceAmount", header: "송금금액", width: 150, sortable: true,align: "right" },
+ 			{ name: "requestNo", header: "요청번호", width: 100, sortable: true,align: "center"},
+ 			{ name: "requestDate", header: "요청일자", width: 150, sortable: true,align: "center"},
 			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: "invoiceDate", header: "인보이스 날짜", width: 180, sortable: true,align: "left"},
-			{ name: "status", header: "Status", width: 150, sortable: true,align: "center"},
-			{ name: "remittamceDate", header: "Remittamce Date", width: 150, sortable: true,align: "left"},
-			{ name: "depositAmt", header: "입금액", width: 150, sortable: true,align: "right"}
+			{ name: "invoiceDate", header: "인보이스 날짜", width: 150, sortable: true,align: "center"}, 
+			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true, align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+		 	},
+			{ name: "remittanceDate", header: "송금 날짜", width: 150, sortable: true,align: "center"},
+			{ name: "remittanceAmount", header: "송금액", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return '<span style="width:100%;height:100%;color:blue">'+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>&nbsp;&nbsp;&nbsp;&nbsp';
+				}
+			},
+			{ name: "originFileName", header: "증명서", width: 200, sortable: true,align: "left"},
+			{ name: "createdAt", header: "증빙입력 일자", width: 150, sortable: true,align: "center"},
+			{ name: "status", header: "승인 상태", width: 150, sortable: true,align: "center"},
+			{ name: "confirmDate", header: "승인 날짜", width: 150, sortable: true,align: "center"},
+			{ name: "comment", header: "승인 내용", width: 300, sortable: true,align: "center"},
+			
 		];
 
 		return (
@@ -289,23 +279,17 @@ class RequestList extends Component {
                                                 <Form.Text><Trans>송금 날짜</Trans></Form.Text>
                                             </li>
                                         	<li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
-                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
-                                                            onChange={(date) =>   this.setState({ startDate: date })}>
+                                                <DatePicker selected={this.state.searchKeyRemittanceDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="송금 날짜" 
+                                                            onChange={(date) =>   this.setState({ searchKeyRemittanceDate: date })}>
                                                 </DatePicker>
                                             </li>
-                                            <li className="list-inline-item me-1"> ~</li>
-                                            <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
-                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
-                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
-                                                </DatePicker>
-                                            </li>
+                                            
 											<li className="list-inline-item me-1">
                                                 <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyInvoceNo" value={this.state.searchKeyInvoceNo} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyInvoiceNo" value={this.state.searchKeyInvoiceNo} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="인보이스번호를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -313,19 +297,12 @@ class RequestList extends Component {
                                                 <Form.Text><Trans>인보이스 날짜</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.startDate} className="form-control form-control-sm" size="sm"
-                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="시작일시" 
-                                                            onChange={(date) =>   this.setState({ startDate: date })}>
+                                                <DatePicker selected={this.state.searchKeyInvoiceDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="인보이스 날짜" 
+                                                            onChange={(date) =>   this.setState({ searchKeyInvoiceDate: date })}>
                                                 </DatePicker>
                                             </li>
-                                            <li className="list-inline-item me-1"> ~</li>
-                                            <li className="list-inline-item me-1">
-                                                <DatePicker selected={this.state.endDate} className="form-control form-control-sm"
-                                                            dateFormat="yyyy-MM-dd" placeholderText="종료일시" defaultValue=""
-                                                            minDate={this.state.startDate} onChange={(date) => this.setState({ endDate: date })}>
-                                                </DatePicker>
-                                            </li>
-                                           
+                                             
                                             <li className="list-inline-item me-1">
                                                 <button type="button" className="btn btn-sm btn-success"  onClick={this.onSearch}>
                                                     <Trans>검색</Trans>

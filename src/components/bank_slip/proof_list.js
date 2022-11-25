@@ -52,11 +52,11 @@ class ProofList extends Component {
             activePage : 1,
             perPage : 20,
             pageNumber : "",
-
-
+ 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
+			_CLIENT_ID: sessionStorage.getItem('_CLIENT_ID')
 		};
 	}
     componentDidMount(){
@@ -92,7 +92,7 @@ class ProofList extends Component {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-  
+  		params.clientId = sessionStorage.getItem('_CLIENT_ID');
         axios.all([ 
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/proofList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/proofRowCount",{params : params}) 
@@ -123,7 +123,7 @@ class ProofList extends Component {
     
 	timestamp = (date)=>{
 		date.setHours(date.getHours() + 9);
-		return date.toISOString().replace('T', ' ').substring(0, 19); 
+		return date.toISOString().replace('T', ' ').substring(0, 10); 
 	}
  
     onGridUpdatePages = (params)=>{   
@@ -177,13 +177,14 @@ class ProofList extends Component {
         let balanceAmount = 0; 
         const slipRows = [];
         
-        slipRows.push({gubun : '선급금', invoiceNo : '',  fileName : "파일업로드", remittamceDate : dateStr , balanceAmount: 0 , remittanceAmount : 0  , fileInfo : [] } ); 
+        slipRows.push({remittanceType : '선급금', invoiceNo : '',  originFileName : "파일업로드", remittanceDate : dateStr , balanceAmount: 0 , remittanceAmount : 0  , fileInfo : [] } ); 
         for(let i in checkedRows){ 
-        	balanceAmount += checkedRows[i].balanceAmount; 
-        	checkedRows[i].gubun      = checkedRows[i].invoiceNo;
-        	checkedRows[i].invoiceNo  = checkedRows[i].invoiceNo; 
-        	checkedRows[i].fileName   = "파일업로드";  
-        	checkedRows[i].remittamceDate   =  dateStr;
+        	balanceAmount += checkedRows[i].balanceAmount;
+        	checkedRows[i].rowKey = (Number(i) + 1);
+        	checkedRows[i].remittanceType   = checkedRows[i].invoiceNo;
+        	checkedRows[i].invoiceNo  		= checkedRows[i].invoiceNo; 
+        	checkedRows[i].originFileName   = "파일업로드";  
+        	checkedRows[i].remittanceDate   =  dateStr;
         	checkedRows[i].remittanceAmount = 0;  
         	checkedRows[i].fileInfo = [];
         	slipRows.push(checkedRows[i]);
@@ -209,8 +210,8 @@ class ProofList extends Component {
     
     // 증빙파일업로드 열기
     onOpenModalFile = async (rowKey) => { 
+    	
     	this.setState({
-    	//	isOpenModalAdd: false,
             isOpenModalFile: true,
             rowKey	: rowKey
         }); 
@@ -218,7 +219,6 @@ class ProofList extends Component {
     //  증빙업로드 등록창 닫기
     onCloseModalFile = () => {
         this.setState({
-        //	isOpenModalAdd: true,
             isOpenModalFile: false 
         });
     }
@@ -263,7 +263,7 @@ class ProofList extends Component {
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
-		params.storeNo = sessionStorage.getItem("_STORE_NO");
+		params.clientId = sessionStorage.getItem("_CLIENT_ID");
         this.onGridUpdatePages(params);
 	} 
 
@@ -292,7 +292,7 @@ class ProofList extends Component {
 		
 		 
 		const slipColumns = [
- 			{ name: "gubun", header: "구분", width: 100, sortable: false, align: "center"},
+ 			{ name: "remittanceType", header: "구분", width: 100, sortable: false, align: "center"},
  			{ name: "invoiceNo", header: "invoiceNo", hidden : true },
 			{ name: "balanceAmount", header: "인보이스금액", width: 100, sortable: false
 				, align: "right"
@@ -302,14 +302,22 @@ class ProofList extends Component {
 			},
 			{ name: "remittamceDate", header: "송금날짜", width: 120, sortable: false
 				, align: "center", editor: 'text'
+				,editOptions: {
+			      type: 'text'
+			      ,useViewMode: false
+			    }  
 			},
 			{ name: "remittanceAmount", header: "송금액", width: 120, sortable: false
 				, align: "right", editor: 'text'
 			 	,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
+				,editOptions: {
+			      type: 'text'
+			      ,useViewMode: false
+			    }
 			},
-			{ name: "fileName", header: "증빙", width: 150, sortable: false, align: "center"
+			{ name: "originFileName", header: "증빙", width: 150, sortable: false, align: "center"
 				,renderer: {
                     type: LinkInGrid,
                     options: {
@@ -321,9 +329,28 @@ class ProofList extends Component {
 				
 		// 등록
         const addBankSlip = async (event) => { 
+        	let closeModel  =  this.onCloseModalAdd;
+        	let getRequest  =  this.getRequest;
          	const slipData = this.slipRef.current.getInstance().getData();
           	const formData = new FormData(); 
 	        for(let i = 0; i < slipData.length; i++){
+	        	if( slipData[i].balanceAmount < slipData[i].remittanceAmount) {
+	        		alert("송금액이 잔액보다 크게 입력되었습니다.");
+	        		return;
+	        	}
+	        	if(  slipData[i].remittanceAmount >0 &&  slipData[i].fileInfo.length ===0) {
+	        		alert("증빙이 입력되지 않았습니다. ");
+	        		return;
+	        	}	
+	        	if(  slipData[i].remittanceAmount === 0 &&  slipData[i].fileInfo.length >0) {
+	        		alert("송금액이 입력되지 않았습니다.");
+	        		return;
+	        	}
+	        	if( slipData[i].remittanceType !== '선급금' && slipData[i].remittanceAmount === 0 &&  slipData[i].fileInfo.length ===0) {
+	        		alert("송금액이 입력되지 않았습니다.");
+	        		return;
+	        	}
+	        	slipData[i].clientId = sessionStorage.getItem('_CLIENT_ID');
 	            formData.append(i, slipData[i].fileInfo);  
 	        }
 	        formData.append("slipData", JSON.stringify(slipData));         
@@ -332,6 +359,8 @@ class ProofList extends Component {
  	        .then(function (res){ 
          		if(res.data.resultCode >0){
          			alert("성공적으로 저장 되었습니다"); 
+         			closeModel();
+         			getRequest();
          		}	 
               }).catch(err => {
 				if(err.response){
@@ -341,19 +370,16 @@ class ProofList extends Component {
 				}else{
 					console.log('Error', err.message);
 				}
-			}); 
-	        
+			});  
         }
          
            
         // 파일 업로드 핸들러
         const handleChangeFile = (event) => {
-        	 
-		    const rowKey   = this.state.rowKey;  
-		    
+            const rowKey   = this.state.rowKey;  
 		    const slipData = this.slipRef.current.getInstance().getData();
 		    slipData[rowKey].fileInfo = event.target.files[0];
-		    slipData[rowKey].fileName = event.target.files[0].name;  
+		    slipData[rowKey].originFileName = event.target.files[0].name;  
 		    
 		    const slipRows = [];
         
@@ -364,7 +390,8 @@ class ProofList extends Component {
 	        this.setState({ 
 	            slipData : slipRows 
 	        });  
-		      
+	        
+			this.slipRef.current.getInstance().resetData(slipRows);	      
 			this.onCloseModalFile();
 		} 
 
@@ -467,7 +494,7 @@ class ProofList extends Component {
 							<div className ="col-12 grid-margin">
 								<div className="card">   
 									<div className="card-body">                                    	
-										<Grid columns={slipColumns} ref={this.slipRef}   data={this.state.slipData} onGridMounted={(e) => this.onGridSlipMounted(e)}  
+										<Grid columns={slipColumns} onGridMounted={(e) => this.onGridSlipMounted(e)}  data={this.state.slipData} ref={this.slipRef}   
 												scrollX={true} columnOptions={{frozenCount : 0}}>
 										</Grid> 
 									</div>	
