@@ -40,11 +40,13 @@ class RequestList extends Component {
 			startDate:"",
 			endDate : "",
 			isOpenModal : false,
+			isOpenModalFile: false,
 			
 			searchKeyInvoiceDate :"",
 			searchKeyRemittanceDate  :"",
 			searchKeyInvoiceNo :"", 
-		
+			
+			imageBase64 : "",
 			gridData : [],
             pageInfo : {
                 totalPage : 0,
@@ -53,7 +55,7 @@ class RequestList extends Component {
             activePage : 1,
             perPage : 20,
             pageNumber : "",
-
+			
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'), 
@@ -83,6 +85,31 @@ class RequestList extends Component {
 		});
 	}
 
+	// 증빙파일 열기
+    onOpenModalFile = async (rowKey) => {
+	     const gridData =	this.gridRef.current.getInstance().getData(); 
+	     await api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/getServerFileName",{params : gridData[rowKey]})
+	     .then(function (res){ 
+	        this.setState({
+	            isOpenModalFile: true,
+	            imageBase64	: res.data.imageBase64
+	        }); 
+	     }).catch(err => {
+			if(err.response){
+				console.log(err.response.data);
+			}else if(err.request){
+				console.log(err.request);
+			}else{
+				console.log('Error', err.message);
+			}
+		 });
+	}   
+    //  증빙파일 닫기
+    onCloseModalFile = () => {
+        this.setState({
+            isOpenModalFile: false 
+        });
+    }
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
@@ -215,17 +242,12 @@ class RequestList extends Component {
 	render() {
         const {pageInfo} = this.state;
 
-
 		const onClickedAtag = (e, rowKey) => {
+			
 			e.preventDefault();
-            const serverFileName = this.gridRef.current.getInstance().getRow(rowKey).serverFileName;
-            if(serverFileName === null || serverFileName === ""){
-                alert("증빙파일이 존재하지 않습니다. 관리자에게 문의 바랍니다.");
-                return;
-            } 
-            
-			// this.props.router.navigate('/order/order/'+orderNo, {state : {"serverFileName": serverFileName}});
+            this.onOpenModalFile(rowKey);
 		}
+		
 
 		const columns = [
  			{ name: "requestNo", header: "요청번호", width: 100, sortable: true,align: "center"},
@@ -243,7 +265,17 @@ class RequestList extends Component {
 					return '<span style="width:100%;height:100%;color:blue">'+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>&nbsp;&nbsp;&nbsp;&nbsp';
 				}
 			},
-			{ name: "originFileName", header: "증명서", width: 200, sortable: true,align: "left"},
+			{ name: "originFileName", header: "증명서", width: 200, sortable: true,align: "left"
+				,renderer: {
+                    type: LinkInGrid,
+                    options: {
+                        onClickedAtag
+                    }
+                } 
+				,formatter({value}){
+					return '<span style="width:100%;height:100%;color:blue">'+value.toString()+'</span>';
+				}
+			},
 			{ name: "createdAt", header: "증빙입력 일자", width: 150, sortable: true,align: "center"},
 			{ name: "status", header: "승인 상태", width: 150, sortable: true,align: "center"},
 			{ name: "confirmDate", header: "승인 날짜", width: 150, sortable: true,align: "center"},
@@ -251,6 +283,28 @@ class RequestList extends Component {
 			
 		];
 
+	
+	// 파일 업로드 핸들러
+    const handleChangeFile = (event) => {
+      /*  const rowKey   = this.state.rowKey;  
+	    const slipData = this.slipRef.current.getInstance().getData();
+	    slipData[rowKey].fileInfo = event.target.files[0];
+	    slipData[rowKey].originFileName = event.target.files[0].name;  
+	    
+	    const slipRows = [];
+    
+        for(let i in slipData){  
+         	slipRows.push(slipData[i]);
+        } 
+       	 
+        this.setState({ 
+            slipData : slipRows 
+        });  
+        
+		this.slipRef.current.getInstance().resetData(slipRows);	      
+		this.onCloseModalFile();*/
+	} 
+	
 		return (
 			<div>
                 {this.state.loading && (<Loading/>)}
@@ -366,7 +420,26 @@ class RequestList extends Component {
 							</div>
 						</div>
 					</div>
-				</div> 
+				</div>
+				{/* 등록 Modal */}
+                <Modal className="modal fade" show={this.state.isOpenModalFile} onHide={this.onCloseModalFile} aria-labelledby="contained-modal-title-vcenter" aria-hidden="true" centered scrollable>
+					<Modal.Header className="modal-header" closeButton>
+						<Modal.Title><Trans>증빙파일확인</Trans></Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+                        {/* 등록 Form Start */}
+						<Form controlid="form02">
+							<div className ="col-12 grid-margin">
+								<div className="card">   
+									<div className="card-body">                                    	
+										 <img src="{this.state.imageBase64}" /> 
+									</div>	
+								</div> 
+							</div>	
+						</Form>
+                        {/* 등록 Form End */}
+					</Modal.Body> 
+                </Modal> 
 			</div>
 		);
 	}
