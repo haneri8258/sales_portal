@@ -84,17 +84,22 @@ class RequestList extends Component {
 			isOpenModal : false
 		});
 	}
-
+         
 	// 증빙파일 열기
     onOpenModalFile = async (rowKey) => {
+    
 	     const gridData =	this.gridRef.current.getInstance().getData(); 
-	     await api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/getServerFileName",{params : gridData[rowKey]})
-	     .then(function (res){ 
-	        this.setState({
-	            isOpenModalFile: true,
-	            imageBase64	: res.data.imageBase64
-	        }); 
-	     }).catch(err => {
+	     const params   = { serverFileName : gridData[rowKey].serverFileName};
+	     axios.all([api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/getServerFileName",{params : params}) 
+         ]).then(
+         	axios.spread((res)=>{   
+         			debugger;
+         			this.setState({
+				        isOpenModalFile: true,
+				        imageBase64	: "data:image/png;base64,"+ res.data.imageBase64
+			 	 	});    
+         	})	 
+	    ).catch(err => {
 			if(err.response){
 				console.log(err.response.data);
 			}else if(err.request){
@@ -102,7 +107,8 @@ class RequestList extends Component {
 			}else{
 				console.log('Error', err.message);
 			}
-		 });
+		});  
+          
 	}   
     //  증빙파일 닫기
     onCloseModalFile = () => {
@@ -156,7 +162,6 @@ class RequestList extends Component {
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/requestRowCount",{params : params}) 
-            
         ]).then(
             axios.spread((res1,res2)=>{
             	this.setState({
@@ -265,6 +270,7 @@ class RequestList extends Component {
 					return '<span style="width:100%;height:100%;color:blue">'+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>&nbsp;&nbsp;&nbsp;&nbsp';
 				}
 			},
+			{ name: "serverFileName", header: "증빙서 서버파일명", width: 0, hidden: true },
 			{ name: "originFileName", header: "증명서", width: 200, sortable: true,align: "left"
 				,renderer: {
                     type: LinkInGrid,
@@ -432,7 +438,7 @@ class RequestList extends Component {
 							<div className ="col-12 grid-margin">
 								<div className="card">   
 									<div className="card-body">                                    	
-										 <img src="{this.state.imageBase64}" /> 
+										 <img src={this.state.imageBase64} width="1000"  /> 
 									</div>	
 								</div> 
 							</div>	
