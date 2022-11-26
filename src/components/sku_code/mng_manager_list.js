@@ -1,5 +1,5 @@
 /**
- * This application was developed by YS.Im, HJ.Yoon and GH.Zhang of GIE&S at 2022 years.
+ * This application was developed by Haneri.jeong of ITS Community at 2022 years.
  */
 import React, { Component } from "react";
 import { Form,Modal} from "react-bootstrap";
@@ -18,7 +18,7 @@ import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
 /**
- * 설명 : 제품별 오더 현황 레포트
+ * 설명 : 거래처 SKU 코드 관리
  *
  * @author		: 정병진
  * @since 		: 2022.11.08
@@ -42,9 +42,7 @@ class MngManagerList extends Component {
 			isOpenModal : false,
 			
 			searchKeySku :"",
-			searchKeyBuyerCode :"", 
-			//searchKeyManagerSku :"",
-			//searchKeyManagerCode :"", 
+			searchKeyBuyerCode :"",  
 		
 			gridData : [],
             pageInfo : {
@@ -122,9 +120,7 @@ class MngManagerList extends Component {
 	}
 
 	onSubmit = (e) => { 
-		const skuList = this.gridRef.current.getInstance().getCheckedRows();
-		//const skuList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  //JSON.stringify
-	 
+		const skuList = this.gridRef.current.getInstance().getCheckedRows();	 
 		if(skuList.length === 0) {
 			alert("저장할 자료를 선택하세요.");
 			return;
@@ -205,9 +201,7 @@ class MngManagerList extends Component {
         const params = {};
  
 		params.searchKeySku = this.state.searchKeySku;
-		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
-		//params.searchKeyManagerSku = this.state.searchKeyManagerSku;
-		//params.searchKeyManagerCode = this.state.searchKeyManagerCode;
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;  
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -223,9 +217,7 @@ class MngManagerList extends Component {
         const params = {};
  
 		params.searchKeySku = this.state.searchKeySku;
-		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
-		//params.searchKeyManagerSku = this.state.searchKeyManagerSku;
-		//params.searchKeyManagerCode = this.state.searchKeyManagerCode;
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;  
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
@@ -240,9 +232,7 @@ class MngManagerList extends Component {
 		const params = {};
  
 		params.searchKeySku = this.state.searchKeySku;
-		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
-		//params.searchKeyManagerSku = this.state.searchKeyManagerSku;
-		//params.searchKeyManagerCode = this.state.searchKeyManagerCode;
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;  
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -260,23 +250,8 @@ class MngManagerList extends Component {
 			{ name: "clientId", header: "거래처 id", width: 200, sortable: true,align: "center" },
 			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true,align: "center" },  
 			{ name: "managerId", header: "관리자 id", width: 200, sortable: true,align: "center" },  
-			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true,align: "center", editor: 'text'
-				,formatter({value}){
-					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
-				}
-			},
-			{ name: "clientUseYn", header: "거래처사용여부", sortable: true , filter : 'select', align: 'center', width : 200, formatter: 'listItemText',
-                editor:{ 
-                    type:'select',
-                    options : {
-                        listItems : [
-                            {text : "Y", value : "Y"},
-                            {text : "N", value : "N"},
-                        ]
-                    }
-                },
-            },
-            { name: "managerUseYn", header: "관리자사용여부", sortable: true , filter : 'select', align: 'center', width : 200, formatter: 'listItemText',
+			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true, align: "center"},
+			{ name: "managerUseYn", header: "사용여부", sortable: true , filter : 'select', align: 'center', width : 200, formatter: 'listItemText',
                 editor:{ 
                     type:'select',
                     options : {

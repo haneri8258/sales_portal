@@ -151,8 +151,7 @@ class MngList extends Component {
 		});
 	}
  
-    onGridUpdatePages = (params)=>{  
-    	debugger;
+    onGridUpdatePages = (params)=>{   
     	axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngRowCount",{params : params}) 
@@ -222,8 +221,7 @@ class MngList extends Component {
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
         params.pageNumber = pageNumber;
-		
-		//params.storeNo = sessionStorage.getItem("_STORE_NO");
+		params.clientId = sessionStorage.getItem("_CLIENT_ID");
         this.onGridUpdatePages(params);
 
     }
@@ -243,17 +241,7 @@ class MngList extends Component {
 	render() {
         const {pageInfo} = this.state;
 
-		const onClickedAtag = (e, rowKey) => {
-			e.preventDefault();
-            const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
-            if(productName === null || productName === ""){
-                alert("미연동 상품입니다. 관리자에게 문의 바랍니다.");
-                return;
-            }
-			const orderNo = this.gridRef.current.getInstance().getRow(rowKey).orderNo;
-			this.props.router.navigate('/order/order/'+orderNo, {state : {"orderNo": orderNo}});
-		}
-
+	
 		const columns = [
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left", editor: 'text'

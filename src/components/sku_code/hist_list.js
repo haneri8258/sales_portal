@@ -42,7 +42,7 @@ class BaseList extends Component {
 			
 			searchKeySku :"",
 			searchKeyDesc  :"",
-			searchKeyBuyerCode :"", 
+			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'), 
 		
 			gridData : [],
             pageInfo : {
@@ -84,14 +84,15 @@ class BaseList extends Component {
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
-        this.getBase();
+        this.getHist();
 	}
 
-    getBase = () => {
+    getHist = () => {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-		
+		params.searchKeyBuyerCode  = sessionStorage.getItem('_CLIENT_ID');
+		 
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseList",{params : params})
              ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseRowCount",{params : params}) 
@@ -148,7 +149,7 @@ class BaseList extends Component {
 		this.setState({
 			searchKeySku :"",
 			searchKeyDesc  :"",
-			searchKeyBuyerCode :"", 
+			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'), 
             pageNumber : 1,
             perPage : 20
 		});
@@ -203,7 +204,7 @@ class BaseList extends Component {
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
-		params.storeNo = sessionStorage.getItem("_STORE_NO");
+		params.clientId = sessionStorage.getItem("_CLIENT_ID");
         this.onGridUpdatePages(params);
 	} 
 
@@ -257,14 +258,6 @@ class BaseList extends Component {
                                            <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyDesc" value={this.state.searchKeyDesc} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="DESC를입력하세요">
-                                                </Form.Control> 
-                                            </li>
-                                            <li className="list-inline-item me-1">
-                                                <Form.Text><Trans>Buyer Code</Trans></Form.Text>
-                                            </li>
-                                            <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyBuyerCode} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="Buyer Code를입력하세요">
                                                 </Form.Control> 
                                             </li>
                                            

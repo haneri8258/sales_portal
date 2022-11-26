@@ -1,5 +1,5 @@
 /**
- * This application was developed by YS.Im, HJ.Yoon and GH.Zhang of GIE&S at 2022 years.
+ * This application was developed by Haneri.jeong of ITS Community at 2022 years.
  */
 import React, { Component } from "react";
 import { Form,Modal} from "react-bootstrap";
@@ -11,13 +11,14 @@ import axios from "axios";
 import LinkInGrid from "../utils/linkInGrid";
 import { useNavigate } from "react-router-dom";
 import { alert } from "react-bootstrap-confirmation";
+ 
 import api from '../../CustomAxios';
 import Pagination from "react-js-pagination";
 import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
 /**
- * 설명 : 제품별 오더 현황 레포트
+ * 설명 : 거래처 SKU 코드 관리
  *
  * @author		: 정병진
  * @since 		: 2022.11.08
@@ -40,13 +41,9 @@ class BaseManagerList extends Component {
 			endDate : "",
 			isOpenModal : false,
 			
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"",
-			searchKeyVkgrpT :"",
-		
+			searchKeySku :"",
+			searchKeyBuyerCode :"",  
+			
 			gridData : [],
             pageInfo : {
                 totalPage : 0,
@@ -55,12 +52,10 @@ class BaseManagerList extends Component {
             activePage : 1,
             perPage : 20,
             pageNumber : "",
-
-
+ 			
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
-			_STORE_NO: sessionStorage.getItem('_STORE_NO'),
-			_STORE_NAME: sessionStorage.getItem('_STORE_NAME'),
+			_MANAGER_ID: sessionStorage.getItem('_MANAGER_ID'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
 		};
 	}
@@ -89,22 +84,17 @@ class BaseManagerList extends Component {
 	gridRef = React.createRef();
 
 	onGridMounted = (e) => { 
-        this.getBaseManager();
+        this.getSku();
 	}
 
-    getBaseManager = () => {
+    getSku = () => {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-
-        if(sessionStorage.getItem("_ADMIN_AUTH") === "PART"){
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		} else {
-			params.storeNo = "";
-		}
+        debugger;
         axios.all([
-             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseManagerList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseManagerRowCount",{params : params}) 
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerList",{params : params})
+             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -129,66 +119,48 @@ class BaseManagerList extends Component {
 		return date.toISOString().replace('T', ' ').substring(0, 19); 
 	}
 
-	exportDefaultExcel = (e) => {
-		const date = new Date();
-		const year = date.getFullYear();
-		const month = ('0' + (date.getMonth() + 1));
-		const day = ('0' + date.getDate());
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-		const dateStr = [year, month, day,hours,minutes].join('');
-		const titleName = "Order_List_"+dateStr;
-
-        const columnsData = this.gridRef.current.getInstance().getColumns();
-        const columns = [];
-        for(let i in columnsData){
-            const column = {};
-            column.header = columnsData[i].header;
-            column.key=columnsData[i].name
-            columns.push(column);
-        }
-        const params = {};
-        params.searchKeyword = this.state.searchKeyword;
-        params.startDate = this.state.startDate;
-        params.endDate = this.state.endDate;
-        params.searchType = this.state.searchType;
-        params.searchTransStatus = this.state.searchTransStatus;
-		if(sessionStorage.getItem("_GROUP_ID")=== "AG001"){
-			params.storeNo = ""
-		} else {
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
+	onSubmit = (e) => { 
+		const skuList = this.gridRef.current.getInstance().getCheckedRows();
+	 
+		if(skuList.length === 0) {
+			alert("저장할 자료를 선택하세요.");
+			return;
 		}
-
-        api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/excelOrderReport",{params : params}).then(res=>{
-            if(res.status ===200){
-                const workbook = new ExcelJS.Workbook();
-                const orderReport =workbook.addWorksheet("orderReport");
-                orderReport.columns = columns;
-
-                const data = res.data;
-                data.map((item,index)=>{
-                    orderReport.addRow(item);
-                });
-
-                workbook.xlsx.writeBuffer().then((data)=>{
-                    const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    const url = window.URL.createObjectURL(blob);
-                    const anchor = document.createElement('a');
-                    anchor.href = url;
-                    anchor.download = `${titleName}.xlsx`;
-                    anchor.click();
-                    window.URL.revokeObjectURL(url);
-                })
-        
-            }
-        })
-
+		for(let i in skuList){ 
+			if(skuList[i].managerSku ==='' ){
+				alert("관리자 SKU 코드는 필수 입니다." );
+				return;
+			} 
+			skuList[i].managerId    =  this.state._MANAGER_ID;
+			skuList[i].crtId        =  this.state._USER_ID;
+			skuList[i].updId        =  this.state._USER_ID;
+		}
+ 		if(window.confirm(skuList.length +"건을 저장하시겠습니까?")) { 
+	  		let getSku = this.getSku;
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
+			.then(function (res){ 
+	         		if(res.data.resultCode >0){
+	         			alert("성공적으로 저장 되었습니다");
+	         			getSku();
+	         		}	
+	            }
+	        ).catch(err => {
+				if(err.response){
+					console.log(err.response.data);
+				}else if(err.request){
+					console.log(err.request);
+				}else{
+					console.log('Error', err.message);
+				}
+			});   
+		}	
 	}
-
+	
     onGridUpdatePages = (params)=>{  
         axios.all([
-            api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseManagerList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseManagerRowCount",{params : params}) 
+             api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerList",{params : params})
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerRowCount",{params : params}) 
+            
         ]).then(
             axios.spread((res1,res2)=>{
             	this.setState({
@@ -210,12 +182,10 @@ class BaseManagerList extends Component {
     }
     onResetGrid = () => {
 		this.setState({
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"" ,
-			searchKeyVkgrpT :"",
+			searchKeySku :"",
+			searchKeyBuyerCode :"", 
+			searchKeyManagerSku :"",
+			searchKeyManagerCode :"", 
             pageNumber : 1,
             perPage : 20
 		});
@@ -231,14 +201,8 @@ class BaseManagerList extends Component {
         })
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -253,14 +217,8 @@ class BaseManagerList extends Component {
         });
         const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;  
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
@@ -274,14 +232,8 @@ class BaseManagerList extends Component {
     onSearch = (e) =>{
 		const params = {};
  
-		params.searchKeyPlant = this.state.searchKeyPlant;
-		params.searchKeyPosi = this.state.searchKeyPosi; 
-
-		params.searchKeyMatnr = this.state.searchKeyMatnr;
-		params.searchKeyBatch = this.state.searchKeyBatch;
-		
-		params.searchKeyMRPMgr = this.state.searchKeyMRPMgr;
-		params.searchKeyVkgrpT = this.state.searchKeyVkgrpT;
+		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;  
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -289,33 +241,30 @@ class BaseManagerList extends Component {
 		params.storeNo = sessionStorage.getItem("_STORE_NO");
         this.onGridUpdatePages(params);
 	} 
+	
 
 	render() {
         const {pageInfo} = this.state;
-
-
-		const onClickedAtag = (e, rowKey) => {
-			e.preventDefault();
-            const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
-            if(productName === null || productName === ""){
-                alert("미연동 상품입니다. 관리자에게 문의 바랍니다.");
-                return;
-            }
-			const orderNo = this.gridRef.current.getInstance().getRow(rowKey).orderNo;
-			this.props.router.navigate('/order/order/'+orderNo, {state : {"orderNo": orderNo}});
-		}
-
+ 
 		const columns = [
-			{ name: " ", header: "거래처코드", width: 200, sortable: true,align: "left"},
-			{ name: " ", header: "SKU", width: 150, sortable: true,align: "center"},
-			{ name: " ", header: "거래처 SKU 코드", width: 150, sortable: true,align: "right" },
+ 			{ name: "sku", header: "SKU", width: 200, sortable: true, align: "center"},
+			{ name: "clientId", header: "거래처 id", width: 200, sortable: true, align: "center" },
+			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true, align: "center" },  
+			{ name: "managerId", header: "관리자 id", width: 200, sortable: true, align: "center" },  
+			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true, align: "center"
+				,editor: 'text'
+				,formatter({value}){
+					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
+				}
+			},
+			{ name: "managerUseYn", header: "사용여부", sortable: true , filter : 'select', align: 'center', width : 200}
 		];
 
 		return (
 			<div>
                 {this.state.loading && (<Loading/>)}
 				<div className="page-header">
-					<h3 className="page-title">SKU 코드 관리</h3>
+					<h3 className="page-title">거래처 SKU 코드 관리</h3>
 					<nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"> 
@@ -338,24 +287,16 @@ class BaseManagerList extends Component {
                                                 <Form.Text><Trans>SKU</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeySku" value={this.state.searchKeyMatnr} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="SKU를입력하세요">
                                                 </Form.Control> 
                                             </li>
 											<li className="list-inline-item me-1">
-                                                <Form.Text><Trans>DESC</Trans></Form.Text>
-                                            </li>
-                                           <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="DESC를입력하세요">
-                                                </Form.Control> 
-                                            </li>
-                                            <li className="list-inline-item me-1">
-                                                <Form.Text><Trans>Buyer Code</Trans></Form.Text>
+                                                <Form.Text><Trans>거래처 id</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="Buyer Code를입력하세요">
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}}placeholder="거래처 id를입력하세요">
                                                 </Form.Control> 
                                             </li>
                                            
@@ -385,15 +326,15 @@ class BaseManagerList extends Component {
 									     <div className="col-sm">
                                             <ul className="list-inline text-end mb-3">
                                                 <li className="list-inline-item me-1">
-                                                    <button type="button" className="btn btn-sm btn-info" onClick={this.exportDefaultExcel}>
-                                                        <Trans>엑셀</Trans>
+                                                    <button type="button" className="btn btn-sm btn-info" onClick={this.onSubmit}>
+                                                        <Trans>저장</Trans>
                                                     </button>
                                                 </li>
                                             </ul>
                                         </div>
 									</div>
 									<div className="">                                        
-										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
+										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum","checkbox"]}
 												scrollX={true} columnOptions={{frozenCount : 0}}>
 										</Grid>
 									</div>
