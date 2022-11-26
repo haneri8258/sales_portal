@@ -46,6 +46,7 @@ class ConfirmList extends Component {
 			searchKeyInvoiceNo : "",
 			searchKeyInvoiceDate : "",
 		 
+		    cancelComment : "",
 		
 			gridData : [],
             pageInfo : {
@@ -84,9 +85,40 @@ class ConfirmList extends Component {
 		});
 	}
 
+	// 증빙파일 열기
+    onOpenModalFile = async (rowKey) => {
+	     const gridData =	this.gridRef.current.getInstance().getData(); 
+	     const params   = { serverFileName : gridData[rowKey].serverFileName};
+	     axios.all([api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/getServerFileName",{params : params}) 
+         ]).then(
+         	axios.spread((res)=>{   
+         			debugger;
+         			this.setState({
+				        isOpenModalFile: true,
+				        imageBase64	: "data:image/png;base64,"+ res.data.imageBase64
+			 	 	});    
+         	})	 
+	    ).catch(err => {
+			if(err.response){
+				console.log(err.response.data);
+			}else if(err.request){
+				console.log(err.request);
+			}else{
+				console.log('Error', err.message);
+			}
+		});  
+          
+	}   
+    //  증빙파일 닫기
+    onCloseModalFile = () => {
+        this.setState({
+            isOpenModalFile: false 
+        });
+    }
+    
 	gridRef = React.createRef();
 
-	onGridMounted = (e) => { 
+	onGridMounted = (e) => {
         this.getOrders();
 	}
 
@@ -157,7 +189,7 @@ class ConfirmList extends Component {
 			searchKeyRemittamceDate:"",
 			searchKeyInvoiceNo : "",
 			searchKeyInvoiceDate : "",
-			
+			selected : [],
             pageNumber : 1,
             perPage : 20
 		});
@@ -230,34 +262,139 @@ class ConfirmList extends Component {
         params.perPage = Number(this.state.perPage);
 		params.storeNo = sessionStorage.getItem("_STORE_NO");
         this.onGridUpdatePages(params);
-	} 
-
+	}
+	
+	onApproval = (e) =>{
+        let getOrders  =  this.getOrders;
+        
+		const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
+		
+		if(checkedRows.length===0) {
+        	alert("승인 데이터를 선택하세요!");
+        	return;
+        }
+        
+		if(window.confirm(checkedRows.length + "건 승인 하시겠습니까?") === true){
+			for(let i in checkedRows){ 
+				checkedRows[i].crtId     =  this.state._USER_ID;
+				checkedRows[i].updId     =  this.state._USER_ID;
+				checkedRows[i].managerId     =  this.state._MANAGER_ID;
+				checkedRows[i].confirmYn     =  "02";
+				checkedRows[i].comment     =  "승인합니다.";
+			}
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirmYn",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
+			.then(function (res){ 
+	         		if(res.data.resultCode >0){
+	         			alert("성공적으로 저장 되었습니다");
+         				getOrders();
+	         		}	
+	            }
+	        ).catch(err => {
+				if(err.response){
+					console.log(err.response.data);
+				}else if(err.request){
+					console.log(err.request);
+				}else{
+					console.log('Error', err.message);
+				}
+			});
+		};
+	}
+	
+	// 거절사유 열기
+    onOpenModalComment = () => {
+    	const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
+    	
+    	if(checkedRows.length===0) {
+        	alert("거절 데이터를 선택하세요!");
+        	return;
+        }
+        
+		this.setState({
+	    	isOpenModalComment: true,
+	    	checkedRows : checkedRows 
+	    }); 
+	}   
+    //  거절사유 닫기
+    onCloseModalComment = () => {
+        this.setState({
+            isOpenModalComment: false 
+        });
+    }
+    
+	confirmCancel = () => { 
+		let closeModel  =  this.onCloseModalComment;
+        let getOrders  =  this.getOrders;
+        
+		const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
+	
+		if(checkedRows.length===0) {
+        	alert("거절 데이터를 선택하세요!");
+        	return;
+        }
+        
+        if(window.confirm(checkedRows.length + "건 거절 하시겠습니까?") === true){
+        	
+			for(let i in checkedRows){ 
+				checkedRows[i].crtId     =  this.state._USER_ID;
+				checkedRows[i].updId     =  this.state._USER_ID;
+				checkedRows[i].managerId     =  this.state._MANAGER_ID;
+				checkedRows[i].confirmYn     =  "03";
+				checkedRows[i].comment     =  this.state.cancelComment;
+			}
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirmYn",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
+			.then(function (res){ 
+	         		if(res.data.resultCode >0){
+	         			alert("성공적으로 저장 되었습니다");
+	         			closeModel();
+         				getOrders();
+	         		}	
+	            }
+	        ).catch(err => {
+				if(err.response){
+					console.log(err.response.data);
+				}else if(err.request){
+					console.log(err.request);
+				}else{
+					console.log('Error', err.message);
+				}
+			});
+		};
+	}
+	
 	render() {
         const {pageInfo} = this.state;
 
 
 		const onClickedAtag = (e, rowKey) => {
 			e.preventDefault();
-            const productName = this.gridRef.current.getInstance().getRow(rowKey).productName;
-            if(productName === null || productName === ""){
-                alert("미연동 상품입니다. 관리자에게 문의 바랍니다.");
-                return;
-            }
-			const orderNo = this.gridRef.current.getInstance().getRow(rowKey).orderNo;
-			this.props.router.navigate('/order/order/'+orderNo, {state : {"orderNo": orderNo}});
+            this.onOpenModalFile(rowKey);
 		}
 
 		const columns = [
- 			{ name: "clientId", header: "거래처 코드", width: 200, sortable: true,align: "left"},
-			{ name: "companyname", header: "거래처명", width: 200, sortable: true,align: "left"},
+			{ name: "id", header: "ID", width: 10, hidden: true},
+ 			{ name: "clientId", header: "거래처 코드", width: 120, sortable: true,align: "left"},
+			{ name: "companyname", header: "거래처명", width: 180, sortable: true,align: "left"},
 			{ name: "requestNo", header: "요청번호", width: 150, sortable: true,align: "center"},
-			{ name: "remittamceDate", header: "송금 날짜", width: 150, sortable: true,align: "center" },
-			{ name: "remittanceAmount", header: "송금 금액", width: 150, sortable: true,align: "right" },  
-			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: "remittanceDate", header: "송금 날짜", width: 150, sortable: true,align: "center" },
+			{ name: "remittanceAmount", header: "송금 금액", width: 150, sortable: true,align: "right" 
+				,formatter({value}){
+					return '<span style="width:100%;height:100%;color:blue">'+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>&nbsp;&nbsp;&nbsp;&nbsp';
+				}
+			},  
+			{ name: "invoiceNo", header: "인보이스 번호", width: 150, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "인보이스 날자", width: 150, sortable: true,align: "center"},
-			{ name: "proof", header: "증명서", width: 100, sortable: true,align: "center" },
+			{ name: "serverFileName", header: "증빙서 서버파일명", width: 0, hidden: true },
+			{ name: "originFileName", header: "증명서", width: 100, sortable: true,align: "center" 
+				,renderer: {
+	                    type: LinkInGrid,
+	                    options: {
+	                        onClickedAtag
+	                    }
+	                }
+            },
 			{ name: "status", header: "승인상태", width: 150, sortable: true,align: "center"},
-			{ name: "reason", header: "사유", width: 150, sortable: true,align: "left" }
+			{ name: "comment", header: "사유", width: 150, sortable: true,align: "left" }
 		];
 
 		return (
@@ -357,6 +494,20 @@ class ConfirmList extends Component {
 						<div className="card">
 							<div className="card-body">
 								<div>
+									<div className="row">
+									     <div className="col-sm">
+                                            <ul className="list-inline text-end mb-3">
+                                                <li className="list-inline-item me-1">
+                                                	<button type="button" className="btn btn-sm btn-dark" onClick={this.onOpenModalComment}>
+                                                        <Trans>거절</Trans>
+                                                    </button>&nbsp;&nbsp;
+                                                    <button type="button" className="btn btn-sm btn-dark" onClick={this.onApproval}>
+                                                        <Trans>승인</Trans>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+									</div>
 									{/*<div className="row">
 									     <div className="col-sm">
                                             <ul className="list-inline text-end mb-3">
@@ -369,8 +520,8 @@ class ConfirmList extends Component {
                                         </div>
 									</div>*/}
 									<div className="">                                        
-										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
-												scrollX={true} columnOptions={{frozenCount : 0}}>
+										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum","checkbox"]}
+												scrollX={true} columnOptions={{frozenCount : 0}} >
 										</Grid>
 									</div>
                                     <div className="ms-5">
@@ -398,7 +549,54 @@ class ConfirmList extends Component {
 							</div>
 						</div>
 					</div>
-				</div> 
+				</div>
+				{/* 등록 Modal */}
+                <Modal className="modal fade" show={this.state.isOpenModalFile} onHide={this.onCloseModalFile} aria-labelledby="contained-modal-title-vcenter" aria-hidden="true" centered scrollable>
+					<Modal.Header className="modal-header" closeButton>
+						<Modal.Title><Trans>증빙파일확인</Trans></Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+                        {/* 등록 Form Start */}
+						<Form controlid="form02">
+							<div className ="col-12 grid-margin">
+								<div className="card">   
+									<div className="card-body">                                    	
+										 <img src={this.state.imageBase64} width="1000"  /> 
+									</div>	
+								</div> 
+							</div>	
+						</Form>
+                        {/* 등록 Form End */}
+					</Modal.Body> 
+                </Modal>
+                
+                {/* 사유등록 Modal */}
+                <Modal className="modal fade" show={this.state.isOpenModalComment} onHide={this.onCloseModalComment} aria-labelledby="contained-modal-title-vcenter" aria-hidden="true" centered scrollable>
+					<Modal.Header className="modal-header" closeButton>
+						<Modal.Title><Trans>거절사유</Trans></Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+                        {/* 등록 Form Start */}
+						<Form controlid="form02">
+							<div className ="col-12 grid-margin">
+								<div className="card">   
+									<div className="card-body">                                    	
+										<li className="list-inline-item me-1"> 
+                                            <Form.Control type="text" className="form-control" size="sm" name="cancelComment" value={this.state.cancelComment} onChange={this.onChange}
+                                                    style={{"minHeight": "1rem"}}placeholder="거절사유를입력하세요">
+                                            </Form.Control> 
+                                        </li>
+									</div>	
+								</div> 
+							</div>	
+						</Form>
+                        {/* 등록 Form End */}
+					</Modal.Body> 
+					<Modal.Footer>
+						<button className="btn btn-sm btn-dark" onClick={this.onCloseModalComment}><Trans>취소</Trans></button>
+						<button className="btn btn-sm btn-success" onClick={this.confirmCancel} disabled={this.state.isBtnAddDisabled}><Trans>거절저장</Trans></button>
+					</Modal.Footer>
+                </Modal>
 			</div>
 		);
 	}
