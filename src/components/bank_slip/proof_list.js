@@ -302,20 +302,22 @@ class ProofList extends Component {
 			},
 			{ name: "remittamceDate", header: "송금날짜", width: 120, sortable: false
 				, align: "center", editor: 'text'
-				,editOptions: {
-			      type: 'text'
-			      ,useViewMode: false
-			    }  
+				, editor: {
+			      type: 'datePicker',
+			           options: {
+			           format: 'yyyy-MM-dd' 
+			        }
+    			}  
 			},
 			{ name: "remittanceAmount", header: "송금액", width: 120, sortable: false
 				, align: "right", editor: 'text'
 			 	,formatter({value}){
-					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			 		return value.toString().replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 				,editOptions: {
 			      type: 'text'
 			      ,useViewMode: false
-			    }
+			    } 
 			},
 			{ name: "originFileName", header: "증빙", width: 150, sortable: false, align: "center"
 				,renderer: {
@@ -333,6 +335,7 @@ class ProofList extends Component {
         	let getRequest  =  this.getRequest;
          	const slipData = this.slipRef.current.getInstance().getData();
           	const formData = new FormData(); 
+          	debugger;
 	        for(let i = 0; i < slipData.length; i++){
 	        	if( slipData[i].balanceAmount < slipData[i].remittanceAmount) {
 	        		alert("송금액이 잔액보다 크게 입력되었습니다.");
@@ -399,7 +402,7 @@ class ProofList extends Component {
 			<div>
                 {this.state.loading && (<Loading/>)}
 				<div className="page-header">
-					<h3 className="page-title">BankSlip 증빙</h3>
+					<h3 className="page-title">Bank Slip 증빙</h3>
 					<nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"> 

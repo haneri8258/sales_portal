@@ -142,63 +142,7 @@ class OrdersList extends Component {
 		date.setHours(date.getHours() + 9);
 		return date.toISOString().replace('T', ' ').substring(0, 19); 
 	}
-
-	exportDefaultExcel = (e) => {
-		const date = new Date();
-		const year = date.getFullYear();
-		const month = ('0' + (date.getMonth() + 1));
-		const day = ('0' + date.getDate());
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-		const dateStr = [year, month, day,hours,minutes].join('');
-		const titleName = "Order_List_"+dateStr;
-
-        const columnsData = this.gridRef.current.getInstance().getColumns();
-        const columns = [];
-        for(let i in columnsData){
-            const column = {};
-            column.header = columnsData[i].header;
-            column.key=columnsData[i].name
-            columns.push(column);
-        }
-        const params = {};
-        params.searchKeyword = this.state.searchKeyword;
-        params.startDate = this.state.startDate;
-        params.endDate = this.state.endDate;
-        params.searchType = this.state.searchType;
-        params.searchTransStatus = this.state.searchTransStatus;
-		if(sessionStorage.getItem("_GROUP_ID")=== "AG001"){
-			params.storeNo = ""
-		} else {
-			params.storeNo = sessionStorage.getItem("_STORE_NO");
-		}
-
-        api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/excelOrderReport",{params : params}).then(res=>{
-            if(res.status ===200){
-                const workbook = new ExcelJS.Workbook();
-                const orderReport =workbook.addWorksheet("orderReport");
-                orderReport.columns = columns;
-
-                const data = res.data;
-                data.map((item,index)=>{
-                    orderReport.addRow(item);
-                });
-
-                workbook.xlsx.writeBuffer().then((data)=>{
-                    const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    const url = window.URL.createObjectURL(blob);
-                    const anchor = document.createElement('a');
-                    anchor.href = url;
-                    anchor.download = `${titleName}.xlsx`;
-                    anchor.click();
-                    window.URL.revokeObjectURL(url);
-                })
-        
-            }
-        })
-
-	}
-
+ 
     onGridUpdatePages = (params)=>{  
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportList",{params : params})
@@ -339,6 +283,7 @@ class OrdersList extends Component {
 		const columns = [
  			{ name: "matnr", header: "자재", width: 200, sortable: true,align: "center"},
 			{ name: "nameKr", header: "자재명", width: 200, sortable: true,align: "left"},
+			{ name: "managermrpname", header: "MRP 관리자", width: 200, sortable: true,align: "left"},
 			{ name: "charg", header: "배치", width: 150, sortable: true,align: "center"},
 			{ name: "labst", header: "재고량", width: 150, sortable: true,align: "right" },
 			{ name: "vkgrp", header: "팀코드", width: 150, sortable: true,align: "center" },  
@@ -420,11 +365,12 @@ class OrdersList extends Component {
                                             </li>
                                             <li className="list-inline-item me-1">
                                                 <Form.Select name="searchKeyMRPMgr" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyMRPMgr}>
-                                                    <option value="null">전체</option>
-                                                    <option value="100">100</option>
-                                                    <option value="200">200</option>
-                                                    <option value="300">300</option>
-                                                    <option value="310">310</option>
+                                                    <option value="">전체</option>
+                                                    <option value="100">일반(자재)포장</option>
+                                                    <option value="200">특판(제품)포장</option>
+                                                    <option value="300">ODM (국내)</option>
+                                                    <option value="310">ODM (해외)</option>
+                                                    <option value="900">기타</option>
                                                 </Form.Select>
                                             </li>
                                             <li className="list-inline-item me-1">
@@ -458,17 +404,6 @@ class OrdersList extends Component {
 						<div className="card">
 							<div className="card-body">
 								<div>
-									<div className="row">
-									     <div className="col-sm">
-                                            <ul className="list-inline text-end mb-3">
-                                                <li className="list-inline-item me-1">
-                                                    <button type="button" className="btn btn-sm btn-info" onClick={this.exportDefaultExcel}>
-                                                        <Trans>엑셀</Trans>
-                                                    </button>
-                                                </li>
-                                            </ul>
-                                        </div>
-									</div>
 									<div className="">                                        
 										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
 												scrollX={true} columnOptions={{frozenCount : 0}}>

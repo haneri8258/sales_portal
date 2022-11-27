@@ -176,7 +176,7 @@ class Sidebar extends Component {
                                 <ul className="nav flex-column sub-menu">
                                     {/* SKU 코드관리 (담당자) */}
                                     <Collapse in={this.isShowYn('/sku_code/mng_manager_list')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/sku_code/mng_manager_list') ? 'nav-link active' : 'nav-link' } to="/sku_code/mng_manager_list"><div><Trans>SKU 거래처 SKU 코드 관리</Trans></div></Link></li>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/sku_code/mng_manager_list') ? 'nav-link active' : 'nav-link' } to="/sku_code/mng_manager_list"><div><Trans>SKU 거래처 코드 관리</Trans></div></Link></li>
                                     </Collapse>
                                 </ul>
                             </Collapse> 
@@ -184,7 +184,7 @@ class Sidebar extends Component {
                                 <ul className="nav flex-column sub-menu">
                                     {/* SKU 코드기준 (담당자) */}
                                     <Collapse in={this.isShowYn('/sku_code/base_manager_list')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/sku_code/base_manager_list') ? 'nav-link active' : 'nav-link' } to="/sku_code/base_manager_list"><div><Trans>SKU 거래처 SKU 코드 기준</Trans></div></Link></li>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/sku_code/base_manager_list') ? 'nav-link active' : 'nav-link' } to="/sku_code/base_manager_list"><div><Trans>SKU 거래처 코드 기준</Trans></div></Link></li>
                                     </Collapse>
                                 </ul>
                             </Collapse>
@@ -192,7 +192,7 @@ class Sidebar extends Component {
                                 <ul className="nav flex-column sub-menu">
                                     {/* SKU 코드기준 (담당자) */}
                                     <Collapse in={this.isShowYn('/sku_code/hist_manager_list')}>
-                                        <li className="nav-item"> <Link className={ this.isPathActive('/sku_code/hist_manager_list') ? 'nav-link active' : 'nav-link' } to="/sku_code/hist_manager_list"><div><Trans>SKU SKU 코드 관리 이력</Trans></div></Link></li>
+                                        <li className="nav-item"> <Link className={ this.isPathActive('/sku_code/hist_manager_list') ? 'nav-link active' : 'nav-link' } to="/sku_code/hist_manager_list"><div><Trans>SKU 코드 관리 이력</Trans></div></Link></li>
                                     </Collapse>
                                 </ul>
                             </Collapse>

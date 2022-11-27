@@ -12,8 +12,7 @@ const Login = lazy(() => import( './login'));
 const Auth = lazy(() => import( './auth'));
 const AuthRedirect = lazy(() => import( './auth_redirect'));
  
-const OrderList = lazy(() => import( './components/order_report/list'));
-const OrderOrder = lazy(() => import( './components/order/order'));
+const OrderList = lazy(() => import( './components/order_report/list')); 
 
 const ProofList = lazy(() => import( './components/bank_slip/proof_list'));
 const RequestList = lazy(() => import( './components/bank_slip/request_list'));
@@ -48,8 +47,7 @@ class AppRoutes extends Component {
 				<Routes>
                     <Route exact path="/dashboard" element={ <Dashboard/> } />
                     <Route exact path="/login" element={ <Login/> } />
-                    <Route path="/order_report/list" element={ <OrderList/> } />
-                    <Route path="/order/order" element={ <OrderOrder/> } />
+                    <Route path="/order_report/list" element={ <OrderList/> } /> 
                     
                     <Route path="/bank_slip/proof_list" element={ <ProofList/> } />
                     <Route path="/bank_slip/request_list" element={ <RequestList/> } />
