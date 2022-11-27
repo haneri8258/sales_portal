@@ -285,7 +285,7 @@ class RequestList extends Component {
 			{ name: "createdAt", header: "증빙입력 일자", width: 150, sortable: true,align: "center"},
 			{ name: "status", header: "승인 상태", width: 150, sortable: true,align: "center"},
 			{ name: "confirmDate", header: "승인 날짜", width: 150, sortable: true,align: "center"},
-			{ name: "comment", header: "승인 내용", width: 300, sortable: true,align: "center"},
+			{ name: "comment", header: "승인 내용", width: 300, sortable: true,align: "left"},
 			
 		];
 

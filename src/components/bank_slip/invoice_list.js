@@ -95,7 +95,7 @@ class InvoceList extends Component {
  		params.clientId = sessionStorage.getItem('_CLIENT_ID');
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceClientList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceRowCount",{params : params}) 
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceClientRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
 				this.setState({
@@ -125,10 +125,8 @@ class InvoceList extends Component {
     onGridUpdatePages = (params)=>{  
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceClientList",{params : params})
-            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/orders/reportRowCount",{params : params}) 
-            
-        ]).then(
-            axios.spread((res1,res2)=>{
+            ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/invoiceClientRowCount",{params : params}) 
+        ]).then(axios.spread((res1,res2)=>{
             	this.setState({
                     gridData : res1.data,
                     pageInfo : res2.data,
@@ -289,7 +287,7 @@ class InvoceList extends Component {
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Select name="searchKeyStatus" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyStatus}>
-                                                    <option value="null">전체</option>
+                                                    <option value="">전체</option>
                                                     <option value="미정산">미정산</option>
                                                     <option value="정산중">정산중</option>
                                                     <option value="정산완료">정산완료</option> 
