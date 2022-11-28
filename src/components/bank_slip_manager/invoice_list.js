@@ -44,7 +44,7 @@ class InvoiceManagerList extends Component {
 			isOpenModal : false,
 			
 			searchKeyInvoiceDate : "",
-		
+			searchKeyStatus  : "",
 			gridData : [],
             pageInfo : {
                 totalPage : 0,
@@ -132,8 +132,10 @@ class InvoiceManagerList extends Component {
     }
     
 	timestamp = (date)=>{
-		date.setHours(date.getHours() + 9);
-		return date.toISOString().replace('T', ' ').substring(0, 19); 
+		if(date) {
+			date.setHours(date.getHours() + 9);
+			return date.toISOString().replace('T', ' ').substring(0, 19);
+		} 
 	}
  
     onGridUpdatePages = (params)=>{
@@ -185,7 +187,7 @@ class InvoiceManagerList extends Component {
         const params = {};
  
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
-		
+		params.searchKeyStatus  = this.state.searchKeyStatus;
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(perPage);
@@ -200,6 +202,7 @@ class InvoiceManagerList extends Component {
         const params = {};
  
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+        params.searchKeyStatus  = this.state.searchKeyStatus;
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
@@ -214,11 +217,11 @@ class InvoiceManagerList extends Component {
 		const params = {};
 
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyStatus  = this.state.searchKeyStatus;
 		
         params.pageNumber = 1;
         params.rowStart = 0;
-        params.perPage = Number(this.state.perPage);
-		params.storeNo = sessionStorage.getItem("_STORE_NO");
+        params.perPage = Number(this.state.perPage); 
 
         this.onGridUpdatePages(params);
 	} 
@@ -242,10 +245,27 @@ class InvoiceManagerList extends Component {
 			{ name: "companyname", header: "거래처명", width: 200, sortable: true,align: "left" },
  			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "인보이스 날자", width: 200, sortable: true,align: "left"},
-			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true,align: "right"},
-			{ name: "depositAmt", header: "입금액", width: 150, sortable: true,align: "right" },
-			{ name: "status", header: "Status", width: 150, sortable: true,align: "center" },  
-			{ name: "balanceAmt", header: "차액(자동계산)", width: 200, sortable: true,align: "right" }
+			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+			},
+			{ name: "depositAmt", header: "입금액", width: 150, sortable: true,align: "right" 
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+			},
+			{ name: "status", header: "Status", width: 150, sortable: true,align: "center"
+				,formatter({value}){
+					return value === '정산완료' ? '<span style="width:100%;height:100%;color:blue;font-weight:bold;">'+value+'</span>' 
+					:  (value === '미정산' ? '<span style="width:100%;height:100%;color:red;font-weight:bold;">'+value+'</span>' : '<span style="width:100%;height:100%;color:black;font-weight:bold;">'+value+'</span>')  ; 
+				} 
+			},  
+			{ name: "balanceAmt", header: "차액(자동계산)", width: 200, sortable: true,align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+			 }
 		];
 
 		return (
@@ -309,9 +329,12 @@ class InvoiceManagerList extends Component {
                                                 <Form.Text><Trans>Status</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="Status를입력하세요">
-                                                </Form.Control> 
+                                                <Form.Select name="searchKeyStatus" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyStatus}>
+                                                    <option value="">전체</option>
+                                                    <option value="미정산">미정산</option>
+                                                    <option value="정산중">정산중</option>
+                                                    <option value="정산완료">정산완료</option> 
+                                                </Form.Select>
                                             </li>
                                            
                                             <li className="list-inline-item me-1">

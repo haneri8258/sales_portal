@@ -276,14 +276,20 @@ class ProofList extends Component {
 		}
 
 		const columns = [
- 			{ name: "invoiceNo", header: "Invoice No.", width: 200, sortable: true,align: "left"},
-			{ name: "invoiceDate", header: "Invoice Date", width: 200, sortable: true,align: "left"},
-			{ name: "invoiceAmount", header: "Amount", width: 150, sortable: true,align: "right"
+ 			{ name: "invoiceNo", header: "Invoice No.", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceDate", header: "Invoice Date", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true,align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 			},
-			{ name: "balanceAmount", header: "Balance", width: 150, sortable: true,align: "right"
+			{ name: "remittanceAmount", header: "송금액", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				}
+			},
+			
+			{ name: "balanceAmount", header: "송금잔액", width: 150, sortable: true,align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}

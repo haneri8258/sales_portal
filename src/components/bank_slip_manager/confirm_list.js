@@ -385,7 +385,7 @@ class ConfirmList extends Component {
 			{ name: "invoiceNo", header: "인보이스 번호", width: 150, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "인보이스 날자", width: 150, sortable: true,align: "center"},
 			{ name: "serverFileName", header: "증빙서 서버파일명", width: 0, hidden: true },
-			{ name: "originFileName", header: "증명서", width: 100, sortable: true,align: "center" 
+			{ name: "originFileName", header: "증명서", width: 200, sortable: true,align: "center" 
 				,renderer: {
 	                    type: LinkInGrid,
 	                    options: {
@@ -401,7 +401,7 @@ class ConfirmList extends Component {
 			<div>
                 {this.state.loading && (<Loading/>)}
 				<div className="page-header">
-					<h3 className="page-title">BankSlip 확인</h3>
+					<h3 className="page-title">Bank Slip 확인</h3>
 					<nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"> 

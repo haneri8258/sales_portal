@@ -232,7 +232,6 @@ class InvoceList extends Component {
 					return value === '정산완료' ? '<span style="width:100%;height:100%;color:blue;font-weight:bold;">'+value+'</span>' 
 					:  (value === '미정산' ? '<span style="width:100%;height:100%;color:red;font-weight:bold;">'+value+'</span>' : '<span style="width:100%;height:100%;color:black;font-weight:bold;">'+value+'</span>')  ; 
 				} 
-		
 			},  
 			{ name: "balanceAmt", header: "차액(자동계산)", width: 200, sortable: true,align: "right" 
 				,formatter({value}){

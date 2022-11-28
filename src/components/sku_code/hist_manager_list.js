@@ -214,10 +214,12 @@ class BaseList extends Component {
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left"},
 			{ name: "clientId", header: "Buyer Code", width: 150, sortable: true,align: "center"},
+			{ name: "clientSku", header: "Buyer SKU", width: 150, sortable: true,align: "center"},
+			{ name: "managerSku", header: "관리자 SKU", width: 150, sortable: true,align: "center"},
 			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "right" },
-			{ name: "createdId", header: "생성자", width: 150, sortable: true,align: "center" },  
+			{ name: "createdClientName", header: "생성자", width: 150, sortable: true,align: "center" },  
 			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "left" },
-			{ name: "updatedId", header: "수정자", width: 200, sortable: true,align: "left" },
+			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "left" },
 		];
 
 		return (
