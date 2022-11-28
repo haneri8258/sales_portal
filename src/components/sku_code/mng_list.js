@@ -118,22 +118,43 @@ class MngList extends Component {
 	}
 	
 	onSubmit = (e) => { 
-		const  skuList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  //JSON.stringify
-		if(skuList.length === 0) {
-			alert("수정된 내용이 없습니다.");
+		const  skuCreatedList =  this.gridRef.current.getInstance().getModifiedRows().createdRows;  
+		const  skuUpdateList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  
+		debugger; 
+		if(skuCreatedList.length === 0 && skuUpdateList ===0 ) {
+			alert("추가 및 수정된 내용이 없습니다.");
 			return;
 		}
-		for(let i in skuList){ 
-			if(skuList[i].clientSku ==='' ){
-				alert("Buyer SKU Code는 필수 입니다." );
+		
+		for(let i in skuCreatedList){ 
+			if(skuCreatedList[i].sku ==='' ){
+				alert("SKU Code는 필수 입니다." );
 				return;
 			}
-			skuList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
-			skuList[i].crtId     =  this.state._USER_ID;
-			skuList[i].updId     =  this.state._USER_ID;
+			if(skuCreatedList[i].clientSku ==='' ){
+				alert("Buyer SKU Code는 필수 입니다." );
+				return;
+			} 
+			skuCreatedList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
+			skuCreatedList[i].crtId     =  this.state._USER_ID;
+			skuCreatedList[i].updId     =  this.state._USER_ID;
+		}
+		
+		for(let i in skuUpdateList){ 
+			if(skuUpdateList[i].sku ==='' ){
+				alert("SKU Code는 필수 입니다." );
+				return;
+			}
+			if(skuUpdateList[i].clientSku ==='' ){
+				alert("Buyer SKU Code는 필수 입니다." );
+				return;
+			} 
+			skuUpdateList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
+			skuUpdateList[i].crtId     =  this.state._USER_ID;
+			skuUpdateList[i].updId     =  this.state._USER_ID;
 		}
 		let getSku = this.getSku;
-		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
+		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuCreatedList : skuCreatedList, skuUpdateList : skuUpdateList} ,{"Content-Type": 'application/json'}) 
 		.then(function (res){ 
          		if(res.data.resultCode >0){
          			alert("성공적으로 저장 되었습니다");
@@ -149,6 +170,19 @@ class MngList extends Component {
 				console.log('Error', err.message);
 			}
 		});
+	}
+	
+	onAppendRow = (e) => { 
+		 debugger;
+		 
+		const rowData = [{sku: "", desciption: "", clientSku: "",  clientId: "", useYn : "" , createdAt: "", createdClientName: "",updatedAt : "", updatedClientName :"" }];
+
+		this.gridRef.current.getInstance().appendRow(rowData, {
+		  at: 0,
+		  extendPrevRowSpan: true,
+		  focus: true
+		});
+				 
 	}
  
     onGridUpdatePages = (params)=>{   
@@ -243,7 +277,11 @@ class MngList extends Component {
 
 	
 		const columns = [
- 			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
+ 			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center" , editor: 'text'
+	 			,formatter({value}){
+						return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
+				}
+ 			},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left", editor: 'text'
 				,formatter({value}){
 					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
@@ -260,9 +298,17 @@ class MngList extends Component {
 				}
 			},
 			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "right" },
-			{ name: "createdId", header: "생성자", width: 150, sortable: true,align: "center"},  
+			{ name: "createdClientName", header: "생성자", width: 150, sortable: true,align: "center" , editor: 'text'
+				,formatter({value}){
+						return value === null ? '':'<span style="width:100%;height:100%;color:blue">'+value+'</span>'; 
+				}
+			},  
 			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "left"},
-			{ name: "updatedId", header: "수정자", width: 200, sortable: true,align: "left"},
+			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "center" , editor: 'text'
+				,formatter({value}){
+						return value === null ? '':'<span style="width:100%;height:100%;color:blue">'+value+'</span>'; 
+				}
+			},
 		];
 
 		return (
@@ -352,6 +398,22 @@ class MngList extends Component {
 												scrollX={true} columnOptions={{frozenCount : 0}}>
 										</Grid>
 									</div>
+									
+									<div><span>&nbsp;&nbsp;</span></div>
+									
+									<div className="ms-5">
+									     <div className="col-sm">
+                                            <ul className="list-inline text-end mb-3">
+                                                <li className="list-inline-item me-1">
+                                                    <button type="button" className="btn btn-sm btn-info" onClick={this.onAppendRow}>
+                                                        <Trans>추가</Trans>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+									</div>
+                                    
+									
                                     <div className="ms-5">
                                         <Pagination totalItemsCount={pageInfo.totalCount} onChange={this.onChangePage} activePage={this.state.activePage} itemsCountPerPage={this.state.perPage} pageRangeDisplayed={10}>
                                         </Pagination>
@@ -372,7 +434,7 @@ class MngList extends Component {
                                                 </button>
                                             </li>
                                         </ul>
-                                    </div>
+                                    </div> 
 								</div>
 							</div>
 						</div>
