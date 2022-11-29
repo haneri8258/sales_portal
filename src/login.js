@@ -150,8 +150,6 @@ export class Login extends Component {
         const onLogin = async (event) => {
             let form = this.formLoginRef.current;
 			
-			//debugger;
-			
             if(form.checkValidity() === false) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -159,7 +157,6 @@ export class Login extends Component {
                 let params = {};
                 params.userId = this.state.userId;
                 params.password = this.state.password;
-				debugger;
                 await axios.post(process.env.REACT_APP_DB_HOST + "/common/getUserLogin", params).then(response => {
                     if(response.status === 200) {
                         if(!response.data) {
@@ -174,7 +171,6 @@ export class Login extends Component {
                                 return;
                             } else if(response.data.username) {
                                 // 사용자정보 저장
-                                debugger;
                                 sessionStorage.setItem('_USER_ID', response.data.id);
                                 sessionStorage.setItem('_USER_NAME', response.data.nickname); 
                                 sessionStorage.setItem('_MANAGER_ID', response.data.managerId);
@@ -274,7 +270,8 @@ export class Login extends Component {
                         <div className="auth-form-light text-center p-2">
                             
                             <div className="brand-logo">
-                                <img src={require("./assets/images/ubello.png")} alt="LOGO" />
+                                {/*<img src={require("./assets/images/ubello.png")} alt="LOGO" />*/}
+                                <img src={require("./assets/images/commoncoding-logo.jpg")} alt="LOGO" />
                             </div>
                             
                             <h4>Hello! let's get started. Sign in to continue.</h4>
