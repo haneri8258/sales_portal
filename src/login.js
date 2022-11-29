@@ -321,7 +321,7 @@ export class Login extends Component {
                             </Form>
 
                             <div className="mt-3 text-center">
-                                <button className="btn btn-lg btn-info" onClick={this.onOpenModalAdd}><Trans>가입신청</Trans></button>
+                               {/* <button className="btn btn-lg btn-info" onClick={this.onOpenModalAdd}><Trans>가입신청</Trans></button>*/}
                                 <button className="btn btn-lg btn-success" onClick={(event) => onLogin(event)} disabled={this.state.isBtnLoginDisabled}><Trans>로그인</Trans></button>
                             </div>
                         </div>
