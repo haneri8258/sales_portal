@@ -273,16 +273,17 @@ class ConfirmList extends Component {
         	alert("승인 데이터를 선택하세요!");
         	return;
         }
+        let requestNo = checkedRows[0].seq ;
         
-		if(window.confirm(checkedRows.length + "건 승인 하시겠습니까?") === true){
+		if(window.confirm( "요청번호[" + requestNo + "]"+(checkedRows.length > 1 ? " 외 " + (checkedRows.length -1) :"1" ) +"건 승인 하시겠습니까?") === true){
 			for(let i in checkedRows){ 
 				checkedRows[i].crtId     =  this.state._USER_ID;
 				checkedRows[i].updId     =  this.state._USER_ID;
-				checkedRows[i].managerId     =  this.state._MANAGER_ID;
-				checkedRows[i].confirmYn     =  "02";
-				checkedRows[i].comment     =  "승인합니다.";
+				checkedRows[i].managerId    =  this.state._MANAGER_ID;
+				checkedRows[i].status       =  "02";
+				checkedRows[i].comment      =  "승인합니다.";
 			}
-			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirmYn",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirm",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
 			.then(function (res){ 
 	         		if(res.data.resultCode >0){
 	         			alert("성공적으로 저장 되었습니다");
@@ -332,17 +333,18 @@ class ConfirmList extends Component {
         	alert("거절 데이터를 선택하세요!");
         	return;
         }
+        let requestNo = checkedRows[0].seq ;
         
-        if(window.confirm(checkedRows.length + "건 거절 하시겠습니까?") === true){
+        if(window.confirm("요청번호[" + requestNo + "]"+(checkedRows.length > 1 ? " 외 " +  (checkedRows.length -1) :"1" ) + "건 거절 하시겠습니까?") === true){
         	
 			for(let i in checkedRows){ 
 				checkedRows[i].crtId     =  this.state._USER_ID;
 				checkedRows[i].updId     =  this.state._USER_ID;
 				checkedRows[i].managerId     =  this.state._MANAGER_ID;
-				checkedRows[i].confirmYn     =  "03";
+				checkedRows[i].status        =  "03";
 				checkedRows[i].comment     =  this.state.cancelComment;
 			}
-			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirmYn",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirm",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
 			.then(function (res){ 
 	         		if(res.data.resultCode >0){
 	         			alert("성공적으로 저장 되었습니다");
@@ -367,25 +369,89 @@ class ConfirmList extends Component {
 
 
 		const onClickedAtag = (e, rowKey) => {
-			e.preventDefault();
-            this.onOpenModalFile(rowKey);
+			 e.preventDefault();
+			 let closeModel  =  this.onCloseModalComment;
+       		 let getOrders  =  this.getOrders;
+			 const getRows = this.gridRef.current.getInstance().getData();
+			 const checkedRows = [];
+			 const param = {}; 
+			 if( e.currentTarget.innerHTML ==="승인") {
+			 	 
+			 	param.crtId         =  this.state._USER_ID;
+				param.updId         =  this.state._USER_ID;
+				param.managerId     =  this.state._MANAGER_ID;
+				param.status        =  "02";
+				param.comment       =  "승인합니다.";
+				param.id            =  getRows[rowKey].id;
+				checkedRows.push(param);
+				if(window.confirm("요청번호[" + getRows[rowKey].seq + "]을 승인 하시겠습니까?") === true){
+					axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirm",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
+					.then(function (res){ 
+			         		if(res.data.resultCode >0){
+			         			alert("성공적으로 저장 되었습니다");
+			         			closeModel();
+		         				getOrders();
+			         		}	
+			            }
+			        ).catch(err => {
+						if(err.response){
+							console.log(err.response.data);
+						}else if(err.request){
+							console.log(err.request);
+						}else{
+							console.log('Error', err.message);
+						}
+					});
+				}
+				
+			 }else if( e.currentTarget.innerHTML ==="거절") {
+			 	
+			 	param.crtId         =  this.state._USER_ID;
+				param.updId         =  this.state._USER_ID;
+				param.managerId     =  this.state._MANAGER_ID;
+				param.status        =  "03";
+				param.comment       =  "승인거절 합니다.";
+				param.id            =  getRows[rowKey].id;
+				checkedRows.push(param);
+				if(window.confirm("요청번호[" + getRows[rowKey].seq + "]을 거절 하시겠습니까?") === true){
+					axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirm",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
+					.then(function (res){ 
+			         		if(res.data.resultCode >0){
+			         			alert("성공적으로 저장 되었습니다");
+			         			closeModel();
+		         				getOrders();
+			         		}	
+			            }
+			        ).catch(err => {
+						if(err.response){
+							console.log(err.response.data);
+						}else if(err.request){
+							console.log(err.request);
+						}else{
+							console.log('Error', err.message);
+						}
+					});
+			 	}
+			 }else{
+            	this.onOpenModalFile(rowKey);
+            }	
 		}
 
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
- 			{ name: "clientId", header: "거래처 코드", width: 120, sortable: true,align: "left"},
+ 			{ name: "username", header: "거래처 코드", width: 120, sortable: true,align: "center"},
 			{ name: "companyname", header: "거래처명", width: 180, sortable: true,align: "left"},
-			{ name: "requestNo", header: "요청번호", width: 150, sortable: true,align: "center"},
+			{ name: "seq", header: "요청번호", width: 150, sortable: true,align: "center"},
 			{ name: "remittanceDate", header: "송금 날짜", width: 150, sortable: true,align: "center" },
 			{ name: "remittanceAmount", header: "송금 금액", width: 150, sortable: true,align: "right" 
 				,formatter({value}){
 					return '<span style="width:100%;height:100%;color:blue">'+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>&nbsp;&nbsp;&nbsp;&nbsp';
 				}
 			},  
-			{ name: "invoiceNo", header: "인보이스 번호", width: 150, sortable: true,align: "center"},
+			{ name: "remittanceType", header: "인보이스 번호", width: 150, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "인보이스 날자", width: 150, sortable: true,align: "center"},
 			{ name: "serverFileName", header: "증빙서 서버파일명", width: 0, hidden: true },
-			{ name: "originFileName", header: "증명서", width: 200, sortable: true,align: "center" 
+			{ name: "originFileName", header: "증명서", width: 300, sortable: true,align: "left" 
 				,renderer: {
 	                    type: LinkInGrid,
 	                    options: {
@@ -393,8 +459,25 @@ class ConfirmList extends Component {
 	                    }
 	                }
             },
+            { name: "createdAt", header: "증빙입력 일자", width: 150, sortable: true,align: "center"},
 			{ name: "status", header: "승인상태", width: 150, sortable: true,align: "center"},
-			{ name: "comment", header: "사유", width: 150, sortable: true,align: "left" }
+			{ name: "comment", header: "사유", width: 150, sortable: true,align: "left" } ,
+			{ name: "confirm", header: "승인", width: 100, sortable: true,align: "center" 
+					,renderer: {
+	                    type: LinkInGrid,
+	                    options: {
+	                        onClickedAtag
+	                    }
+	                } 
+			} ,
+			{ name: "reject", header: "거절", width: 100, sortable: true,align: "center" 
+					,renderer: {
+	                    type: LinkInGrid,
+	                    options: {
+	                        onClickedAtag
+	                    }
+	                } 
+			} ,
 		];
 
 		return (
@@ -583,7 +666,7 @@ class ConfirmList extends Component {
 									<div className="card-body">                                    	
 										<li className="list-inline-item me-1"> 
                                             <Form.Control type="text" className="form-control" size="sm" name="cancelComment" value={this.state.cancelComment} onChange={this.onChange}
-                                                    style={{"minHeight": "1rem"}}placeholder="거절사유를입력하세요">
+                                                    style={{"minHeight": "1rem","width":"630px"}}placeholder="거절사유를입력하세요">
                                             </Form.Control> 
                                         </li>
 									</div>	

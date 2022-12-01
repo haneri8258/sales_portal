@@ -43,6 +43,9 @@ class InvoiceManagerList extends Component {
 			endDate : "",
 			isOpenModal : false,
 			
+			searchKeyBuyerCode : "",
+			searchKeyBuyerName : "",
+			searchKeyInvoiceNo : "",
 			searchKeyInvoiceDate : "",
 			searchKeyStatus  : "",
 			gridData : [],
@@ -186,6 +189,9 @@ class InvoiceManagerList extends Component {
         })
         const params = {};
  
+ 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;
+		params.searchKeyBuyerName = this.state.searchKeyBuyerName;
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
 		params.searchKeyStatus  = this.state.searchKeyStatus;
         params.pageNumber = 1;
@@ -200,7 +206,10 @@ class InvoiceManagerList extends Component {
             pageNumber : pageNumber
         });
         const params = {};
- 
+ 		
+ 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;
+		params.searchKeyBuyerName = this.state.searchKeyBuyerName;
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
         params.searchKeyStatus  = this.state.searchKeyStatus;
         
@@ -215,7 +224,10 @@ class InvoiceManagerList extends Component {
 
     onSearch = (e) =>{
 		const params = {};
-
+		
+		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode;
+		params.searchKeyBuyerName = this.state.searchKeyBuyerName;
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
 		params.searchKeyStatus  = this.state.searchKeyStatus;
 		
@@ -241,7 +253,7 @@ class InvoiceManagerList extends Component {
 		}
 
 		const columns = [
-			{ name: "clientId", header: "거래처 코드", width: 150, sortable: true,align: "left" },  
+			{ name: "username", header: "거래처 코드", width: 150, sortable: true,align: "center" },  
 			{ name: "companyname", header: "거래처명", width: 200, sortable: true,align: "left" },
  			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "인보이스 날자", width: 200, sortable: true,align: "left"},
@@ -295,7 +307,7 @@ class InvoiceManagerList extends Component {
                                                 <Form.Text><Trans>거래처 코드</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyBuyerCode} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="거래처코드를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -303,7 +315,7 @@ class InvoiceManagerList extends Component {
                                                 <Form.Text><Trans>거래처명</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerName" value={this.state.searchKeyBuyerName} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="거래처명를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -311,7 +323,7 @@ class InvoiceManagerList extends Component {
                                                 <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyMatnr" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyInvoiceNo" value={this.state.searchKeyInvoiceNo} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="인보이스번호를입력하세요">
                                                 </Form.Control> 
                                             </li>

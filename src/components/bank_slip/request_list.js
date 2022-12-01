@@ -255,23 +255,39 @@ class RequestList extends Component {
 		
 
 		const columns = [
- 			{ name: "requestNo", header: "요청번호", width: 100, sortable: true,align: "center"},
+ 			{ name: "seq", header: "요청번호", width: 200, sortable: true,align: "center"},
  			{ name: "requestDate", header: "요청일자", width: 150, sortable: true,align: "center"},
-			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
-			{ name: "invoiceDate", header: "인보이스 날짜", width: 150, sortable: true,align: "center"}, 
+ 			
+ 			
+ 			{ name: "remittanceDate", header: "송금 날짜", width: 150, sortable: true,align: "center"},
+			{ name: "remittanceAmount", header: "송금 금액", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return '<span style="width:100%;height:100%;color:blue">'+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>&nbsp;&nbsp;&nbsp;&nbsp';
+				}
+			},
+ 			
+			{ name: "remittanceType", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceDate", header: "인보이스 일자", width: 150, sortable: true,align: "center"}, 
+			/*
 			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true, align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 		 	},
-			{ name: "remittanceDate", header: "송금 날짜", width: 150, sortable: true,align: "center"},
-			{ name: "remittanceAmount", header: "송금액", width: 150, sortable: true,align: "right"
+		 	*/
+			{ name: "status", header: "승인 상태", width: 150, sortable: true,align: "center"},
+			{ name: "confirmDate", header: "거래일자", width: 150, sortable: true,align: "center"},
+			/*	
+			{ name: "createdAt", header: "승인요청일자", width: 150, sortable: true,align: "center"},
+		 	*/
+			{ name: "confirmAmount", header: "입금액", width: 150, sortable: true,align: "right"
 				,formatter({value}){
-					return '<span style="width:100%;height:100%;color:blue">'+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>&nbsp;&nbsp;&nbsp;&nbsp';
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 			},
+			{ name: "comment", header: "승인 내용", width: 300, sortable: true,align: "left"},
 			{ name: "serverFileName", header: "증빙서 서버파일명", width: 0, hidden: true },
-			{ name: "originFileName", header: "증명서", width: 200, sortable: true,align: "left"
+			{ name: "originFileName", header: "증명서", width: 300, sortable: true,align: "left"
 				,renderer: {
                     type: LinkInGrid,
                     options: {
@@ -282,10 +298,7 @@ class RequestList extends Component {
 					return '<span style="width:100%;height:100%;color:blue">'+value.toString()+'</span>';
 				}
 			},
-			{ name: "createdAt", header: "증빙입력 일자", width: 150, sortable: true,align: "center"},
-			{ name: "status", header: "승인 상태", width: 150, sortable: true,align: "center"},
-			{ name: "confirmDate", header: "승인 날짜", width: 150, sortable: true,align: "center"},
-			{ name: "comment", header: "승인 내용", width: 300, sortable: true,align: "left"},
+		 	
 			
 		];
 

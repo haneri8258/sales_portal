@@ -222,7 +222,7 @@ class InvoceList extends Component {
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 			},
-			{ name: "depositAmt", header: "송금액", width: 150, sortable: true,align: "right"
+			{ name: "depositAmt", header: "입금액", width: 150, sortable: true,align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				} 

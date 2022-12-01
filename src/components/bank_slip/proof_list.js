@@ -269,7 +269,7 @@ class ProofList extends Component {
 
 	render() {
         const {pageInfo} = this.state; 
-		
+		 
 		const onClickedAtag = (e, rowKey) => {
 			e.preventDefault();
             this.onOpenModalFile(rowKey);
@@ -282,7 +282,8 @@ class ProofList extends Component {
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
-			},
+			},  
+ 
 			{ name: "remittanceAmount", header: "송금액", width: 150, sortable: true,align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -298,34 +299,34 @@ class ProofList extends Component {
 		
 		 
 		const slipColumns = [
- 			{ name: "remittanceType", header: "구분", width: 100, sortable: false, align: "center"},
+			{ name: "remittanceType", header: "구분", width: 100, sortable: false, align: "center"},
  			{ name: "invoiceNo", header: "invoiceNo", hidden : true },
 			{ name: "balanceAmount", header: "인보이스금액", width: 100, sortable: false
-				, align: "right"
+			 	, align: "right"
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				} 
 			},
-			{ name: "remittamceDate", header: "송금날짜", width: 120, sortable: false
-				, align: "center", editor: 'text'
+			{ name: "remittanceDate", header: "송금날짜", width: 120, sortable: false
+				, align: "center", editor: 'text'  
 				, editor: {
 			      type: 'datePicker',
 			           options: {
-			           format: 'yyyy-MM-dd' 
+			            format: 'yyyy-MM-dd' 
 			        }
-    			}  
+    			}   
 			},
 			{ name: "remittanceAmount", header: "송금액", width: 120, sortable: false
 				, align: "right", editor: 'text'
 			 	,formatter({value}){
 			 		return value.toString().replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
-				,editOptions: {
-			      type: 'text'
-			      ,useViewMode: false
+			 	,editOptions: {
+			       type: 'text'
+			      ,useViewMode: false 
 			    } 
 			},
-			{ name: "originFileName", header: "증빙", width: 150, sortable: false, align: "center"
+			{ name: "originFileName", header: "증빙", width: 150, sortable: false, align: "center" 
 				,renderer: {
                     type: LinkInGrid,
                     options: {
@@ -341,26 +342,58 @@ class ProofList extends Component {
         	let getRequest  =  this.getRequest;
          	const slipData = this.slipRef.current.getInstance().getData();
           	const formData = new FormData(); 
-          	debugger;
+             
+            let  balanceTotAmount = 0;
+            let  remittanceTotAmount = 0;
+            let  advancePayment = 0;
+            
+            debugger;
+            
 	        for(let i = 0; i < slipData.length; i++){
-	        	if( slipData[i].balanceAmount < slipData[i].remittanceAmount) {
-	        		alert("송금액이 잔액보다 크게 입력되었습니다.");
-	        		return;
-	        	}
-	        	if(  slipData[i].remittanceAmount >0 &&  slipData[i].fileInfo.length ===0) {
-	        		alert("증빙이 입력되지 않았습니다. ");
-	        		return;
-	        	}	
-	        	if(  slipData[i].remittanceAmount === 0 &&  slipData[i].fileInfo.length >0) {
-	        		alert("송금액이 입력되지 않았습니다.");
-	        		return;
-	        	}
-	        	if( slipData[i].remittanceType !== '선급금' && slipData[i].remittanceAmount === 0 &&  slipData[i].fileInfo.length ===0) {
-	        		alert("송금액이 입력되지 않았습니다.");
-	        		return;
-	        	}
+	        	if(slipData[i].remittanceType !== '선급금') {
+		        	
+		        	if( slipData[i].remittanceAmount === 0 ) {
+		        		alert("송금액이 입력되지 않았습니다.");
+		        		return;
+		        	} 
+		        	if(slipData[i].fileInfo.name === undefined ) {
+		        		alert("증빙이 입력되지 않았습니다. ");
+		        		return;
+		        	}	
+		        	
+		        	if( slipData[i].balanceAmount < slipData[i].remittanceAmount) {   
+		        		alert("송금 금액이 선택된 인보이스 금액보다 많습니다. 인보이스 금액을 확인 해주세요");
+		        		return;
+		        	}
+		        	
+		        	if( slipData[i].balanceAmount < slipData[i].remittanceAmount) {   
+		        		alert("송금 금액이 선택된 인보이스 금액보다 많습니다. 인보이스 금액을 확인 해주세요");
+		        		return;
+		        	}
+		        	 
+		        	balanceTotAmount   += slipData[i].balanceAmount;
+		        	remittanceTotAmount   += slipData[i].remittanceAmount;
+		        }else{
+		        	if(slipData[i].remittanceAmount === 0 &&  slipData[i].fileInfo.name !== undefined ) {
+		        		alert("선금급 증빙이 입력되었으나 송금액이 입력되지 않았습니다.");
+		        		return;
+		        	}
+		        	if(slipData[i].remittanceAmount > 0 &&  slipData[i].fileInfo.name === undefined  ) {
+		        		alert("선급금이 입력되었으나 증빙이 입력되지 않았습니다.");
+		        		return;
+		        	}
+		        	advancePayment = slipData[i].remittanceAmount;
+		        }	
 	        	slipData[i].clientId = sessionStorage.getItem('_CLIENT_ID');
 	            formData.append(i, slipData[i].fileInfo);  
+	        }
+	        if( advancePayment > 0  &&  balanceTotAmount > remittanceTotAmount ) {
+	        	alert("인보이스를 먼저 선택해주세요. 잔액이 있는 경우, 잔액을 제외한 금액만 선수금 처리 가능 합니다");
+	        	return;
+	        }
+	        if( balanceTotAmount < remittanceTotAmount ) {
+	        	alert("송금 금액이 인보이스 금액보다 많습니다. 남은 금액은 선수금으로 입력해주세요.");
+	        	return;
 	        }
 	        formData.append("slipData", JSON.stringify(slipData));         
 	        const url = process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadProof";
