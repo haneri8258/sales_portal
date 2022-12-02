@@ -38,6 +38,7 @@ class MngList extends Component {
 		this.state = { 
 			isOpenModal : false, 
 			searchKeySku :"",
+			searchKeyBuyerSku :"",
 			searchKeyDesc  :"",
 			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'), 
 			
@@ -212,13 +213,15 @@ class MngList extends Component {
     onResetGrid = () => {
 		this.setState({
 			searchKeySku :"",
+			searchKeyBuyerSku :"",
 			searchKeyDesc  :"",
 			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'),
-		
+			
 		    pageNumber : 1,
             perPage : 20
 		});
         const params={};
+        params.searchKeyBuyerCode  = sessionStorage.getItem('_CLIENT_ID');
         params.rowStart = 0;
         params.perPage =20;
         this.onGridUpdatePages(params);
@@ -231,6 +234,7 @@ class MngList extends Component {
         const params = {};
  
 		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku;
 		params.searchKeyDesc = this.state.searchKeyDesc; 
 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
@@ -249,6 +253,7 @@ class MngList extends Component {
  		
  		debugger;
 		params.searchKeySku = this.state.searchKeySku;
+		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku;
 		params.searchKeyDesc = this.state.searchKeyDesc; 
 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
@@ -263,6 +268,7 @@ class MngList extends Component {
     onSearch = (e) =>{
 		const params = {}; 
 		params.searchKeySku  = this.state.searchKeySku;
+		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku;
 		params.searchKeyDesc = this.state.searchKeyDesc; 
 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
@@ -277,6 +283,7 @@ class MngList extends Component {
 
 	
 		const columns = [
+			{ name: "id", header: "ID", width: 10, hidden: true},
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center" , editor: 'text'
 	 			,formatter({value}){
 						return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
@@ -309,6 +316,7 @@ class MngList extends Component {
 						return value === null ? '':'<span style="width:100%;height:100%;color:blue">'+value+'</span>'; 
 				}
 			},
+			{ name: "nickname", header: "닉네임", width: 200, sortable: true,align: "left"},
 		];
 
 		return (
@@ -340,6 +348,14 @@ class MngList extends Component {
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeySku" value={this.state.searchKeySku} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}} placeholder="SKU를입력하세요">
+                                                </Form.Control> 
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <Form.Text><Trans>거래처 SKU 코드</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerSku" value={this.state.searchKeyBuyerSku} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}} placeholder="거래처SKU를입력하세요">
                                                 </Form.Control> 
                                             </li>
 											<li className="list-inline-item me-1">

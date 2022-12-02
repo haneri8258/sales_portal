@@ -136,7 +136,7 @@ class MngManagerList extends Component {
 		}
  		if(window.confirm(skuList.length +"건을 저장하시겠습니까?")) { 
 	  		let getSku = this.getSku;
-			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuCreatedList : [], skuUpdateList : skuList} ,{"Content-Type": 'application/json'})
 			.then(function (res){ 
 	         		if(res.data.resultCode >0){
 	         			alert("성공적으로 저장 되었습니다");
@@ -183,8 +183,6 @@ class MngManagerList extends Component {
 		this.setState({
 			searchKeySku :"",
 			searchKeyBuyerCode :"", 
-			searchKeyManagerSku :"",
-			searchKeyManagerCode :"", 
             pageNumber : 1,
             perPage : 20
 		});
@@ -246,10 +244,11 @@ class MngManagerList extends Component {
         const {pageInfo} = this.state;
  
 		const columns = [
+			{ name: "id", header: "ID", width: 10, hidden: true},
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
-			{ name: "clientId", header: "거래처 id", width: 200, sortable: true,align: "center" },
+			{ name: "username", header: "거래처 id", width: 200, sortable: true,align: "center" },
 			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true,align: "center" },  
-			{ name: "managerId", header: "관리자 id", width: 200, sortable: true,align: "center" },  
+			{ name: "managerId", header: "관리자 id", width: 200, sortable: true,align: "center" , hidden: true },  
 			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true, align: "center"},
 			{ name: "managerUseYn", header: "사용여부", sortable: true , filter : 'select', align: 'center', width : 200, formatter: 'listItemText',
                 editor:{ 
@@ -291,7 +290,7 @@ class MngManagerList extends Component {
                                                 <Form.Text><Trans>SKU</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeySku" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeySku" value={this.state.searchKeySku} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="SKU를입력하세요">
                                                 </Form.Control> 
                                             </li>
@@ -299,7 +298,7 @@ class MngManagerList extends Component {
                                                 <Form.Text><Trans>거래처 id</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
-                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyMatnr} onChange={this.onChange}
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyBuyerCode} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="거래처 id를입력하세요">
                                                 </Form.Control> 
                                             </li>

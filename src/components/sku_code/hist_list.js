@@ -42,8 +42,9 @@ class BaseList extends Component {
 			
 			searchKeySku :"",
 			searchKeyDesc  :"",
+			searchKeyBuyerSku :"",
 			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'), 
-		
+		    
 			gridData : [],
             pageInfo : {
                 totalPage : 0,
@@ -149,6 +150,7 @@ class BaseList extends Component {
 		this.setState({
 			searchKeySku :"",
 			searchKeyDesc  :"",
+			searchKeyBuyerSku :"",
 			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'), 
             pageNumber : 1,
             perPage : 20
@@ -166,7 +168,8 @@ class BaseList extends Component {
         const params = {};
  
 		params.searchKeySku = this.state.searchKeySku;
-		params.searchKeyDesc = this.state.searchKeyDesc; 
+		params.searchKeyDesc = this.state.searchKeyDesc;
+		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku;
 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
         params.pageNumber = 1;
@@ -183,7 +186,8 @@ class BaseList extends Component {
         const params = {};
  
 		params.searchKeySku = this.state.searchKeySku;
-		params.searchKeyDesc = this.state.searchKeyDesc; 
+		params.searchKeyDesc = this.state.searchKeyDesc;
+		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku; 
 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
@@ -198,7 +202,8 @@ class BaseList extends Component {
 		const params = {};
  
 		params.searchKeySku = this.state.searchKeySku;
-		params.searchKeyDesc = this.state.searchKeyDesc; 
+		params.searchKeyDesc = this.state.searchKeyDesc;
+		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku; 
 		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
 		
         params.pageNumber = 1;
@@ -214,9 +219,10 @@ class BaseList extends Component {
 		const columns = [
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left"},
-			{ name: "clientId", header: "Buyer Code", width: 150, sortable: true,align: "center"},
-			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "right" },
-			{ name: "createdClientName", header: "생성자", width: 150, sortable: true,align: "center" },  
+			{ name: "clientId", header: "Buyer Code", width: 150, sortable: true,align: "center", hidden:true},
+			{ name: "clientSku", header: "거래처 SKU 코드", width: 150, sortable: true,align: "left"},
+			{ name: "createdAt", header: "작성일", width: 150, sortable: true,align: "right" },
+			{ name: "createdClientName", header: "작성자", width: 150, sortable: true,align: "center" },  
 			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "left" },
 			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "left" },
 		];
@@ -250,6 +256,14 @@ class BaseList extends Component {
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeySku" value={this.state.searchKeySku} onChange={this.onChange}
                                                         style={{"minHeight": "1rem"}}placeholder="SKU를입력하세요">
+                                                </Form.Control> 
+                                            </li>
+											<li className="list-inline-item me-1">
+                                                <Form.Text><Trans>거래처 SKU 코드</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerSku" value={this.state.searchKeyBuyerSku} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}} placeholder="거래처SKU를입력하세요">
                                                 </Form.Control> 
                                             </li>
 											<li className="list-inline-item me-1">
