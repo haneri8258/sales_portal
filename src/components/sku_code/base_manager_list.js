@@ -83,7 +83,7 @@ class BaseManagerList extends Component {
 
 	gridRef = React.createRef();
 
-	onGridMounted = (e) => { 
+	onGridMounted = (e) => {  
         this.getSku();
 	}
 
@@ -91,7 +91,6 @@ class BaseManagerList extends Component {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-        debugger;
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerList",{params : params})
              ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/mngManagerRowCount",{params : params}) 
@@ -253,26 +252,60 @@ class BaseManagerList extends Component {
 
 	render() {
         const {pageInfo} = this.state;
- 
+ 		class CustomTextEditor {
+			  constructor(props) {
+			    const el = document.createElement('input');
+				 
+			    el.type = 'text';
+			    el.value = String(props.value);
+			
+			    this.el = el;
+			  }
+			
+			  getElement() {
+			    return this.el;
+			  }
+			
+			  getValue() {
+			    return this.el.value;
+			  }
+			
+			  mounted() {
+			    this.el.select();
+			  }
+		}
+ 		 
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
- 			{ name: "sku", header: "SKU", width: 200, sortable: true, align: "center",editor: 'text'
- 				,formatter({value}){
-					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
-				}
+ 			{ name: "sku", header: "SKU 코드", width: 200, sortable: true, align: "center",editor: 'text'
+ 				/*,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			      	borderColor: '#f4f4f4',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }  */
  			},
-			{ name: "username", header: "거래처 id", width: 200, sortable: true, align: "center" ,editor: 'text'
-				,formatter({value}){
-					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
-				}
+			{ name: "clientId", header: "거래처 ID", width: 200, sortable: true, align: "center" ,editor: 'text'
+				,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }  
 			},
 			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true, align: "center" , hidden: true},  
 			{ name: "managerId", header: "관리자 id", width: 200, sortable: true, align: "center" , hidden: true},  
 			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true, align: "center"
 				,editor: 'text'
-				,formatter({value}){
-					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
-				}
+				,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    } 
 			},
 			{ name: "managerUseYn", header: "사용여부", sortable: true , filter : 'select', align: 'center', width : 200, hidden: true}
 		];

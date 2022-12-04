@@ -210,8 +210,7 @@ class ProofList extends Component {
     
     // 증빙파일업로드 열기
     onOpenModalFile = async (rowKey) => { 
-    	
-    	this.setState({
+     	this.setState({
             isOpenModalFile: true,
             rowKey	: rowKey
         }); 
@@ -314,7 +313,14 @@ class ProofList extends Component {
 			           options: {
 			            format: 'yyyy-MM-dd' 
 			        }
-    			}   
+    			} 
+    			,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }    
 			},
 			{ name: "remittanceAmount", header: "송금액", width: 120, sortable: false
 				, align: "right", editor: 'text'
@@ -324,14 +330,21 @@ class ProofList extends Component {
 			 	,editOptions: {
 			       type: 'text'
 			      ,useViewMode: false 
-			    } 
+			    }
+			    ,renderer: {
+			     styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      } 
+			    }    
 			},
 			{ name: "originFileName", header: "증빙", width: 150, sortable: false, align: "center" 
 				,renderer: {
                     type: LinkInGrid,
                     options: {
                         onClickedAtag
-                    }
+                    } 
                 } 
 			}			 
 		];

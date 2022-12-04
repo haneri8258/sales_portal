@@ -225,6 +225,12 @@ class BaseList extends Component {
 			{ name: "createdClientName", header: "작성자", width: 150, sortable: true,align: "center" },  
 			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "left" },
 			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "left" },
+			{ name: "mode", header: "구분", width: 200, sortable: true,align: "center"
+				,formatter({value}){
+					let modeStr ="";
+					return (value == 'I' ? "<span style=\"color:red\">생성</span>":"<span style=\"color:blue\">수정</span>")  ;
+				}  
+			 },
 		];
 
 		return (

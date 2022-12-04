@@ -213,13 +213,19 @@ class BaseList extends Component {
 		const columns = [
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left"},
-			{ name: "clientId", header: "Buyer Code", width: 150, sortable: true,align: "center"},
-			{ name: "clientSku", header: "Buyer SKU", width: 150, sortable: true,align: "center"},
-			{ name: "managerSku", header: "관리자 SKU", width: 150, sortable: true,align: "center"},
+			{ name: "username", header: "거래처 코드", width: 150, sortable: true,align: "center"},
+			{ name: "clientSku", header: "거래처 SKU 코드", width: 150, sortable: true,align: "center"},
+			{ name: "managerSku", header: "관리자 SKU 코드", width: 150, sortable: true,align: "center"},
 			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "right" },
 			{ name: "createdClientName", header: "생성자", width: 150, sortable: true,align: "center" },  
 			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "left" },
 			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "left" },
+			{ name: "mode", header: "구분", width: 200, sortable: true,align: "center"
+				,formatter({value}){
+					let modeStr ="";
+					return (value == 'I' ? "<span style=\"color:red\">생성</span>":"<span style=\"color:blue\">수정</span>")  ;
+				}  
+			 },
 		];
 
 		return (

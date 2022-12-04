@@ -238,19 +238,21 @@ class MngManagerList extends Component {
 		params.storeNo = sessionStorage.getItem("_STORE_NO");
         this.onGridUpdatePages(params);
 	} 
-	
+
+ 
 
 	render() {
         const {pageInfo} = this.state;
- 
+ 			
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center"},
-			{ name: "username", header: "거래처 id", width: 200, sortable: true,align: "center" },
+			{ name: "username", header: "거래처 코드", width: 200, sortable: true,align: "center" },
 			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true,align: "center" },  
 			{ name: "managerId", header: "관리자 id", width: 200, sortable: true,align: "center" , hidden: true },  
 			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true, align: "center"},
-			{ name: "managerUseYn", header: "사용여부", sortable: true , filter : 'select', align: 'center', width : 200, formatter: 'listItemText',
+			{ name: "fnSku", header: "FN SKU", width: 150, show: false,  sortable: true, align: "center"},
+			{ name: "managerUseYn", header: "사용여부", sortable: true , filter : 'select', align: 'center', width : 200,
                 editor:{ 
                     type:'select',
                     options : {
@@ -258,11 +260,18 @@ class MngManagerList extends Component {
                             {text : "Y", value : "Y"},
                             {text : "N", value : "N"},
                        	]
-                   	}
+                   	}, 
                	}
-            },
+               	,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }  
+           },
 		];
-
+		
 		return (
 			<div>
                 {this.state.loading && (<Loading/>)}

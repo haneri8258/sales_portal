@@ -315,8 +315,7 @@ class MngList extends Component {
 				,formatter({value}){
 						return value === null ? '':'<span style="width:100%;height:100%;color:blue">'+value+'</span>'; 
 				}
-			},
-			{ name: "nickname", header: "닉네임", width: 200, sortable: true,align: "left"},
+			} 
 		];
 
 		return (
