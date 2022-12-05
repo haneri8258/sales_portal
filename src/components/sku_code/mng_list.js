@@ -285,36 +285,60 @@ class MngList extends Component {
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center" , editor: 'text'
-	 			,formatter({value}){
-						return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
-				}
+	 			,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }  
  			},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left", editor: 'text'
-				,formatter({value}){
-					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
-				}
+				,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }  
 			},
 			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true,align: "left", editor: 'text'
-				,formatter({value}){
-					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
-				}
+				,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }  
 			},
 			{ name: "clientId", header: "Buyer Code", width: 150, show: false,  sortable: true,align: "center", editor: 'text', hidden: true
-				,formatter({value}){
-					return value === null ? '':'<span style="width:100%;height:100%;color:red">'+value+'</span>'; 
-				}
+				,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }  
 			},
 			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "right" },
 			{ name: "createdClientName", header: "생성자", width: 150, sortable: true,align: "center" , editor: 'text'
-				,formatter({value}){
-						return value === null ? '':'<span style="width:100%;height:100%;color:blue">'+value+'</span>'; 
-				}
+				,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }
 			},  
 			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "left"},
 			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "center" , editor: 'text'
-				,formatter({value}){
-						return value === null ? '':'<span style="width:100%;height:100%;color:blue">'+value+'</span>'; 
-				}
+				,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			        borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    }
 			} 
 		];
 

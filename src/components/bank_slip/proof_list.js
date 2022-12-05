@@ -302,7 +302,7 @@ class ProofList extends Component {
  			{ name: "invoiceNo", header: "invoiceNo", hidden : true },
 			{ name: "balanceAmount", header: "인보이스금액", width: 100, sortable: false
 			 	, align: "right"
-				,formatter({value}){
+				, formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				} 
 			},
@@ -360,9 +360,7 @@ class ProofList extends Component {
             let  remittanceTotAmount = 0;
             let  advancePayment = 0;
             
-            debugger;
-            
-	        for(let i = 0; i < slipData.length; i++){
+            for(let i = 0; i < slipData.length; i++){
 	        	if(slipData[i].remittanceType !== '선급금') {
 		        	
 		        	if( slipData[i].remittanceAmount === 0 ) {
@@ -427,8 +425,7 @@ class ProofList extends Component {
 				}
 			});  
         }
-         
-           
+            
         // 파일 업로드 핸들러
         const handleChangeFile = (event) => {
             const rowKey   = this.state.rowKey;  
