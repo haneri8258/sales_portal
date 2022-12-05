@@ -124,8 +124,7 @@ class BaseManagerList extends Component {
 		if(skuList.length === 0) {
 			alert("저장할 자료를 선택하세요.");
 			return;
-		}
-		debugger;
+		} 
 		for(let i in skuList){ 
 			if(skuList[i].username ==='' ){
 				alert("거래처 코드는 필수 입니다." );
@@ -135,6 +134,11 @@ class BaseManagerList extends Component {
 				alert("관리자 SKU 코드는 필수 입니다." );
 				return;
 			} 
+			
+			if(this.state.gridData[skuList[i].rowKey].validate ==="F") {
+			   	alert("["+  skuList[i].username + "] 등록 되지 않는 거래처 코드 입니다." );
+				return;
+			}
 			
 			if(this.state.gridData[skuList[i].rowKey].validate ==="N") {
 			   	alert("["+ skuList[i].sku + "]  SKU Code는 등록되지 않는 코드 입니다." );
@@ -295,18 +299,39 @@ class BaseManagerList extends Component {
 			let rowKey = ev.rowKey; 
 			let clientId = gridData[rowKey].clientId;
 			const skuList = this.gridRef.current.getInstance().getData(); 
-			debugger; 
+			 
 			if(ev.columnName ==='sku' && ev.value !="") {
 				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkManagerSkuCode",{sku : ev.value, id : skuList[rowKey].id , username :  skuList[rowKey].username  },{"Content-Type": 'application/json'}) 
 				.then(function (res){ 
+						if(gridData[rowKey].validate !=="F"){
+			         		if(res.data.resultCode ==0){
+			         			alert("등록 되지 않는 SKU 코드 입니다.");
+			         			gridData[rowKey].validate = "N";
+			         		}else if(res.data.resultCode == 9){
+			         			alert("기 등록된 SKU 코드 입니다.");
+			         			gridData[rowKey].validate = "D";	
+			         		}else{
+			         			gridData[rowKey].validate = "Y";
+			         		}	
+			            }
+		            }
+		        ).catch(err => {
+					if(err.response){
+						console.log(err.response.data);
+					}else if(err.request){
+						console.log(err.request);
+					}else{
+						console.log('Error', err.message);
+					}
+				}); 
+			}else if(ev.columnName ==='username' && ev.value !="") { 
+				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkUserName",{ username :  ev.value  },{"Content-Type": 'application/json'}) 
+				.then(function (res){ 
 		         		if(res.data.resultCode ==0){
-		         			alert("등록 되지 않는 SKU 코드 입니다.");
-		         			gridData[rowKey].validate = "N";
-		         		}else if(res.data.resultCode == 9){
-		         			alert("기 등록된 SKU 코드 입니다.");
-		         			gridData[rowKey].validate = "D";	
+		         			alert("등록 되지 않는 거래처 코드 입니다.");
+		         			gridData[rowKey].validate = "F";  
 		         		}else{
-		         			gridData[rowKey].validate = "Y";
+		         			gridData[rowKey].validate = "";  
 		         		}	
 		            }
 		        ).catch(err => {
@@ -317,10 +342,10 @@ class BaseManagerList extends Component {
 					}else{
 						console.log('Error', err.message);
 					}
-				});
-			
-			} 
+				}); 
+			}
 		}
+		
 		 
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
@@ -331,7 +356,10 @@ class BaseManagerList extends Component {
 			        borderColor: '#FFFFFF',
 			        borderStyle: 'ridge'    
 			      }, 
-			    }  
+			    } 
+			    ,onAfterChange(ev) {
+				    onAfterChange(ev);
+				} 
 			},
  			{ name: "sku", header: "SKU 코드", width: 200, sortable: true, align: "center",editor: 'text'
  				,renderer: {
