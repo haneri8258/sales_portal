@@ -125,18 +125,33 @@ class BaseManagerList extends Component {
 			alert("저장할 자료를 선택하세요.");
 			return;
 		}
+		debugger;
 		for(let i in skuList){ 
+			if(skuList[i].username ==='' ){
+				alert("거래처 코드는 필수 입니다." );
+				return;
+			} 
 			if(skuList[i].managerSku ==='' ){
 				alert("관리자 SKU 코드는 필수 입니다." );
 				return;
 			} 
+			
+			if(this.state.gridData[skuList[i].rowKey].validate ==="N") {
+			   	alert("["+ skuList[i].sku + "]  SKU Code는 등록되지 않는 코드 입니다." );
+				return;
+			}
+			if(this.state.gridData[skuList[i].rowKey].validate ==="D") {
+			   	alert("["+  skuList[i].sku + "] SKU Code는 기입력된 중복된 코드 입니다." );
+				return;
+			}
+			
 			skuList[i].managerId    =  this.state._MANAGER_ID;
 			skuList[i].crtId        =  this.state._USER_ID;
 			skuList[i].updId        =  this.state._USER_ID;
 		}
  		if(window.confirm(skuList.length +"건을 저장하시겠습니까?")) { 
 	  		let getSku = this.getSku;
-			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuCreatedList : [], skuUpdateList : skuList} ,{"Content-Type": 'application/json'}) 
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuList : skuList} ,{"Content-Type": 'application/json'}) 
 			.then(function (res){ 
 	         		if(res.data.resultCode >0){
 	         			alert("성공적으로 저장 되었습니다");
@@ -156,8 +171,8 @@ class BaseManagerList extends Component {
 	}
 	
 	onAppendRow = (e) => { 
-		const rowData = [{sku: "", username: "", clientSku: "",  managerId: "", managerSku : "" , managerUseYn: "" }];
-
+		const rowData = [{id: "", sku: "", username: "", clientSku: "",  managerId: "", managerSku : "" , managerUseYn: "", validate : "" }];
+		this.state.gridData.push(rowData); 
 		this.gridRef.current.getInstance().appendRow(rowData, {
 		  at: 0,
 		  extendPrevRowSpan: true,
@@ -275,18 +290,41 @@ class BaseManagerList extends Component {
 			  }
 		}
  		 
+ 		const gridData = this.state.gridData;
+		const onAfterChange =(ev) => {
+			let rowKey = ev.rowKey; 
+			let clientId = gridData[rowKey].clientId;
+			const skuList = this.gridRef.current.getInstance().getData(); 
+			debugger; 
+			if(ev.columnName ==='sku' && ev.value !="") {
+				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkManagerSkuCode",{sku : ev.value, id : skuList[rowKey].id , username :  skuList[rowKey].username  },{"Content-Type": 'application/json'}) 
+				.then(function (res){ 
+		         		if(res.data.resultCode ==0){
+		         			alert("등록 되지 않는 SKU 코드 입니다.");
+		         			gridData[rowKey].validate = "N";
+		         		}else if(res.data.resultCode == 9){
+		         			alert("기 등록된 SKU 코드 입니다.");
+		         			gridData[rowKey].validate = "D";	
+		         		}else{
+		         			gridData[rowKey].validate = "Y";
+		         		}	
+		            }
+		        ).catch(err => {
+					if(err.response){
+						console.log(err.response.data);
+					}else if(err.request){
+						console.log(err.request);
+					}else{
+						console.log('Error', err.message);
+					}
+				});
+			
+			} 
+		}
+		 
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
- 			{ name: "sku", header: "SKU 코드", width: 200, sortable: true, align: "center",editor: 'text'
- 				/*,renderer: {
-			      styles: {
-			      	minHeight: '27.33px',
-			      	borderColor: '#f4f4f4',
-			        borderStyle: 'ridge'    
-			      }, 
-			    }  */
- 			},
-			{ name: "clientId", header: "거래처 ID", width: 200, sortable: true, align: "center" ,editor: 'text'
+ 			{ name: "username", header: "거래처 코드", width: 200, sortable: true, align: "center" ,editor: 'text'
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
@@ -295,6 +333,18 @@ class BaseManagerList extends Component {
 			      }, 
 			    }  
 			},
+ 			{ name: "sku", header: "SKU 코드", width: 200, sortable: true, align: "center",editor: 'text'
+ 				,renderer: {
+			      styles: {
+			      	minHeight: '27.33px',
+			      	borderColor: '#FFFFFF',
+			        borderStyle: 'ridge'    
+			      }, 
+			    } 
+			    ,onAfterChange(ev) {
+				    onAfterChange(ev);
+				}
+ 			},
 			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true, align: "center" , hidden: true},  
 			{ name: "managerId", header: "관리자 id", width: 200, sortable: true, align: "center" , hidden: true},  
 			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true, align: "center"

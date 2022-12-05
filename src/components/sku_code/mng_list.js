@@ -121,12 +121,12 @@ class MngList extends Component {
 	onSubmit = (e) => { 
 		const  skuCreatedList =  this.gridRef.current.getInstance().getModifiedRows().createdRows;  
 		const  skuUpdateList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  
-		debugger; 
-		if(skuCreatedList.length === 0 && skuUpdateList ===0 ) {
+		const  gridData = this.state.gridData ; 
+		if(skuCreatedList.length === 0 && skuUpdateList.length ===0 ) {
 			alert("추가 및 수정된 내용이 없습니다.");
 			return;
 		}
-		
+		if(window.confirm("저장하시겠습니까?") === false) return;   
 		for(let i in skuCreatedList){ 
 			if(skuCreatedList[i].sku ==='' ){
 				alert("SKU Code는 필수 입니다." );
@@ -136,6 +136,14 @@ class MngList extends Component {
 				alert("Buyer SKU Code는 필수 입니다." );
 				return;
 			} 
+			if( gridData[skuCreatedList[i].rowKey].validate ==="N") {
+			   	alert("["+ skuCreatedList[i].sku + "]  SKU Code는 등록되지 않는 코드 입니다." );
+				return;
+			}
+			if( gridData[skuCreatedList[i].rowKey].validate ==="D") {
+			   	alert("["+ skuCreatedList[i].sku + "] SKU Code는 기입력된 중복된 코드 입니다." );
+				return;
+			}
 			skuCreatedList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
 			skuCreatedList[i].crtId     =  this.state._USER_ID;
 			skuCreatedList[i].updId     =  this.state._USER_ID;
@@ -150,12 +158,20 @@ class MngList extends Component {
 				alert("Buyer SKU Code는 필수 입니다." );
 				return;
 			} 
+			if( gridData[skuUpdateList[i].rowKey].validate =="N") {
+			   	alert("["+ skuUpdateList[i].sku + "] SKU Code는 등록되지 않는 코드 입니다." );
+				return;
+			}
+			if( gridData[skuUpdateList[i].rowKey].validate =="D") {
+			   	alert("["+ skuUpdateList[i].sku + "] SKU Code는 기입력된 중복된 코드 입니다." );
+				return;
+			}
 			skuUpdateList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
 			skuUpdateList[i].crtId     =  this.state._USER_ID;
 			skuUpdateList[i].updId     =  this.state._USER_ID;
 		}
 		let getSku = this.getSku;
-		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuCreatedList : skuCreatedList, skuUpdateList : skuUpdateList} ,{"Content-Type": 'application/json'}) 
+		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateClientList",{skuCreatedList : skuCreatedList, skuUpdateList : skuUpdateList} ,{"Content-Type": 'application/json'}) 
 		.then(function (res){ 
          		if(res.data.resultCode >0){
          			alert("성공적으로 저장 되었습니다");
@@ -174,13 +190,13 @@ class MngList extends Component {
 	}
 	
 	onAppendRow = (e) => { 
-		 debugger;
 		 
-		const rowData = [{sku: "", desciption: "", clientSku: "",  clientId: "", useYn : "" , createdAt: "", createdClientName: "",updatedAt : "", updatedClientName :"" }];
-
+		const rowData = [{id: "", sku: "", desciption: "", clientSku: "",  clientId: "", useYn : "" , createdAt: "", createdClientName: "",updatedAt : "", updatedClientName :"" , validate : "" }];
+		
+		this.state.gridData.push(rowData); 
 		this.gridRef.current.getInstance().appendRow(rowData, {
 		  at: 0,
-		  extendPrevRowSpan: true,
+		  /*extendPrevRowSpan: true,*/
 		  focus: true
 		});
 				 
@@ -250,8 +266,7 @@ class MngList extends Component {
             pageNumber : pageNumber
         });
         const params = {};
- 		
- 		debugger;
+ 		 
 		params.searchKeySku = this.state.searchKeySku;
 		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku;
 		params.searchKeyDesc = this.state.searchKeyDesc; 
@@ -280,8 +295,36 @@ class MngList extends Component {
 
 	render() {
         const {pageInfo} = this.state;
-
-	
+		
+		const gridData = this.state.gridData;
+		const onAfterChange =(ev) => {
+			let rowKey = ev.rowKey;
+			
+			if(ev.columnName ==='sku') {
+				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkSkuCode",{sku : ev.value, id : gridData[rowKey].id , clientId : sessionStorage.getItem("_CLIENT_ID")  },{"Content-Type": 'application/json'}) 
+				.then(function (res){ 
+		         		if(res.data.resultCode ==0){
+		         			alert("등록 되지 않는 SKU 코드 입니다.");
+		         			gridData[rowKey].validate = "N";
+		         		}else if(res.data.resultCode == 9){
+		         			alert("기 등록된 SKU 코드 입니다.");
+		         			gridData[rowKey].validate = "D";	
+		         		}else{
+		         			gridData[rowKey].validate = "Y";
+		         		}	
+		            }
+		        ).catch(err => {
+					if(err.response){
+						console.log(err.response.data);
+					}else if(err.request){
+						console.log(err.request);
+					}else{
+						console.log('Error', err.message);
+					}
+				});
+			
+			} 
+		}
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center" , editor: 'text'
@@ -292,6 +335,9 @@ class MngList extends Component {
 			        borderStyle: 'ridge'    
 			      }, 
 			    }  
+			    ,onAfterChange(ev) {
+				    onAfterChange(ev);
+				}
  			},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left", editor: 'text'
 				,renderer: {
@@ -320,7 +366,7 @@ class MngList extends Component {
 			      }, 
 			    }  
 			},
-			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "right" },
+			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "center" },
 			{ name: "createdClientName", header: "생성자", width: 150, sortable: true,align: "center" , editor: 'text'
 				,renderer: {
 			      styles: {
@@ -330,7 +376,7 @@ class MngList extends Component {
 			      }, 
 			    }
 			},  
-			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "left"},
+			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "center"},
 			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "center" , editor: 'text'
 				,renderer: {
 			      styles: {
@@ -339,7 +385,8 @@ class MngList extends Component {
 			        borderStyle: 'ridge'    
 			      }, 
 			    }
-			} 
+			},
+			{ name: "validate", header: "validate", width: 10, hidden: true}, 
 		];
 
 		return (

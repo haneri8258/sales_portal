@@ -14,8 +14,8 @@ import { alert } from "react-bootstrap-confirmation";
 import api from '../../CustomAxios';
 import Pagination from "react-js-pagination";
 import ExcelJS from 'exceljs';
-import TuiGrid from 'tui-grid';
-import 'tui-date-picker/dist/tui-date-picker.css';
+import TuiGrid from 'tui-grid'; 
+/*import 'tui-date-picker/dist/tui-date-picker.css';*/
 import { Loading } from "../../loading";
 /**
  * 설명 : BankSlip 증빙
@@ -312,6 +312,7 @@ class ProofList extends Component {
 			      type: 'datePicker',
 			           options: {
 			            format: 'yyyy-MM-dd' 
+			            ,style : {zIndex: "9999999"} 
 			        }
     			} 
     			,renderer: {
@@ -472,7 +473,7 @@ class ProofList extends Component {
                                         <ul className="list-inline mb-1">
                                             <li className="list-inline-item me-1">
                                                 <button type="button" className="btn btn-sm btn-success"  onClick={this.onSearch}>
-                                                    <Trans>Search</Trans>
+                                                    <Trans>검색</Trans>
                                                 </button>
                                             </li>
                                             <li className="list-inline-item me-1">
