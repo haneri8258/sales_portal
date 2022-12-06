@@ -364,7 +364,7 @@ class ProofList extends Component {
             for(let i = 0; i < slipData.length; i++){
 	        	if(slipData[i].remittanceType !== '선급금') {
 		        	
-		        	if( slipData[i].remittanceAmount === 0 ) {
+		        	if( Number(slipData[i].remittanceAmount) === 0 ) {
 		        		alert("송금액이 입력되지 않았습니다.");
 		        		return;
 		        	} 
@@ -373,32 +373,30 @@ class ProofList extends Component {
 		        		return;
 		        	}	
 		        	
-		        	if( slipData[i].balanceAmount < slipData[i].remittanceAmount) {   
+		        	if( Number(slipData[i].balanceAmount) < Number(slipData[i].remittanceAmount)) {   
 		        		alert("송금 금액이 선택된 인보이스 금액보다 많습니다. 인보이스 금액을 확인 해주세요");
 		        		return;
 		        	}
-		        	
-		        	if( slipData[i].balanceAmount < slipData[i].remittanceAmount) {   
-		        		alert("송금 금액이 선택된 인보이스 금액보다 많습니다. 인보이스 금액을 확인 해주세요");
-		        		return;
-		        	}
-		        	 
-		        	balanceTotAmount   += slipData[i].balanceAmount;
-		        	remittanceTotAmount   += slipData[i].remittanceAmount;
+
+		        	balanceTotAmount   += Number(slipData[i].balanceAmount);
+		        	remittanceTotAmount   += Number(slipData[i].remittanceAmount);
 		        }else{
-		        	if(slipData[i].remittanceAmount === 0 &&  slipData[i].fileInfo.name !== undefined ) {
+		        	if(Number(slipData[i].remittanceAmount) === 0 &&  slipData[i].fileInfo.name !== undefined ) {
 		        		alert("선금급 증빙이 입력되었으나 송금액이 입력되지 않았습니다.");
 		        		return;
 		        	}
-		        	if(slipData[i].remittanceAmount > 0 &&  slipData[i].fileInfo.name === undefined  ) {
+		        	if(Number(slipData[i].remittanceAmount) > 0 &&  slipData[i].fileInfo.name === undefined  ) {
 		        		alert("선급금이 입력되었으나 증빙이 입력되지 않았습니다.");
 		        		return;
 		        	}
-		        	advancePayment = slipData[i].remittanceAmount;
+		        	if(Number(slipData[i].remittanceAmount) !=="")
+		        		advancePayment = Number(slipData[i].remittanceAmount);
 		        }	
 	        	slipData[i].clientId = sessionStorage.getItem('_CLIENT_ID');
 	            formData.append(i, slipData[i].fileInfo);  
 	        }
+	        
+	        debugger;
 	        if( advancePayment > 0  &&  balanceTotAmount > remittanceTotAmount ) {
 	        	alert("인보이스를 먼저 선택해주세요. 잔액이 있는 경우, 잔액을 제외한 금액만 선수금 처리 가능 합니다");
 	        	return;
