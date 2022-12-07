@@ -51,7 +51,7 @@ class InvoceList extends Component {
             },
             activePage : 1,
             perPage : 20,
-            pageNumber : "",
+            pageNumber : 1,
 
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
@@ -157,6 +157,7 @@ class InvoceList extends Component {
         const params={};
         params.rowStart = 0;
         params.perPage =20;
+        params.pageNumber = 1;
         this.onGridUpdatePages(params);
 	}
 

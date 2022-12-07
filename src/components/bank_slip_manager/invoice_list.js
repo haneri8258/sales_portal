@@ -137,7 +137,7 @@ class InvoiceManagerList extends Component {
 	timestamp = (date)=>{
 		if(date) {
 			date.setHours(date.getHours() + 9);
-			return date.toISOString().replace('T', ' ').substring(0, 19);
+			return date.toISOString().replace('T', ' ').substring(0, 10);
 		} 
 	}
  
@@ -168,18 +168,18 @@ class InvoiceManagerList extends Component {
     }
     onResetGrid = () => {
 		this.setState({
-			searchKeyPlant :"",
-			searchKeyPosi  :"",
-			searchKeyMatnr :"",
-			searchKeyBatch :"",
-			searchKeyMRPMgr :"" ,
-			searchKeyVkgrpT :"",
+			searchKeyBuyerCode : "",
+			searchKeyBuyerName : "",
+			searchKeyInvoiceNo : "",
+			searchKeyInvoiceDate : "",
+			searchKeyStatus  : "",
             pageNumber : 1,
             perPage : 20
 		});
         const params={};
         params.rowStart = 0;
         params.perPage =20;
+        params.pageNumber = 1;
         this.onGridUpdatePages(params);
 	}
 

@@ -157,6 +157,7 @@ class ProofList extends Component {
         const params={};
         params.rowStart = 0;
         params.perPage =20;
+        params.pageNumber = 1;
         this.onGridUpdatePages(params);
 	}
 	

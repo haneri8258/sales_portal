@@ -55,7 +55,7 @@ class ConfirmList extends Component {
             },
             activePage : 1,
             perPage : 20,
-            pageNumber : "",
+            pageNumber : 1,
 
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
@@ -123,11 +123,17 @@ class ConfirmList extends Component {
 	}
 
     getOrders = () => {
+    	debugger;
         const params = {};
-        params.rowStart = 0;
-        params.perPage = this.state.perPage;
- 
-        axios.all([
+        this.setState({ 
+ 			pageNumber : 1,
+ 			activePage : 1,
+            perPage : 20
+		});
+        params.rowStart = 0; 
+        params.perPage = Number(this.state.perPage);
+        params.pageNumber = Number(this.state.pageNumber);
+ 	    axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmRowCount",{params : params}) 
         ]).then(
@@ -152,12 +158,13 @@ class ConfirmList extends Component {
 	timestamp = (date)=>{
 		if(date) {
 			date.setHours(date.getHours() + 9);
-			return date.toISOString().replace('T', ' ').substring(0, 19);
+			return date.toISOString().replace('T', ' ').substring(0, 10);
 		} 
 	}
  
 
     onGridUpdatePages = (params)=>{  
+    	debugger;
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmRowCount",{params : params}) 
@@ -196,6 +203,7 @@ class ConfirmList extends Component {
         const params={};
         params.rowStart = 0;
         params.perPage =20;
+        params.pageNumber = 1;
         this.onGridUpdatePages(params);
 	}
 
@@ -255,7 +263,7 @@ class ConfirmList extends Component {
 		params.searchKeyRemittamceDate = this.timestamp(this.state.searchKeyRemittamceDate);
 		
 		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
-		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate); 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -325,7 +333,7 @@ class ConfirmList extends Component {
     
 	confirmCancel = () => { 
 		let closeModel  =  this.onCloseModalComment;
-        let getOrders  =  this.getOrders;
+        let getOrders   =  this.getOrders;
         
 		const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
 	
@@ -442,6 +450,7 @@ class ConfirmList extends Component {
  			{ name: "username", header: "거래처 코드", width: 120, sortable: true,align: "center"},
 			{ name: "companyname", header: "거래처명", width: 180, sortable: true,align: "left"},
 			{ name: "seq", header: "요청번호", width: 150, sortable: true,align: "center"},
+			{ name: "createdAt", header: "요청일자", width: 150, sortable: true,align: "center"},
 			{ name: "remittanceDate", header: "송금 날짜", width: 150, sortable: true,align: "center" },
 			{ name: "remittanceAmount", header: "송금 금액", width: 150, sortable: true,align: "right" 
 				,formatter({value}){
@@ -458,8 +467,7 @@ class ConfirmList extends Component {
 	                        onClickedAtag
 	                    }
 	                }
-            },
-            { name: "createdAt", header: "증빙입력 일자", width: 150, sortable: true,align: "center"},
+            }, 
 			{ name: "status", header: "승인상태", width: 150, sortable: true,align: "center"},
 			{ name: "comment", header: "사유", width: 150, sortable: true,align: "left" } ,
 			{ name: "confirm", header: "승인", width: 100, sortable: true,align: "center" 

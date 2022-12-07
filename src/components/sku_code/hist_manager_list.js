@@ -117,7 +117,7 @@ class BaseList extends Component {
     
 	timestamp = (date)=>{
 		date.setHours(date.getHours() + 9);
-		return date.toISOString().replace('T', ' ').substring(0, 19); 
+		return date.toISOString().replace('T', ' ').substring(0, 10); 
 	}
 	 
     onGridUpdatePages = (params)=>{  
@@ -155,6 +155,7 @@ class BaseList extends Component {
         const params={};
         params.rowStart = 0;
         params.perPage =20;
+        params.pageNumber = 1;
         this.onGridUpdatePages(params);
 	}
 

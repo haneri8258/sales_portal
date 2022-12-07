@@ -54,7 +54,7 @@ class RequestList extends Component {
             },
             activePage : 1,
             perPage : 20,
-            pageNumber : "",
+            pageNumber : 1,
 			
 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
@@ -182,6 +182,7 @@ class RequestList extends Component {
 		});
     }
     onResetGrid = () => {
+    	debugger;
 		this.setState({
 			searchKeyInvoiceDate :"",
 			searchKeyRemittanceDate  :"",
@@ -192,6 +193,8 @@ class RequestList extends Component {
         const params={};
         params.rowStart = 0;
         params.perPage =20;
+        params.pageNumber = 1;
+        params.clientId = sessionStorage.getItem('_CLIENT_ID');
         this.onGridUpdatePages(params);
 	}
 
@@ -205,6 +208,7 @@ class RequestList extends Component {
 		params.searchKeyRemittanceDate = this.timestamp(this.state.searchKeyRemittanceDate);  
 		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
 		
+		params.clientId = sessionStorage.getItem('_CLIENT_ID');
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(perPage);
@@ -256,7 +260,7 @@ class RequestList extends Component {
 
 		const columns = [
  			{ name: "seq", header: "요청번호", width: 200, sortable: true,align: "center"},
- 			{ name: "requestDate", header: "요청일자", width: 150, sortable: true,align: "center"},
+ 			{ name: "createdAt", header: "요청일자", width: 150, sortable: true,align: "center"},
  			
  			
  			{ name: "remittanceDate", header: "송금 날짜", width: 150, sortable: true,align: "center"},

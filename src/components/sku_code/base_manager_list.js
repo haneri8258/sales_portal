@@ -115,7 +115,7 @@ class BaseManagerList extends Component {
     
 	timestamp = (date)=>{
 		date.setHours(date.getHours() + 9);
-		return date.toISOString().replace('T', ' ').substring(0, 19); 
+		return date.toISOString().replace('T', ' ').substring(0, 10); 
 	}
 
 	onSubmit = (e) => { 
@@ -218,6 +218,7 @@ class BaseManagerList extends Component {
         const params={};
         params.rowStart = 0;
         params.perPage =20;
+        params.pageNumber = 1;
         this.onGridUpdatePages(params);
 	}
 
@@ -420,11 +421,11 @@ class BaseManagerList extends Component {
                                                 </Form.Control> 
                                             </li>
 											<li className="list-inline-item me-1">
-                                                <Form.Text><Trans>거래처 id</Trans></Form.Text>
+                                                <Form.Text><Trans>거래처 코드</Trans></Form.Text>
                                             </li>
                                             <li className="list-inline-item me-1"> 
                                                 <Form.Control type="text" className="form-control" size="sm" name="searchKeyBuyerCode" value={this.state.searchKeyBuyerCode} onChange={this.onChange}
-                                                        style={{"minHeight": "1rem"}}placeholder="거래처 id를입력하세요">
+                                                        style={{"minHeight": "1rem"}}placeholder="거래처 코드를입력하세요">
                                                 </Form.Control> 
                                             </li>
                                            
