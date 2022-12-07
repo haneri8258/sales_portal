@@ -46,9 +46,7 @@ class App extends Component {
     // 로그인 확인 후 처리
     onCheckLogin() {
         let _USER_ID = sessionStorage.getItem('_USER_ID');
-        let _USE_AT = sessionStorage.getItem('_USE_AT');
-        let _LOCK_AT = sessionStorage.getItem('_LOCK_AT');
-
+      
         if(_USER_ID === null || _USER_ID === "") {
             this.setState({ isLogin: false });
         } else {

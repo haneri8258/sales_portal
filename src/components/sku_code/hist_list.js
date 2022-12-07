@@ -43,7 +43,7 @@ class BaseList extends Component {
 			searchKeySku :"",
 			searchKeyDesc  :"",
 			searchKeyBuyerSku :"",
-			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'), 
+			searchKeyClientId : sessionStorage.getItem('_CLIENT_ID'), 
 		    
 			gridData : [],
             pageInfo : {
@@ -92,7 +92,7 @@ class BaseList extends Component {
         const params = {};
         params.rowStart = 0;
         params.perPage = this.state.perPage;
-		params.searchKeyBuyerCode  = sessionStorage.getItem('_CLIENT_ID');
+		params.searchKeyClientId  = sessionStorage.getItem('_CLIENT_ID');
 		 
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseList",{params : params})
@@ -151,7 +151,7 @@ class BaseList extends Component {
 			searchKeySku :"",
 			searchKeyDesc  :"",
 			searchKeyBuyerSku :"",
-			searchKeyBuyerCode : sessionStorage.getItem('_CLIENT_ID'), 
+			searchKeyClientId : sessionStorage.getItem('_CLIENT_ID'), 
             pageNumber : 1,
             perPage : 20
 		});
@@ -171,7 +171,7 @@ class BaseList extends Component {
 		params.searchKeySku = this.state.searchKeySku;
 		params.searchKeyDesc = this.state.searchKeyDesc;
 		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku;
-		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
+		params.searchKeyClientId = this.state.searchKeyClientId; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
@@ -189,7 +189,7 @@ class BaseList extends Component {
 		params.searchKeySku = this.state.searchKeySku;
 		params.searchKeyDesc = this.state.searchKeyDesc;
 		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku; 
-		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
+		params.searchKeyClientId = this.state.searchKeyClientId; 
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
@@ -205,7 +205,7 @@ class BaseList extends Component {
 		params.searchKeySku = this.state.searchKeySku;
 		params.searchKeyDesc = this.state.searchKeyDesc;
 		params.searchKeyBuyerSku = this.state.searchKeyBuyerSku; 
-		params.searchKeyBuyerCode = this.state.searchKeyBuyerCode; 
+		params.searchKeyClientId = this.state.searchKeyClientId; 
 		
         params.pageNumber = 1;
         params.rowStart = 0;
