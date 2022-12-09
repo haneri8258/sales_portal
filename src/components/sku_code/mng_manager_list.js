@@ -136,7 +136,7 @@ class MngManagerList extends Component {
 		}
  		if(window.confirm(skuList.length +"건을 저장하시겠습니까?")) { 
 	  		let getSku = this.getSku;
-			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{skuCreatedList : [], skuUpdateList : skuList} ,{"Content-Type": 'application/json'})
+			axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateMngList",{ skuList : skuList} ,{"Content-Type": 'application/json'})
 			.then(function (res){ 
 	         		if(res.data.resultCode >0){
 	         			alert("성공적으로 저장 되었습니다");
