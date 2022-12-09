@@ -50,8 +50,8 @@ class MngList extends Component {
             activePage : 1,
             perPage : 20,
             pageNumber : "",
-
-
+			rowCount  : 0 ,
+			 
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'),
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
@@ -84,6 +84,7 @@ class MngList extends Component {
 	onGridMounted = (e) => { 
         this.getSku();
 	}
+	 
 
     getSku = () => {
         const params = {};
@@ -98,9 +99,10 @@ class MngList extends Component {
             axios.spread((res1,res2)=>{  
 				this.setState({
 					gridData : res1.data,
-                    pageInfo : res2.data 
+                    pageInfo : res2.data ,
+                    rowCount : res1.data.length
 				});
-				this.gridRef.current.getInstance().resetData(res1.data);
+				this.gridRef.current.getInstance().resetData(res1.data); 
             })
         ).catch(err => {
 			if(err.response){
@@ -126,7 +128,7 @@ class MngList extends Component {
 			alert("추가 및 수정된 내용이 없습니다.");
 			return;
 		}
-		if(window.confirm("저장하시겠습니까?") === false) return;   
+		 
 		for(let i in skuCreatedList){ 
 			if(skuCreatedList[i].sku ==='' ){
 				alert("SKU Code는 필수 입니다." );
@@ -170,6 +172,7 @@ class MngList extends Component {
 			skuUpdateList[i].crtId     =  this.state._USER_ID;
 			skuUpdateList[i].updId     =  this.state._USER_ID;
 		}
+		if(window.confirm("저장하시겠습니까?") === false) return;  
 		let getSku = this.getSku;
 		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateClientList",{skuCreatedList : skuCreatedList, skuUpdateList : skuUpdateList} ,{"Content-Type": 'application/json'}) 
 		.then(function (res){ 
@@ -195,8 +198,7 @@ class MngList extends Component {
 		
 		this.state.gridData.push(rowData); 
 		this.gridRef.current.getInstance().appendRow(rowData, {
-		  at: 0,
-		  /*extendPrevRowSpan: true,*/
+		  at: 0, 
 		  focus: true
 		});
 				 
@@ -293,11 +295,44 @@ class MngList extends Component {
         params.perPage = Number(this.state.perPage); 
         this.onGridUpdatePages(params);
 	} 
-
+ 	 	
+ 	
 	render() {
         const {pageInfo} = this.state;
+		const gridData   = this.state.gridData;  
+		const rowCount   = this.state.rowCount;
 		
-		const gridData = this.state.gridData;
+		class CustomTextEditor {
+		    constructor(props) {
+		      const el = document.createElement('input');
+		      const { maxLength } = props.columnInfo.editor.options;
+		      el.type = 'text';
+		      el.maxLength = maxLength;
+		      el.value = String(props.value);
+		      debugger;
+			  if(props.rowKey > rowCount-1){
+			  	  el.disabled= false;	
+			  	  if( el.value ==="null") el.value = ""; 
+			  }else{
+			  	 el.disabled= true;
+			  }	 
+		      this.el = el;
+		    }
+		
+		    getElement() {
+		      return this.el;
+		    }
+		
+		    getValue() {
+		      return this.el.value;
+		    }
+		
+		    mounted() {
+		      this.el.select();
+		    }
+		  }
+		
+		
 		const onAfterChange =(ev) => {
 			let rowKey = ev.rowKey;
 			
@@ -328,9 +363,15 @@ class MngList extends Component {
 		}
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
- 			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center" , editor: 'text'
+ 			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center" 
+ 				,editor: {
+		              type: CustomTextEditor,
+		              options: {
+		                maxLength: 40
+		              }
+		        } 
 	 			,renderer: {
-			      styles: {
+	 			  styles: {
 			      	minHeight: '27.33px',
 			        borderColor: '#FFFFFF',
 			        borderStyle: 'ridge'    
@@ -481,7 +522,7 @@ class MngList extends Component {
                                         </div>
 									</div>
 									<div className="">                                        
-										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]}
+										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum"]} 
 												scrollX={true} columnOptions={{frozenCount : 0}}>
 										</Grid>
 									</div>
