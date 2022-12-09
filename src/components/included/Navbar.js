@@ -84,15 +84,13 @@ class Navbar extends Component {
 			// 사용자 로그정보 저장
 			let params = {};
 			params.userId = this.state._USER_ID;
-			debugger;
+			 
 			await api.post(process.env.REACT_APP_DB_HOST + "/common/updUserLog", params).then(response => {
                 if(response.status === 200) {
                     sessionStorage.removeItem('_USER_ID');
                     sessionStorage.removeItem('_USER_NAME');
                     sessionStorage.removeItem('_CLIENT_ID');
-                    sessionStorage.removeItem('_CLIENT_NAME');
-                    sessionStorage.removeItem('_GROUP_ID');
-                    sessionStorage.removeItem('_ORGNZ_ID');
+                    sessionStorage.removeItem('_CLIENT_NAME'); 
                     sessionStorage.removeItem('_USER_STATUS');
                     sessionStorage.removeItem('_USER_TYPE');
                     sessionStorage.removeItem('_LOCK_AT');

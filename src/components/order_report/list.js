@@ -85,7 +85,7 @@ class OrdersList extends Component {
 	}
 	
 	onRemove = (selectedItem) =>{
-		debugger;
+		 
 	}
 	
 	openModal = () =>{

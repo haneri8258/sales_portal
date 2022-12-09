@@ -74,16 +74,7 @@ class InvoiceManagerList extends Component {
 		});
 	}
 
-	onSelect = (selectedItem) =>{
-		this.setState({
-			selected : selectedItem
-		});
-	}
-	
-	onRemove = (selectedItem) =>{
-		debugger;
-	}
-	
+  	
 	openModal = () =>{
 		this.setState({
 			isOpenModal : true

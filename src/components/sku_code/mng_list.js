@@ -309,7 +309,6 @@ class MngList extends Component {
 		      el.type = 'text';
 		      el.maxLength = maxLength;
 		      el.value = String(props.value);
-		      debugger;
 			  if(props.rowKey > rowCount-1){
 			  	  el.disabled= false;	
 			  	  if( el.value ==="null") el.value = ""; 

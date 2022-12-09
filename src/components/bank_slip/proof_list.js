@@ -397,7 +397,6 @@ class ProofList extends Component {
 	            formData.append(i, slipData[i].fileInfo);  
 	        }
 	        
-	        debugger;
 	        if( advancePayment > 0  &&  balanceTotAmount > remittanceTotAmount ) {
 	        	alert("인보이스를 먼저 선택해주세요. 잔액이 있는 경우, 잔액을 제외한 금액만 선수금 처리 가능 합니다");
 	        	return;

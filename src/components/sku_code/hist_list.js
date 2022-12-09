@@ -99,7 +99,6 @@ class BaseList extends Component {
              ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/baseRowCount",{params : params}) 
         ]).then(
             axios.spread((res1,res2)=>{  
-            	debugger;
 				this.setState({
 					gridData : res1.data,
                     pageInfo : res2.data 

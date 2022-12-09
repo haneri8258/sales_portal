@@ -92,7 +92,6 @@ class ConfirmList extends Component {
 	     axios.all([api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/getServerFileName",{params : params}) 
          ]).then(
          	axios.spread((res)=>{   
-         			debugger;
          			this.setState({
 				        isOpenModalFile: true,
 				        imageBase64	: "data:image/png;base64,"+ res.data.imageBase64
@@ -123,7 +122,6 @@ class ConfirmList extends Component {
 	}
 
     getOrders = () => {
-    	debugger;
         const params = {};
         this.setState({ 
  			pageNumber : 1,
@@ -164,7 +162,6 @@ class ConfirmList extends Component {
  
 
     onGridUpdatePages = (params)=>{  
-    	debugger;
         axios.all([
              api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmList",{params : params})
             ,api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/confirmRowCount",{params : params}) 

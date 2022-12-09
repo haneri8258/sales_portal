@@ -93,7 +93,6 @@ class RequestList extends Component {
 	     axios.all([api.get(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/getServerFileName",{params : params}) 
          ]).then(
          	axios.spread((res)=>{   
-         			debugger;
          			this.setState({
 				        isOpenModalFile: true,
 				        imageBase64	: "data:image/png;base64,"+ res.data.imageBase64
@@ -182,7 +181,6 @@ class RequestList extends Component {
 		});
     }
     onResetGrid = () => {
-    	debugger;
 		this.setState({
 			searchKeyInvoiceDate :"",
 			searchKeyRemittanceDate  :"",
