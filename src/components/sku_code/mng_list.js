@@ -301,6 +301,7 @@ class MngList extends Component {
         const {pageInfo} = this.state;
 		const gridData   = this.state.gridData;  
 		const rowCount   = this.state.rowCount;
+
 		
 		class CustomTextEditor {
 		    constructor(props) {
@@ -309,28 +310,28 @@ class MngList extends Component {
 		      el.type = 'text';
 		      el.maxLength = maxLength;
 		      el.value = String(props.value);
-			  if(props.rowKey > rowCount-1){
+		      if(props.rowKey > rowCount-1){
 			  	  el.disabled= false;	
 			  	  if( el.value ==="null") el.value = ""; 
 			  }else{
 			  	 el.disabled= true;
 			  }	 
+			  
 		      this.el = el;
 		    }
-		
 		    getElement() {
-		      return this.el;
-		    }
+		       return this.el;
+		     }
 		
-		    getValue() {
-		      return this.el.value;
-		    }
+		     getValue() {
+		       return this.el.value;
+		     }
 		
-		    mounted() {
-		      this.el.select();
-		    }
-		  }
-		
+		     mounted() {
+		       this.el.select();
+		    }   
+	   }
+	   
 		
 		const onAfterChange =(ev) => {
 			let rowKey = ev.rowKey;
@@ -371,21 +372,33 @@ class MngList extends Component {
 		        } 
 	 			,renderer: {
 	 			  styles: {
-			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+	 			  	minHeight: '27.33px',
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'   
 			      }, 
 			    }  
 			    ,onAfterChange(ev) {
 				    onAfterChange(ev);
 				}
  			},
-			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left", editor: 'text'
+			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left"
+				,editor: {
+		              type:  'text'
+		              ,options: {
+		                maxLength: 100
+		              }
+		        } 
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'  
 			      }, 
 			    }  
 			},
@@ -393,8 +406,11 @@ class MngList extends Component {
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'   
 			      }, 
 			    }  
 			},
@@ -402,8 +418,11 @@ class MngList extends Component {
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'
 			      }, 
 			    }  
 			},
@@ -412,8 +431,11 @@ class MngList extends Component {
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center' 
 			      }, 
 			    }
 			},  
@@ -421,9 +443,11 @@ class MngList extends Component {
 			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "center" , editor: 'text'
 				,renderer: {
 			      styles: {
-			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'
 			      }, 
 			    }
 			},

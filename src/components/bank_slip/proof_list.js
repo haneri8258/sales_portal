@@ -274,7 +274,40 @@ class ProofList extends Component {
 			e.preventDefault();
             this.onOpenModalFile(rowKey);
 		}
-
+		
+		const onBlurValue = (rowKey, value) =>{
+		  	const gridData   = this.slipRef.current.getInstance().getData();
+	    	gridData[rowKey].remittanceAmount = value;
+	    	this.setState({ 
+		        slipData : gridData 
+		    }); 
+	 	} 
+		
+		class CustomTextEditor {
+		    constructor(props) {
+			      const el = document.createElement('input');
+			      el.type  = 'text';
+			      el.value = String(props.value);
+			      el.dataRowKey  = props.rowKey;
+			      this.el = el; 
+				  el.addEventListener("blur", function(ev) {
+					 onBlurValue(this.dataRowKey, this.value);
+				  }); 
+			 }
+			 
+			 getElement() {
+		       return this.el;
+		     }
+		
+		     getValue() {
+		       return this.el.value;
+		     }
+		
+		     mounted() {
+		       this.el.select();
+		    }   
+		}
+		
 		const columns = [
  			{ name: "invoiceNo", header: "Invoice No.", width: 200, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "Invoice Date", width: 200, sortable: true,align: "center"},
@@ -318,28 +351,37 @@ class ProofList extends Component {
     			} 
     			,renderer: {
 			      styles: {
-			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'
 			      }, 
 			    }    
 			},
 			{ name: "remittanceAmount", header: "송금액", width: 120, sortable: false
-				, align: "right", editor: 'text'
+				, align: "right"
 			 	,formatter({value}){
 			 		return value.toString().replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
-			 	,editOptions: {
-			       type: 'text'
-			      ,useViewMode: false 
+			 	,editor: {
+			       type: CustomTextEditor //'text' 
+			       ,options: {
+		                maxLength: 20
+		           }  
 			    }
 			    ,renderer: {
-			     styles: {
-			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
-			      } 
-			    }    
+			      styles: {
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'right'
+			      }
+			    } 
+			    ,validation: {
+			    	dataType : 'number'	
+			    } 
 			},
 			{ name: "originFileName", header: "증빙", width: 150, sortable: false, align: "center" 
 				,renderer: {

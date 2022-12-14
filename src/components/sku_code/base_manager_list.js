@@ -354,8 +354,11 @@ class BaseManagerList extends Component {
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'   
 			      }, 
 			    } 
 			    ,onAfterChange(ev) {
@@ -366,8 +369,11 @@ class BaseManagerList extends Component {
  				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
-			      	borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'   
 			      }, 
 			    } 
 			    ,onAfterChange(ev) {
@@ -381,8 +387,11 @@ class BaseManagerList extends Component {
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
-			        borderColor: '#FFFFFF',
-			        borderStyle: 'ridge'    
+			      	width : 'calc(100% - 10px)',
+			      	padding : '6px 7px',
+			      	border: 'solid 1px #ddd',
+			        margin: 'auto 5px',    
+			        textAlign : 'center'   
 			      }, 
 			    } 
 			},

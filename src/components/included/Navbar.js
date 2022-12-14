@@ -55,17 +55,7 @@ class Navbar extends Component {
     }
 
  	componentDidMount() {  
-	     api.post(process.env.REACT_APP_DB_HOST + "/monitoring/getApiTrafficLight" ).then(res=>{
-			if(res.status === 200){
-			    if(res.data.FAIL_CNT === 0 ) {
-                    this.setState({greenOn : true});
-			    }else if( (res.data.FAIL_CNT / res.data.SUCCESS_CNT) < 10  ){ 
-                    this.setState({yellowOn : true});
-			    } else {  
-                     this.setState({redOn : true});
-			   }
-            }
-        })
+	    
 	}	
 
     changeLanguage(e, lang) {
