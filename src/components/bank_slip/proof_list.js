@@ -365,7 +365,7 @@ class ProofList extends Component {
 			 		return value.toString().replace(/[^0-9.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				}
 			 	,editor: {
-			       type: CustomTextEditor //'text' 
+			       type: CustomTextEditor 
 			       ,options: {
 		                maxLength: 20
 		           }  

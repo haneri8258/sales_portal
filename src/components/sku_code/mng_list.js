@@ -121,57 +121,44 @@ class MngList extends Component {
 	}
 	
 	onSubmit = (e) => { 
-		const  skuCreatedList =  this.gridRef.current.getInstance().getModifiedRows().createdRows;  
-		const  skuUpdateList =  this.gridRef.current.getInstance().getModifiedRows().updatedRows;  
+		  
 		const  gridData = this.state.gridData ; 
-		if(skuCreatedList.length === 0 && skuUpdateList.length ===0 ) {
-			alert("추가 및 수정된 내용이 없습니다.");
+		const  skuCreatedList = [];
+		const  skuUpdateList  = [];   
+		
+		for(let i in gridData){ 
+			if(gridData[i].rowStatus) { 
+				if(gridData[i].sku ===''   ){
+					alert("SKU Code는 필수 입니다." );
+					return;
+				}
+				if(gridData[i].clientSku ==='' ){
+					alert("Buyer SKU Code는 필수 입니다." );
+					return;
+				} 
+				if( gridData[i].validate ==="N") {
+				   	alert("["+ gridData[i].sku + "]  SKU Code는 등록되지 않는 코드 입니다." );
+					return;
+				}
+				if( gridData[i].validate ==="D") {
+				   	alert("["+ gridData[i].sku + "] SKU Code는 기입력된 중복된 코드 입니다." );
+					return;
+				}
+				
+				gridData[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
+				gridData[i].crtId     =  this.state._USER_ID;
+				gridData[i].updId     =  this.state._USER_ID;
+				if(gridData[i].rowStatus ==="C") 
+					skuCreatedList.push(gridData[i]);
+				else
+					skuUpdateList.push(gridData[i]);
+			}
+		}
+		if(skuCreatedList.length == 0 &&  skuUpdateList.length ==0 ) {
+			alert("추가 또는 수정된 자료가 없습니다." );
 			return;
 		}
-		 
-		for(let i in skuCreatedList){ 
-			if(skuCreatedList[i].sku ==='' ){
-				alert("SKU Code는 필수 입니다." );
-				return;
-			}
-			if(skuCreatedList[i].clientSku ==='' ){
-				alert("Buyer SKU Code는 필수 입니다." );
-				return;
-			} 
-			if( gridData[skuCreatedList[i].rowKey].validate ==="N") {
-			   	alert("["+ skuCreatedList[i].sku + "]  SKU Code는 등록되지 않는 코드 입니다." );
-				return;
-			}
-			if( gridData[skuCreatedList[i].rowKey].validate ==="D") {
-			   	alert("["+ skuCreatedList[i].sku + "] SKU Code는 기입력된 중복된 코드 입니다." );
-				return;
-			}
-			skuCreatedList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
-			skuCreatedList[i].crtId     =  this.state._USER_ID;
-			skuCreatedList[i].updId     =  this.state._USER_ID;
-		}
 		
-		for(let i in skuUpdateList){ 
-			if(skuUpdateList[i].sku ==='' ){
-				alert("SKU Code는 필수 입니다." );
-				return;
-			}
-			if(skuUpdateList[i].clientSku ==='' ){
-				alert("Buyer SKU Code는 필수 입니다." );
-				return;
-			} 
-			if( gridData[skuUpdateList[i].rowKey].validate =="N") {
-			   	alert("["+ skuUpdateList[i].sku + "] SKU Code는 등록되지 않는 코드 입니다." );
-				return;
-			}
-			if( gridData[skuUpdateList[i].rowKey].validate =="D") {
-			   	alert("["+ skuUpdateList[i].sku + "] SKU Code는 기입력된 중복된 코드 입니다." );
-				return;
-			}
-			skuUpdateList[i].clientId  = sessionStorage.getItem('_CLIENT_ID');
-			skuUpdateList[i].crtId     =  this.state._USER_ID;
-			skuUpdateList[i].updId     =  this.state._USER_ID;
-		}
 		if(window.confirm("저장하시겠습니까?") === false) return;  
 		let getSku = this.getSku;
 		axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/updateClientList",{skuCreatedList : skuCreatedList, skuUpdateList : skuUpdateList} ,{"Content-Type": 'application/json'}) 
@@ -193,14 +180,12 @@ class MngList extends Component {
 	}
 	
 	onAppendRow = (e) => { 
-		 
-		const rowData = [{id: "", sku: "", desciption: "", clientSku: "",  clientId: "", useYn : "" , createdAt: "", createdClientName: "",updatedAt : "", updatedClientName :"" , validate : "" }];
-		
+		const rowData = {id: "", sku: "", desciption: "", clientSku: "",  clientId: "", useYn : "" , createdAt: "", createdClientName: "",updatedAt : "", updatedClientName :"" , validate : "" , rowStatus: 'C' }; 
 		this.state.gridData.push(rowData); 
 		this.gridRef.current.getInstance().appendRow(rowData, {
-		  at: 0, 
+		  at: this.state.gridData.length-1, 
 		  focus: true
-		});
+		}); 
 				 
 	}
  
@@ -301,43 +286,23 @@ class MngList extends Component {
         const {pageInfo} = this.state;
 		const gridData   = this.state.gridData;  
 		const rowCount   = this.state.rowCount;
-
 		
-		class CustomTextEditor {
-		    constructor(props) {
-		      const el = document.createElement('input');
-		      const { maxLength } = props.columnInfo.editor.options;
-		      el.type = 'text';
-		      el.maxLength = maxLength;
-		      el.value = String(props.value);
-		      if(props.rowKey > rowCount-1){
-			  	  el.disabled= false;	
-			  	  if( el.value ==="null") el.value = ""; 
-			  }else{
-			  	 el.disabled= true;
-			  }	 
-			  
-		      this.el = el;
-		    }
-		    getElement() {
-		       return this.el;
-		     }
 		
-		     getValue() {
-		       return this.el.value;
-		     }
-		
-		     mounted() {
-		       this.el.select();
-		    }   
-	   }
-	   
-		
-		const onAfterChange =(ev) => {
-			let rowKey = ev.rowKey;
+		const onBlurValue = (rowKey, colName, value) =>{
 			
-			if(ev.columnName ==='sku') {
-				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkSkuCode",{sku : ev.value, id : gridData[rowKey].id , clientId : sessionStorage.getItem("_CLIENT_ID")  },{"Content-Type": 'application/json'}) 
+			if(gridData[rowKey].id) 
+				gridData[rowKey].rowStatus = 'U';
+			else	
+		 		gridData[rowKey].rowStatus = 'C';
+		 		
+		  	gridData[rowKey][colName] = value;
+	    	this.setState({ 
+		        gridData : gridData 
+		    }); 
+		    this.gridRef.current.getInstance().resetData(gridData); 
+		     
+			if(colName ==='sku') {
+				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkSkuCode",{sku : value, id : gridData[rowKey].id , clientId : sessionStorage.getItem("_CLIENT_ID")  },{"Content-Type": 'application/json'}) 
 				.then(function (res){ 
 		         		if(res.data.resultCode ==0){
 		         			alert("등록 되지 않는 SKU 코드 입니다.");
@@ -358,15 +323,56 @@ class MngList extends Component {
 						console.log('Error', err.message);
 					}
 				});
-			
-			} 
-		}
-		const columns = [
+			}  
+		    
+	 	} 
+		
+		class CustomTextEditor {
+		    constructor(props) {
+		      const el = document.createElement('input');
+		      const { maxLength } = props.columnInfo.editor.options; 
+		      el.type = 'text';
+		      el.name = props.columnInfo.name;
+		      el.dataRowKey  = props.rowKey;
+		      el.maxLength = maxLength;
+		      el.value = String(props.value);
+		      if(props.columnInfo.name === 'sku') {  // 컬럼이 sku 인 경우   
+			      if(props.rowKey > rowCount-1 ){    // 추가의 경우 수정이 가능하게 
+				  	  el.disabled= false;	
+				  	  if( el.value ==="null") el.value = ""; 
+				  }else{
+				  	 el.disabled= true;
+				  }	 
+			  }else{
+			  		el.disabled= false;	
+				  	if( el.value ==="null") el.value = ""; 
+			  }
+			 
+		      this.el = el;
+		      el.addEventListener("blur", function(ev) {
+		      	 onBlurValue(this.dataRowKey, this.name,  this.value);
+			  });
+		      
+		    }
+		    getElement() {
+		       return this.el;
+		     }
+		
+		     getValue() {
+		       return this.el.value;
+		     }
+		
+		     mounted() {
+		       this.el.select();
+		    }   
+	   }
+	   
+	   const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
  			{ name: "sku", header: "SKU", width: 200, sortable: true,align: "center" 
  				,editor: {
-		              type: CustomTextEditor,
-		              options: {
+		              type: CustomTextEditor
+		              ,options: {
 		                maxLength: 40
 		              }
 		        } 
@@ -379,16 +385,13 @@ class MngList extends Component {
 			        margin: 'auto 5px',    
 			        textAlign : 'center'   
 			      }, 
-			    }  
-			    ,onAfterChange(ev) {
-				    onAfterChange(ev);
-				}
+			    } 
  			},
 			{ name: "desciption", header: "DESC", width: 200, sortable: true,align: "left"
 				,editor: {
-		              type:  'text'
+		              type: CustomTextEditor
 		              ,options: {
-		                maxLength: 100
+		                maxLength: 40
 		              }
 		        } 
 				,renderer: {
@@ -400,9 +403,15 @@ class MngList extends Component {
 			        margin: 'auto 5px',    
 			        textAlign : 'center'  
 			      }, 
-			    }  
+			    }   
 			},
-			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true,align: "left", editor: 'text'
+			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true,align: "left"
+				,editor: {
+		              type: CustomTextEditor
+		              ,options: {
+		                maxLength: 100
+		              }
+		        } 
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
@@ -427,7 +436,13 @@ class MngList extends Component {
 			    }  
 			},
 			{ name: "createdAt", header: "생성일", width: 150, sortable: true,align: "center" },
-			{ name: "createdClientName", header: "생성자", width: 150, sortable: true,align: "center" , editor: 'text'
+			{ name: "createdClientName", header: "생성자", width: 150, sortable: true,align: "center" 
+				,editor: {
+		              type: CustomTextEditor
+		              ,options: {
+		                maxLength: 100
+		              }
+		        } 
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
@@ -440,16 +455,23 @@ class MngList extends Component {
 			    }
 			},  
 			{ name: "updatedAt", header: "수정일", width: 200, sortable: true,align: "center"},
-			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "center" , editor: 'text'
+			{ name: "updatedClientName", header: "수정자", width: 200, sortable: true,align: "center" 
+			   ,editor: {
+		              type: CustomTextEditor
+		              ,options: {
+		                maxLength: 100
+		              }
+		        } 	
 				,renderer: {
 			      styles: {
+			      	minHeight: '27.33px',
 			      	width : 'calc(100% - 10px)',
 			      	padding : '6px 7px',
 			      	border: 'solid 1px #ddd',
 			        margin: 'auto 5px',    
 			        textAlign : 'center'
 			      }, 
-			    }
+			    } 
 			},
 			{ name: "validate", header: "validate", width: 10, hidden: true}, 
 		];

@@ -245,6 +245,53 @@ class MngManagerList extends Component {
 
 	render() {
         const {pageInfo} = this.state;
+ 		const gridData   = this.state.gridData;  	
+ 			
+ 		const onBlurValue = (rowKey, colName, value) =>{ 
+			 
+		  	gridData[rowKey][colName] = value;
+	    	this.setState({ 
+		        gridData : gridData 
+		    }); 
+		    this.gridRef.current.getInstance().resetData(gridData); 
+	 	} 
+ 		
+ 		
+ 		class CustomTextEditor {
+		    constructor(props) { 
+		      const el = document.createElement('select');  
+		      
+		      el.name = props.columnInfo.name;
+		      el.dataRowKey  = props.rowKey; 
+		      el.value = String(props.value);
+		      let options_str = "";
+		      options_str += '<option value="Y">Y</option>'; 
+		      options_str += '<option value="N">N</option>'; 
+		      el.innerHTML = options_str;
+		      el.style.width = 'calc(100% - 10px)';
+		      el.style.minHeight = '27.33px';
+		      el.style.padding = '6px 7px';
+			  el.style.border = 'solid 1px #ddd';
+			  el.style.margin = 'auto 5px';    
+		      
+		      this.el = el;
+		      el.addEventListener("blur", function(ev) {
+		      	 onBlurValue(this.dataRowKey, this.name,  this.value);
+			  });
+		      
+		    }
+		    getElement() {
+		       return this.el;
+		     }
+		
+		     getValue() {
+		       return this.el.value;
+		     }
+		
+		     mounted() {
+		    	//  this.el.select();
+		    }   
+	   }	
  			
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
@@ -256,13 +303,7 @@ class MngManagerList extends Component {
 			{ name: "fnSku", header: "FN SKU", width: 150, show: false,  sortable: true, align: "center"},
 			{ name: "managerUseYn", header: "사용여부", sortable: true , filter : 'select', align: 'center', width : 200,
                 editor:{ 
-                    type:'select',
-                    options : {
-                        listItems : [
-                            {text : "Y", value : "Y"},
-                            {text : "N", value : "N"},
-                       	]
-                   	}, 
+                    type: CustomTextEditor, 
                	}
                	,renderer: {
 			      styles: {

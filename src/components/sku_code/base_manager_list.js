@@ -272,37 +272,17 @@ class BaseManagerList extends Component {
 
 	render() {
         const {pageInfo} = this.state;
- 		class CustomTextEditor {
-			  constructor(props) {
-			    const el = document.createElement('input');
-				 
-			    el.type = 'text';
-			    el.value = String(props.value);
-			
-			    this.el = el;
-			  }
-			
-			  getElement() {
-			    return this.el;
-			  }
-			
-			  getValue() {
-			    return this.el.value;
-			  }
-			
-			  mounted() {
-			    this.el.select();
-			  }
-		}
- 		 
- 		const gridData = this.state.gridData;
-		const onAfterChange =(ev) => {
-			let rowKey = ev.rowKey; 
-			let clientId = gridData[rowKey].clientId;
-			const skuList = this.gridRef.current.getInstance().getData(); 
-			 
-			if(ev.columnName ==='sku' && ev.value !="") {
-				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkManagerSkuCode",{sku : ev.value, id : skuList[rowKey].id , username :  skuList[rowKey].username  },{"Content-Type": 'application/json'}) 
+       	const gridData   = this.state.gridData; 
+        
+        const onBlurValue = (rowKey, colName, value) =>{  
+		  	gridData[rowKey][colName] = value;
+	    	this.setState({ 
+		        gridData : gridData 
+		    });   
+		    this.gridRef.current.getInstance().resetData(gridData); 
+		    
+		    if(colName ==='sku' && value !="") {
+				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkManagerSkuCode",{sku : value, id : gridData[rowKey].id , username :  gridData[rowKey].username  },{"Content-Type": 'application/json'}) 
 				.then(function (res){ 
 						if(gridData[rowKey].validate !=="F"){
 			         		if(res.data.resultCode ==0){
@@ -325,8 +305,8 @@ class BaseManagerList extends Component {
 						console.log('Error', err.message);
 					}
 				}); 
-			}else if(ev.columnName ==='username' && ev.value !="") { 
-				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkUserName",{ username :  ev.value  },{"Content-Type": 'application/json'}) 
+			}else if(colName ==='username' && value !="") { 
+				axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/skucode/checkUserName",{ username :  value  },{"Content-Type": 'application/json'}) 
 				.then(function (res){ 
 		         		if(res.data.resultCode ==0){
 		         			alert("등록 되지 않는 거래처 코드 입니다.");
@@ -344,13 +324,57 @@ class BaseManagerList extends Component {
 						console.log('Error', err.message);
 					}
 				}); 
-			}
-		}
+			} 
+		    
+	 	} 
+        
+        
+ 		class CustomTextEditor {
+			  constructor(props) {
+			    const el = document.createElement('input');
+				const { maxLength } = props.columnInfo.editor.options;
+				   
+			    el.type = 'text';
+			    el.value = String(props.value);
+			    if( el.value ==="null") el.value = ""; 
+			     
+			    el.name = props.columnInfo.name;
+		        el.dataRowKey  = props.rowKey;
+		        el.maxLength = maxLength;
+			    this.el = el;
+			     
+			    el.addEventListener("blur", function(ev) {
+			      	 onBlurValue(this.dataRowKey, this.name,  this.value);
+				});
+			
+			   
+			  }
+			
+			  getElement() {
+			    return this.el;
+			  }
+			
+			  getValue() {
+			    return this.el.value;
+			  }
+			
+			  mounted() {
+			    this.el.select();
+			  }
+		} 
+ 		
+		 
 		
 		 
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
- 			{ name: "username", header: "거래처 코드", width: 200, sortable: true, align: "center" ,editor: 'text'
+ 			{ name: "username", header: "거래처 코드", width: 200, sortable: true, align: "center" 
+ 				,editor: {
+		              type: CustomTextEditor
+		              ,options: {
+		                maxLength: 40
+		              }
+		        } 
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
@@ -360,12 +384,15 @@ class BaseManagerList extends Component {
 			        margin: 'auto 5px',    
 			        textAlign : 'center'   
 			      }, 
-			    } 
-			    ,onAfterChange(ev) {
-				    onAfterChange(ev);
-				} 
+			    }  
 			},
- 			{ name: "sku", header: "SKU 코드", width: 200, sortable: true, align: "center",editor: 'text'
+ 			{ name: "sku", header: "SKU 코드", width: 200, sortable: true, align: "center" 
+ 				,editor: {
+		              type: CustomTextEditor
+		              ,options: {
+		                maxLength: 40
+		              }
+		        } 
  				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
@@ -375,15 +402,17 @@ class BaseManagerList extends Component {
 			        margin: 'auto 5px',    
 			        textAlign : 'center'   
 			      }, 
-			    } 
-			    ,onAfterChange(ev) {
-				    onAfterChange(ev);
-				}
+			    }  
  			},
 			{ name: "clientSku", header: "거래처 SKU 코드", width: 200, sortable: true, align: "center" , hidden: true},  
 			{ name: "managerId", header: "관리자 id", width: 200, sortable: true, align: "center" , hidden: true},  
 			{ name: "managerSku", header: "관리자 SKU 코드", width: 200, show: false,  sortable: true, align: "center"
-				,editor: 'text'
+				,editor: {
+		              type: CustomTextEditor
+		              ,options: {
+		                maxLength: 40
+		              }
+		        } 
 				,renderer: {
 			      styles: {
 			      	minHeight: '27.33px',
