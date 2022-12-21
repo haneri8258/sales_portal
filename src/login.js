@@ -271,7 +271,7 @@ export class Login extends Component {
                             
                             <div className="brand-logo">
                                 {/*<img src={require("./assets/images/ubello.png")} alt="LOGO" />*/}
-                                <img src={require("./assets/images/commoncoding-logo.jpg")} alt="LOGO" />
+                                <img src={require("./assets/images/comoncoding.png")} alt="LOGO" />
                             </div>
                             
                             <h4>Hello! let's get started. Sign in to continue.</h4>

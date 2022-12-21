@@ -15,9 +15,9 @@ class Footer extends Component {
         return (
             <footer className="footer">
                 <div className="text-center">
-                    <span className="footer_item">CEO : HANERI JEONG</span>
-                    <span className="footer_item">Mail : <a href="mailto:haneri.jeong@gmail.com">haneri.jeong@gmail.com</a></span>
-                    <span className="footer_item">Address : Wooseong Techno Park I , Bukwang-ro 220, Sosa-gu, Incheon, Republic of Korea</span>
+                    <span className="footer_item">CEO : </span>
+                    <span className="footer_item">Mail : <a href="mailto:commoncoding@commoncoding.io">commoncoding@commoncoding.io</a></span>
+                    <span className="footer_item">Address : Guro-gu, Seoul, Republic of Korea</span>
                     <div className="footer_logo">
                         <span className="d-block text-center copyright">Copyright ©<a href="/dashboard"></a>All Rights Reserved.</span>
                     </div>
