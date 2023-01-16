@@ -16,6 +16,7 @@ import Pagination from "react-js-pagination";
 import ExcelJS from 'exceljs';
 import TuiGrid from 'tui-grid';
 import { Loading } from "../../loading";
+import $ from 'jquery';
 /**
  * 설명 : BankSlip 확인
  *
@@ -47,7 +48,7 @@ class ConfirmList extends Component {
 			searchKeyInvoiceDate : "",
 		 
 		    cancelComment : "",
-		
+			checkData : [],
 			gridData : [],
             pageInfo : {
                 totalPage : 0,
@@ -63,10 +64,20 @@ class ConfirmList extends Component {
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
 		};
 	}
+	 		    
+		
     componentDidMount(){
-        TuiGrid.applyTheme("striped");
+        TuiGrid.applyTheme("striped"); 
+        $(document).on("click", "input[name='_checked']", function() {
+		     let chk = this.checked;   
+		     $('input:checkbox[name="chk"]').each(function() {
+		     	  if(this.disabled == false) {
+		 	         this.checked = chk; //checked 처리  
+		 	      }	
+		 	 });  
+		}); 
     }
-
+ 	  
 	onChange = (e) =>{
 		this.setState({
 			[e.target.name] : e.target.value
@@ -271,9 +282,18 @@ class ConfirmList extends Component {
 	
 	onApproval = (e) =>{
         let getOrders  =  this.getOrders;
-        
-		const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
-		
+        const checkedRows = [];
+      	const checkData =[]; 
+	    $('input:checkbox[name="chk"]').each(function() {
+	     	  if(this.checked ) {
+	     	  	checkData.push(this.dataRowKey);
+	 	      }	
+	 	});    
+     	const getRows = this.gridRef.current.getInstance().getData();
+		 
+	 	for(let i in checkData){ 
+	 		checkedRows.push(getRows[checkData[i]]); 
+	 	} 
 		if(checkedRows.length===0) {
         	alert("승인 데이터를 선택하세요!");
         	return;
@@ -307,40 +327,55 @@ class ConfirmList extends Component {
 		};
 	}
 	
-	// 거절사유 열기
+	// 반려사유 열기
     onOpenModalComment = () => {
-    	const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
-    	
+    	//const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
+    	const checkedRows = [];
+    	const checkData =[];  
+	    $('input:checkbox[name="chk"]').each(function() {
+	     	  if(this.checked ) {
+	     	  	checkData.push(this.dataRowKey);
+	 	      }	
+	 	});    
+     	const getRows = this.gridRef.current.getInstance().getData();
+		 
+	 	for(let i in checkData){ 
+	 		checkedRows.push(getRows[checkData[i]]); 
+	 	} 
     	if(checkedRows.length===0) {
-        	alert("거절 데이터를 선택하세요!");
+        	alert("반려 데이터를 선택하세요!");
         	return;
         }
-        
-		this.setState({
-	    	isOpenModalComment: true,
-	    	checkedRows : checkedRows 
-	    }); 
+        this.setState({
+            isOpenModalComment: true 
+            ,checkData : checkData
+        });
+       
 	}   
-    //  거절사유 닫기
+    //  반려사유 닫기
     onCloseModalComment = () => {
         this.setState({
-            isOpenModalComment: false 
+            isOpenModalComment: false  
         });
     }
     
 	confirmCancel = () => { 
 		let closeModel  =  this.onCloseModalComment;
         let getOrders   =  this.getOrders;
-        
-		const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
-	
+        const checkedRows = []; 
+	    
+     	const getRows = this.gridRef.current.getInstance().getData();
+		 
+	 	for(let i in this.state.checkData){ 
+	 		checkedRows.push(getRows[this.state.checkData[i]]); 
+	 	} 
 		if(checkedRows.length===0) {
-        	alert("거절 데이터를 선택하세요!");
+        	alert("반려 데이터를 선택하세요!");
         	return;
         }
         let requestNo = checkedRows[0].seq ;
         
-        if(window.confirm("요청번호[" + requestNo + "]"+(checkedRows.length > 1 ? " 외 " +  (checkedRows.length -1) :"1" ) + "건 거절 하시겠습니까?") === true){
+        if(window.confirm("요청번호[" + requestNo + "]"+(checkedRows.length > 1 ? " 외 " +  (checkedRows.length -1) :"1" ) + "건 반려 하시겠습니까?") === true){
         	
 			for(let i in checkedRows){ 
 				checkedRows[i].crtId     =  this.state._USER_ID;
@@ -366,14 +401,30 @@ class ConfirmList extends Component {
 					console.log('Error', err.message);
 				}
 			});
-		};
+		}; 
+		
 	}
 	
 	render() {
-        const {pageInfo} = this.state;
-
-
-		const onClickedAtag = (e, rowKey) => {
+        const {pageInfo} = this.state;  
+        const onCheckValue = (rowKey, chk) =>{
+		  	let checkData = this.state.checkData;
+		  	const checkedData = [];
+		  	 
+		  	if(this.state.checkData.indexOf(rowKey) < 0 && chk ) 
+		   		checkData.push(rowKey);
+		   	if(this.state.checkData.indexOf(rowKey) > -1 && !chk ) {
+		   	   for(let i = 0; i < checkData.length; i++){
+		   	   	 if( checkData[i] !== rowKey){
+		   	   		checkedData.push(checkData[i]);		 
+		   	   	 }	
+		   	   }	
+		   	   checkData = checkedData;
+ 		   	}	 
+	 	} 
+		
+        
+	 	const onClickedAtag = (e, rowKey) => {
 			 e.preventDefault();
 			 let closeModel  =  this.onCloseModalComment;
        		 let getOrders  =  this.getOrders;
@@ -409,16 +460,16 @@ class ConfirmList extends Component {
 					});
 				}
 				
-			 }else if( e.currentTarget.innerHTML ==="거절") {
+			 }else if( e.currentTarget.innerHTML ==="반려") {
 			 	
 			 	param.crtId         =  this.state._USER_ID;
 				param.updId         =  this.state._USER_ID;
 				param.managerId     =  this.state._MANAGER_ID;
 				param.status        =  "03";
-				param.comment       =  "승인거절 합니다.";
+				param.comment       =  "승인반려 합니다.";
 				param.id            =  getRows[rowKey].id;
 				checkedRows.push(param);
-				if(window.confirm("요청번호[" + getRows[rowKey].seq + "]을 거절 하시겠습니까?") === true){
+				if(window.confirm("요청번호[" + getRows[rowKey].seq + "]을 반려 하시겠습니까?") === true){
 					axios.put(process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadConfirm",{checkedRows : checkedRows} ,{"Content-Type": 'application/json'}) 
 					.then(function (res){ 
 			         		if(res.data.resultCode >0){
@@ -441,7 +492,31 @@ class ConfirmList extends Component {
             	this.onOpenModalFile(rowKey);
             }	
 		}
-
+		class CustomCheckRender {
+		     constructor(props) { 	
+		          const el = document.createElement('input');
+			      el.type  = 'checkbox';
+			      el.name  = 'chk';
+			      el.value = String(props.value);
+			      el.dataRowKey  = props.rowKey; 
+			      if(props.grid.getData()[props.rowKey].status !='요청중')
+			      	el.disabled = true;
+			      
+			      this.el = el;  
+				  el.addEventListener("click", function(ev) {
+				  	  onCheckValue(this.dataRowKey, this.checked); 
+				  }); 
+			 }
+			 
+			 getElement() {
+		       return this.el;
+		     }
+		
+		     getValue() {
+		       return this.el.value;
+		     }
+		          
+		}
 		const columns = [
 			{ name: "id", header: "ID", width: 10, hidden: true},
  			{ name: "username", header: "거래처 코드", width: 120, sortable: true,align: "center"},
@@ -475,7 +550,7 @@ class ConfirmList extends Component {
 	                    }
 	                } 
 			} ,
-			{ name: "reject", header: "거절", width: 100, sortable: true,align: "center" 
+			{ name: "reject", header: "반려", width: 100, sortable: true,align: "center" 
 					,renderer: {
 	                    type: LinkInGrid,
 	                    options: {
@@ -587,7 +662,7 @@ class ConfirmList extends Component {
                                             <ul className="list-inline text-end mb-3">
                                                 <li className="list-inline-item me-1">
                                                 	<button type="button" className="btn btn-sm btn-dark" onClick={this.onOpenModalComment}>
-                                                        <Trans>거절</Trans>
+                                                        <Trans>반려</Trans>
                                                     </button>&nbsp;&nbsp;
                                                     <button type="button" className="btn btn-sm btn-dark" onClick={this.onApproval}>
                                                         <Trans>승인</Trans>
@@ -608,8 +683,13 @@ class ConfirmList extends Component {
                                         </div>
 									</div>*/}
 									<div className="">                                        
-										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum","checkbox"]}
-												scrollX={true} columnOptions={{frozenCount : 0}} >
+										<Grid columns={columns} onGridMounted={(e) => this.onGridMounted(e)} ref={this.gridRef} rowHeaders={["rowNum", 
+											{type: "checkbox",
+										      renderer: { 
+										        type: CustomCheckRender 
+										       }  
+										    }]}
+											scrollX={true} columnOptions={{frozenCount : 0}} >
 										</Grid>
 									</div>
                                     <div className="ms-5">
@@ -661,7 +741,7 @@ class ConfirmList extends Component {
                 {/* 사유등록 Modal */}
                 <Modal className="modal fade" show={this.state.isOpenModalComment} onHide={this.onCloseModalComment} aria-labelledby="contained-modal-title-vcenter" aria-hidden="true" centered scrollable>
 					<Modal.Header className="modal-header" closeButton>
-						<Modal.Title><Trans>거절사유</Trans></Modal.Title>
+						<Modal.Title><Trans>반려사유</Trans></Modal.Title>
 					</Modal.Header>
 					<Modal.Body>
                         {/* 등록 Form Start */}
@@ -671,7 +751,7 @@ class ConfirmList extends Component {
 									<div className="card-body">                                    	
 										<li className="list-inline-item me-1"> 
                                             <Form.Control type="text" className="form-control" size="sm" name="cancelComment" value={this.state.cancelComment} onChange={this.onChange}
-                                                    style={{"minHeight": "1rem","width":"630px"}}placeholder="거절사유를입력하세요">
+                                                    style={{"minHeight": "1rem","width":"630px"}}placeholder="반려사유를입력하세요">
                                             </Form.Control> 
                                         </li>
 									</div>	
@@ -682,7 +762,7 @@ class ConfirmList extends Component {
 					</Modal.Body> 
 					<Modal.Footer>
 						<button className="btn btn-sm btn-dark" onClick={this.onCloseModalComment}><Trans>취소</Trans></button>
-						<button className="btn btn-sm btn-success" onClick={this.confirmCancel} disabled={this.state.isBtnAddDisabled}><Trans>거절저장</Trans></button>
+						<button className="btn btn-sm btn-success" onClick={this.confirmCancel} disabled={this.state.isBtnAddDisabled}><Trans>반려저장</Trans></button>
 					</Modal.Footer>
                 </Modal>
 			</div>

@@ -289,7 +289,7 @@ class InvoceList extends Component {
                                                 <Form.Select name="searchKeyStatus" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyStatus}>
                                                     <option value="">전체</option>
                                                     <option value="미정산">미정산</option>
-                                                    <option value="정산중">정산중</option>
+                                                    <option value="부분산중">부분정산</option>
                                                     <option value="정산완료">정산완료</option> 
                                                 </Form.Select>
                                             </li>

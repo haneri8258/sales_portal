@@ -163,6 +163,7 @@ class ProofList extends Component {
 	
 	// 등록창 열기
     onOpenModalAdd = async () => { 
+    	const gridData   = this.gridRef.current.getInstance().getData();
         const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
         if(checkedRows.length===0) {
         	alert("송금할 데이터를 선택하세요!");
@@ -176,11 +177,17 @@ class ProofList extends Component {
 		const dateStr = [year, month, day].join('-');
 		 
         let balanceAmount = 0; 
+        let remittanceAmount = 0; 
+        
         const slipRows = [];
         
+        for(let i in gridData){ 
+        	 remittanceAmount += gridData[i].balanceAmount  
+        }
         slipRows.push({remittanceType : '선급금', invoiceNo : '',  originFileName : "파일업로드", remittanceDate : dateStr , balanceAmount: 0 , remittanceAmount : 0  , fileInfo : [] } ); 
         for(let i in checkedRows){ 
-        	balanceAmount += checkedRows[i].balanceAmount;
+        	balanceAmount += checkedRows[i].balanceAmount; 
+        	/*
         	checkedRows[i].rowKey = (Number(i) + 1);
         	checkedRows[i].remittanceType   = checkedRows[i].invoiceNo;
         	checkedRows[i].invoiceNo  		= checkedRows[i].invoiceNo; 
@@ -189,7 +196,9 @@ class ProofList extends Component {
         	checkedRows[i].remittanceAmount = 0;  
         	checkedRows[i].fileInfo = [];
         	slipRows.push(checkedRows[i]);
+        	*/
         } 
+        slipRows.push({remittanceType : '인보이스', invoiceNo : '',  originFileName : "파일업로드", remittanceDate : dateStr , balanceAmount: balanceAmount , remittanceAmount : 0  , fileInfo : [] } ); 
         
         if(balanceAmount ===0 ) {
         	 alert("선택한 자료의 송금할 금액이 0 입니다.");
@@ -398,6 +407,7 @@ class ProofList extends Component {
         	let closeModel  =  this.onCloseModalAdd;
         	let getRequest  =  this.getRequest;
          	const slipData = this.slipRef.current.getInstance().getData();
+         	const checkedRows = this.gridRef.current.getInstance().getCheckedRows();
           	const formData = new FormData(); 
              
             let  balanceTotAmount = 0;
@@ -447,7 +457,9 @@ class ProofList extends Component {
 	        	alert("송금 금액이 인보이스 금액보다 많습니다. 남은 금액은 선수금으로 입력해주세요.");
 	        	return;
 	        }
-	        formData.append("slipData", JSON.stringify(slipData));         
+	        formData.append("slipData", JSON.stringify(slipData)); 
+	        formData.append("invoiceData", JSON.stringify(checkedRows)); 
+	               
 	        const url = process.env.REACT_APP_DB_HOST+"/api/v1/bankslip/uploadProof";
  	        await api.post(url, formData, {header: {"Content-Type": "multipart/form-data;"}} )
  	        .then(function (res){ 
