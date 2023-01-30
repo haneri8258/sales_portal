@@ -227,7 +227,12 @@ class InvoceList extends Component {
 				,formatter({value}){
 					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 				} 
-			 },
+			},
+			{ name: "confirmAmt", header: "승인입금액", width: 150, sortable: true,align: "right"
+				,formatter({value}){
+					return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+				} 
+			},
 			{ name: "status", header: "Status", width: 150, sortable: true,align: "center"
 				,formatter({value}){
 					return value === '정산완료' ? '<span style="width:100%;height:100%;color:blue;font-weight:bold;">'+value+'</span>' 
