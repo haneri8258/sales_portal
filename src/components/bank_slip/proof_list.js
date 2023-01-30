@@ -52,7 +52,7 @@ class ProofList extends Component {
             activePage : 1,
             perPage : 20,
             pageNumber : "",
- 
+ 			remittanceAmount : 0,
 			_USER_ID: sessionStorage.getItem('_USER_ID'),
 			_USER_NAME: sessionStorage.getItem('_USER_NAME'), 
 			_GROUP_ID: sessionStorage.getItem('_GROUP_ID'),
@@ -171,8 +171,8 @@ class ProofList extends Component {
         }
         
         const date = new Date();
-		const year = date.getFullYear();
-		const month = (date.getMonth() < 10 ?  '0' + date.getMonth() + 1 :  date.getMonth() + 1);
+		const year = date.getFullYear(); 
+		const month = (date.getMonth()  < 10 ?  '0' + (date.getMonth() + 1) :  date.getMonth() + 1);
 		const day = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate() );
 		const dateStr = [year, month, day].join('-');
 		 
@@ -184,6 +184,7 @@ class ProofList extends Component {
         for(let i in gridData){ 
         	 remittanceAmount += gridData[i].balanceAmount  
         }
+       
         slipRows.push({remittanceType : '선급금', invoiceNo : '',  originFileName : "파일업로드", remittanceDate : dateStr , balanceAmount: 0 , remittanceAmount : 0  , fileInfo : [] } ); 
         for(let i in checkedRows){ 
         	balanceAmount += checkedRows[i].balanceAmount; 
@@ -206,7 +207,8 @@ class ProofList extends Component {
         } 		 
         this.setState({
             isOpenModalAdd: true,
-            slipData : slipRows 
+            slipData : slipRows ,
+            remittanceAmount : remittanceAmount  // 인보이스 총 잔액
         }); 
           
     }
@@ -433,7 +435,7 @@ class ProofList extends Component {
 
 		        	balanceTotAmount   += Number(slipData[i].balanceAmount);
 		        	remittanceTotAmount   += Number(slipData[i].remittanceAmount);
-		        }else{
+		        }else{ // 선급금 인경우 
 		        	if(Number(slipData[i].remittanceAmount) === 0 &&  slipData[i].fileInfo.name !== undefined ) {
 		        		alert("선금급 증빙이 입력되었으나 송금액이 입력되지 않았습니다.");
 		        		return;
@@ -453,10 +455,17 @@ class ProofList extends Component {
 	        	alert("인보이스를 먼저 선택해주세요. 잔액이 있는 경우, 잔액을 제외한 금액만 선수금 처리 가능 합니다");
 	        	return;
 	        }
+	        
 	        if( balanceTotAmount < remittanceTotAmount ) {
 	        	alert("송금 금액이 인보이스 금액보다 많습니다. 남은 금액은 선수금으로 입력해주세요.");
 	        	return;
 	        }
+	         // 함계송금액  < 전체 송금잔액 인경우 선급금이 입력된 경우 	
+	        if( remittanceTotAmount <  this.state.remittanceAmount && advancePayment >0 ) {
+	        	alert("송금할 총잔액이 남아있습니다. 선수금을 송금할 금액으로 입력해주세요.");
+	        	return;
+	        }
+	         
 	        formData.append("slipData", JSON.stringify(slipData)); 
 	        formData.append("invoiceData", JSON.stringify(checkedRows)); 
 	               
