@@ -45,6 +45,7 @@ class ConfirmList extends Component {
 			searchKeyRequestNo :"",
 			searchKeyRemittamceDate:"",
 			searchKeyInvoiceNo : "",
+			searchKeyStatus : "",
 			searchKeyInvoiceDate : "",
 		 
 		    cancelComment : "",
@@ -203,6 +204,7 @@ class ConfirmList extends Component {
 			searchKeyRequestNo :"",
 			searchKeyRemittamceDate:"",
 			searchKeyInvoiceNo : "",
+			searchKeyStatus : "",
 			searchKeyInvoiceDate : "",
 			selected : [],
             pageNumber : 1,
@@ -228,6 +230,7 @@ class ConfirmList extends Component {
 		params.searchKeyRemittamceDate = this.timestamp(this.state.searchKeyRemittamceDate);
 		
 		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
+		params.searchKeyStatus = this.state.searchKeyStatus;
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
 		
         params.pageNumber = 1;
@@ -250,6 +253,7 @@ class ConfirmList extends Component {
 		params.searchKeyRemittamceDate = this.timestamp(this.state.searchKeyRemittamceDate);
 		
 		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
+		params.searchKeyStatus = this.state.searchKeyStatus;
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
         
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
@@ -271,6 +275,7 @@ class ConfirmList extends Component {
 		params.searchKeyRemittamceDate = this.timestamp(this.state.searchKeyRemittamceDate);
 		
 		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo;
+		params.searchKeyStatus    = this.state.searchKeyStatus;
 		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate); 
 		
         params.pageNumber = 1;
@@ -390,6 +395,9 @@ class ConfirmList extends Component {
 	         			alert("성공적으로 저장 되었습니다");
 	         			closeModel();
          				getOrders();
+ 					}else{
+	         			alert(res.data.resultMsg);
+	         			closeModel();
 	         		}	
 	            }
 	        ).catch(err => {
@@ -447,6 +455,9 @@ class ConfirmList extends Component {
 			         			alert("성공적으로 저장 되었습니다");
 			         			closeModel();
 		         				getOrders();
+			         		}else{
+			         			alert(res.data.resultMsg);
+			         			closeModel();
 			         		}	
 			            }
 			        ).catch(err => {
@@ -476,6 +487,9 @@ class ConfirmList extends Component {
 			         			alert("성공적으로 저장 되었습니다");
 			         			closeModel();
 		         				getOrders();
+			         		}else{
+			         			alert(res.data.resultMsg);
+			         			closeModel();
 			         		}	
 			            }
 			        ).catch(err => {
@@ -529,7 +543,7 @@ class ConfirmList extends Component {
 					return '<span style="width:100%;height:100%;color:blue">'+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+'</span>&nbsp;&nbsp;&nbsp;&nbsp';
 				}
 			},  
-			{ name: "remittanceType", header: "인보이스 번호", width: 150, sortable: true,align: "center"},
+			{ name: "invoiceNo", header: "인보이스 번호", width: 150, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "인보이스 날자", width: 150, sortable: true,align: "center"},
 			{ name: "serverFileName", header: "증빙서 서버파일명", width: 0, hidden: true },
 			{ name: "originFileName", header: "증명서", width: 300, sortable: true,align: "left" 
@@ -633,6 +647,17 @@ class ConfirmList extends Component {
                                                             dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="인보이스 날짜" 
                                                             onChange={(date) =>   this.setState({ searchKeyInvoiceDate: date })}>
                                                 </DatePicker>
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <Form.Text><Trans>상태</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <Form.Select name="searchKeyStatus" className="form-select-sm" onChange={this.onChange} value={this.state.searchKeyStatus}>
+                                                    <option value="">전체</option>
+                                                    <option value="01">요청중</option>
+                                                    <option value="02">승인</option>
+                                                    <option value="03">반려</option> 
+                                                </Form.Select>
                                             </li>
                                              
                                             <li className="list-inline-item me-1">

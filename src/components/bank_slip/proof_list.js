@@ -41,6 +41,10 @@ class ProofList extends Component {
 			endDate : "", 
 			isOpenModalAdd: false,
 			isOpenModalFile: false, 
+			
+			searchKeyInvoiceDate :"", 
+			searchKeyInvoiceNo :"", 
+			
 			rowKey	: 0, 
 			gridData : [],
 			slipData : [],
@@ -122,8 +126,10 @@ class ProofList extends Component {
     
     
 	timestamp = (date)=>{
-		date.setHours(date.getHours() + 9);
-		return date.toISOString().replace('T', ' ').substring(0, 10); 
+		if(date){
+			date.setHours(date.getHours() + 9);
+			return date.toISOString().replace('T', ' ').substring(0, 10); 
+		}	
 	}
  
     onGridUpdatePages = (params)=>{   
@@ -151,6 +157,8 @@ class ProofList extends Component {
     }
     onResetGrid = () => {
 		this.setState({ 
+			searchKeyInvoiceDate :"",
+			searchKeyInvoiceNo :"", 
             pageNumber : 1,
             perPage : 20
 		});
@@ -247,6 +255,8 @@ class ProofList extends Component {
         })
         const params = {}; 
 		
+		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(perPage);
@@ -260,6 +270,8 @@ class ProofList extends Component {
         });
         const params = {};
         
+        params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
         params.rowStart = (Number(pageNumber-1))*Number(this.state.perPage);
         params.perPage = Number(this.state.perPage);
         params.pageNumber = pageNumber;
@@ -270,7 +282,9 @@ class ProofList extends Component {
 
     onSearch = (e) =>{
 		const params = {};
-  	
+  		
+  		params.searchKeyInvoiceDate = this.timestamp(this.state.searchKeyInvoiceDate);
+		params.searchKeyInvoiceNo = this.state.searchKeyInvoiceNo; 
         params.pageNumber = 1;
         params.rowStart = 0;
         params.perPage = Number(this.state.perPage);
@@ -473,9 +487,11 @@ class ProofList extends Component {
  	        await api.post(url, formData, {header: {"Content-Type": "multipart/form-data;"}} )
  	        .then(function (res){ 
          		if(res.data.resultCode >0){
-         			alert("성공적으로 저장 되었습니다"); 
+         			alert("총" +res.data.resultCode +"건이 성공적으로 처리 되었습니다"); 
          			closeModel();
          			getRequest();
+         		}else{
+         			alert("저장에 실패하였습니다.\n사유[" + res.data.resultMsg +"]" ); 
          		}	 
               }).catch(err => {
 				if(err.response){
@@ -532,6 +548,24 @@ class ProofList extends Component {
                                 <div>
                                     <div className="text-end">
                                         <ul className="list-inline mb-1">
+                                        	<li className="list-inline-item me-1">
+                                                <Form.Text><Trans>인보이스 번호</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1"> 
+                                                <Form.Control type="text" className="form-control" size="sm" name="searchKeyInvoiceNo" value={this.state.searchKeyInvoiceNo} onChange={this.onChange}
+                                                        style={{"minHeight": "1rem"}}placeholder="인보이스번호를입력하세요">
+                                                </Form.Control> 
+                                            </li>
+											<li className="list-inline-item me-1">
+                                                <Form.Text><Trans>인보이스 날짜</Trans></Form.Text>
+                                            </li>
+                                            <li className="list-inline-item me-1">
+                                                <DatePicker selected={this.state.searchKeyInvoiceDate} className="form-control form-control-sm" size="sm"
+                                                            dateFormat="yyyy-MM-dd" defaultValue="" placeholderText="인보이스 날짜" 
+                                                            onChange={(date) =>   this.setState({ searchKeyInvoiceDate: date })}>
+                                                </DatePicker>
+                                            </li>
+                                        
                                             <li className="list-inline-item me-1">
                                                 <button type="button" className="btn btn-sm btn-success"  onClick={this.onSearch}>
                                                     <Trans>검색</Trans>

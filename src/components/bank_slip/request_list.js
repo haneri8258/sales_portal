@@ -268,7 +268,7 @@ class RequestList extends Component {
 				}
 			},
  			
-			{ name: "remittanceType", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
+			{ name: "invoiceNo", header: "인보이스 번호", width: 200, sortable: true,align: "center"},
 			{ name: "invoiceDate", header: "인보이스 일자", width: 150, sortable: true,align: "center"}, 
 			/*
 			{ name: "invoiceAmount", header: "인보이스 금액", width: 150, sortable: true, align: "right"
